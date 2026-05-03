@@ -853,3 +853,46 @@ function toggleStaffList() {
     const list = document.getElementById("staffList");
     if(list) list.style.display = list.style.display === "none" ? "block" : "none";
 }
+
+/* =========================
+   EMERGENCY SYSTEM PROTOCOL
+========================= */
+let emergencyInterval;
+
+function triggerEmergency() {
+    initAudio();
+    const overlay = document.getElementById("emergencyOverlay");
+    const container = document.getElementById("emergencyChoices");
+    const msg = document.getElementById("emergencyMsg");
+    if (!overlay || !container || !msg) return;
+
+    overlay.style.display = "flex";
+    
+    // サイレン音のループ開始
+    emergencyInterval = setInterval(() => {
+        beep(200, 500, 0.2);
+        setTimeout(() => beep(300, 500, 0.2), 600);
+    }, 1200);
+
+    // メッセージと「はい」だけの選択肢を生成
+    msg.innerHTML = "[ CRITICAL ERROR ]<br>緊急事態は解決しましたか？";
+    container.innerHTML = `
+        <button class="yes-btn" onclick="resolveEmergency()" style="background:red; color:white; border:none; padding:10px; font-weight:bold; cursor:pointer;">はい</button>
+        <button class="yes-btn" onclick="resolveEmergency()" style="background:red; color:white; border:none; padding:10px; font-weight:bold; cursor:pointer;">はい</button>
+        <button class="yes-btn" onclick="resolveEmergency()" style="background:red; color:white; border:none; padding:10px; font-weight:bold; cursor:pointer;">はい</button>
+    `;
+}
+
+function resolveEmergency() {
+    clearInterval(emergencyInterval);
+    beep(1500, 100, 0.1);
+    
+    const overlay = document.getElementById("emergencyOverlay");
+    // 解決時のフラッシュ演出
+    overlay.style.background = "white";
+    
+    setTimeout(() => {
+        overlay.style.display = "none";
+        overlay.style.background = "rgba(255, 0, 0, 0.8)"; // 元の赤に戻す
+    }, 150);
+}
