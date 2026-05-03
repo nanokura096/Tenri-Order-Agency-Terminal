@@ -770,20 +770,32 @@ function searchFile() {
 function showTab(tab) {
     if (!currentFile) return;
     const r = document.getElementById("result");
-    r.innerText = ""; // 重なり防止のクリア
+    if (!r) return;
+
+    // 1. まず「絶対に」中身を真っ白にする
+    r.innerHTML = ""; 
+    r.innerText = ""; 
 
     beep(1800, 30, 0.05);
+
     let content = "";
     if (tab === 'personnel') {
         content = `NAME: ${currentFile.name}\nRANK: ${currentFile.rank}\n\n${currentFile.ability}`;
     } else if (tab === 'ability') {
         content = `[ABILITY DATA]\n${currentFile.ability}`;
     } else if (tab === 'artifact') {
-        content = `WEAPON: ${currentFile.weapon}\n\n${currentFile.Description || currentFile.description || "NO DATA"}`;
+        // 大文字のDescriptionと小文字のdescription、両方に対応
+        const desc = currentFile.Description || currentFile.description || "NO DATA";
+        content = `WEAPON: ${currentFile.weapon}\n\n${desc}`;
     } else if (tab === 'record') {
-        content = `RECORD:\n${currentFile.record || "NO RECORD"}`;
+        content = `RECORD:\n${currentFile.record || "NO RECORD"}\n\nNOTE: ${currentFile.note || ""}`;
     }
-    r.innerText = content; // 上書き(innerText = )
+
+    // 2. 「+=」ではなく「=」で代入する
+    r.innerText = content;
+    
+    // 3. 念押し：スクロール位置を一番上に戻す
+    r.scrollTop = 0;
 }
 
 /* =========================
