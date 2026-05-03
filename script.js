@@ -772,11 +772,34 @@ function showTab(tab) {
     const r = document.getElementById("result");
     if (!r) return;
 
-    // 1. まず「絶対に」中身を真っ白にする
+    // --- ここが重要！ ---
+    // innerText と innerHTML の両方を空っぽにして、前の残像を物理的に消す
+    r.innerText = "";
     r.innerHTML = ""; 
-    r.innerText = ""; 
+    // --------------------
 
     beep(1800, 30, 0.05);
+
+    let content = "";
+    if (tab === 'personnel') {
+        content = `NAME: ${currentFile.name}\nRANK: ${currentFile.rank}\n\n${currentFile.ability}`;
+    } else if (tab === 'ability') {
+        content = `[ABILITY DATA]\n${currentFile.ability}`;
+    } else if (tab === 'artifact') {
+        // currentFile の中身を反映
+        const desc = currentFile.Description || currentFile.description || "[データ抹消]";
+        content = `WEAPON: ${currentFile.weapon}\n\n${desc}`;
+    } else if (tab === 'record') {
+        // RECORD ページの内容を反映
+        content = `RECORD:\n${currentFile.record || "記録なし"}`;
+    }
+
+    // 「+=」ではなく「=」を使い、新しい内容だけで上書きする
+    r.innerText = content;
+
+    // スマホで文字が下に溜まらないよう、表示位置を一番上に戻す
+    r.scrollTop = 0;
+}
 
     let content = "";
     if (tab === 'personnel') {
