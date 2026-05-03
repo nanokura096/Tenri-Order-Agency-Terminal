@@ -623,9 +623,7 @@ function initAudio() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
     } catch (e) {
         console.warn("Audio Context init failed.");
     }
@@ -684,7 +682,6 @@ function initiateAmnestic() {
             beep(100, 700, 0.2);
             setTimeout(() => beep(150, 700, 0.2), 800);
         }, 1600);
-
         setTimeout(() => {
             clearInterval(siren);
             location.reload(); 
@@ -693,12 +690,11 @@ function initiateAmnestic() {
 }
 
 /* =========================
-   4. BOOT SEQUENCE (スマホ対応・admin歓迎)
+   4. BOOT SEQUENCE
 ========================= */
 function startLoadingSequence() {
     const boot = document.getElementById("bootScreen");
     if (!boot) return;
-    
     boot.style.display = "block";
     boot.innerHTML = "";
     const lines = [
@@ -735,7 +731,6 @@ function finishBoot() {
         const main = document.getElementById("mainTerminal");
         if (boot) boot.style.display = "none";
         if (main) main.style.display = "block";
-        
         updateClock();
         setInterval(updateClock, 1000);
         loadStaffList();
@@ -744,7 +739,7 @@ function finishBoot() {
 }
 
 /* =========================
-   5. TERMINAL FUNCTIONS (PERSONNEL 整理済)
+   5. TERMINAL FUNCTIONS
 ========================= */
 function setupClearanceListener() {
     const select = document.getElementById("clearance");
@@ -752,18 +747,11 @@ function setupClearanceListener() {
         select.onchange = function(e) {
             const res = document.getElementById("result");
             if (!res) return;
-
             beep(1200, 50, 0.05);
             res.innerHTML = `<div class="blink" style="text-align:center; margin-top:50px; font-weight:bold;">[ AUTHENTICATING LEVEL ${e.target.value}... ]</div>`;
-            
             setTimeout(() => {
                 beep(1500, 80, 0.03);
-                const sid = document.getElementById("staffId");
-                if (sid && sid.value.trim() !== "") {
-                    searchFile(); 
-                } else {
-                    res.innerText = "READY / ACCESS GRANTED";
-                }
+                searchFile(); 
             }, 800);
         };
     }
@@ -777,10 +765,10 @@ function searchFile() {
     if (!sid || !cl) return;
 
     const f = files.find(x => x.id === sid.value.trim());
+    const res = document.getElementById("result");
 
     if (!f || parseInt(cl.value) < parseInt(f.clearance)) {
         beep(200, 600, 0.2);
-        const res = document.getElementById("result");
         if(res) res.innerText = "ACCESS DENIED: INSUFFICIENT PRIVILEGES";
         return;
     }
@@ -791,17 +779,21 @@ function searchFile() {
     showTab('personnel');
 }
 
+// ★重なりバグを物理的に破壊する showTab
 function showTab(tab) {
     if (!currentFile) return;
     const r = document.getElementById("result");
     if (!r) return;
 
     beep(1800, 30, 0.05);
-    r.innerText = ""; // 画面クリア
+
+    // 【重要】中身を「空文字にする」のではなく「要素ごと物理的に全削除」
+    while (r.firstChild) {
+        r.removeChild(r.firstChild);
+    }
 
     let content = "";
     if (tab === 'personnel') {
-        // ability を除外したプロフィール
         content = "NAME: " + (currentFile.name || "UNKNOWN") + 
                   "\nDIVISION: " + (currentFile.division || "TENRI") +
                   "\nRANK: " + (currentFile.rank || "NONE") + 
@@ -819,7 +811,13 @@ function showTab(tab) {
                   "\n\nNOTE: " + (currentFile.note || "");
     }
 
-    r.innerText = content; // 上書き
+    // 新しい表示用要素を作成して追加
+    const display = document.createElement("pre");
+    display.style.fontFamily = "inherit";
+    display.style.whiteSpace = "pre-wrap";
+    display.style.margin = "0";
+    display.innerText = content;
+    r.appendChild(display);
 }
 
 function updateClock() {
