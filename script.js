@@ -626,7 +626,7 @@ function startLoadingSequence() {
     const boot = document.getElementById("bootScreen");
     boot.style.display = "block";
     boot.innerHTML = "";
-    
+
     const lines = [
         "> INITIALIZING BOOT SEQUENCE...",
         "> CHECKING HARDWARE INTEGRITY... [OK]",
@@ -641,50 +641,34 @@ function startLoadingSequence() {
     ];
 
     let i = 0;
+
     function addLine() {
         if (i < lines.length) {
             const div = document.createElement("div");
             div.innerText = lines[i];
             boot.appendChild(div);
-            
-            // 重要：新しい行が出たらそこまで画面を動かす
-            div.scrollIntoView({ behavior: 'smooth', block: 'end' });
-            
-            beep(600 + (i * 100), 40, 0.03); 
+
+            div.scrollIntoView({ behavior: "smooth", block: "end" });
+
+            beep(600 + (i * 100), 40, 0.03);
             i++;
-            
-            // スピード（お好みで 800〜1500ms 程度に）
+
             setTimeout(addLine, Math.random() * 500 + 1000);
         } else {
-            // 終了処理
             setTimeout(() => {
                 boot.style.display = "none";
                 document.getElementById("mainTerminal").style.display = "block";
+
                 updateClock();
                 setInterval(updateClock, 1000);
                 loadStaffList();
-                beep(1200, 400, 0.1); 
+
+                beep(1200, 400, 0.1);
             }, 1500);
         }
     }
-    addLine();
-}
 
-    // シーケンス開始
-    function addLine() {
-    if (i < lines.length) {
-        const div = document.createElement("div");
-        div.innerText = lines[i];
-        boot.appendChild(div);
-        
-        // --- 追加：新しく出た行まで自動スクロール ---
-        div.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        
-        beep(600 + (i * 100), 40, 0.03); 
-        i++;
-        setTimeout(addLine, Math.random() * 500 + 1000);
-    } else {
-        // ...以下、既存の終了処理...
+    addLine();
 }
 
 /* --- DATABASE LOGIC --- */
