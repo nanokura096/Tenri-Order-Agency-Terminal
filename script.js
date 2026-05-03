@@ -787,10 +787,13 @@ function showTab(tab) {
 
     beep(1800, 30, 0.05);
 
-    // 【重要】中身を「空文字にする」のではなく「要素ごと物理的に全削除」
+    // 1. 物理的な全削除
     while (r.firstChild) {
         r.removeChild(r.firstChild);
     }
+
+    // 2. スクロール位置を強制的にトップに戻す（重なり防止の基本）
+    r.scrollTop = 0;
 
     let content = "";
     if (tab === 'personnel') {
@@ -811,12 +814,15 @@ function showTab(tab) {
                   "\n\nNOTE: " + (currentFile.note || "");
     }
 
-    // 新しい表示用要素を作成して追加
+    // 3. 表示要素の作成
     const display = document.createElement("pre");
     display.style.fontFamily = "inherit";
     display.style.whiteSpace = "pre-wrap";
     display.style.margin = "0";
+    display.style.position = "relative"; // 👈 これで描画順を整理
+    display.style.zIndex = "10";         // 👈 これで最前面へ
     display.innerText = content;
+    
     r.appendChild(display);
 }
 
