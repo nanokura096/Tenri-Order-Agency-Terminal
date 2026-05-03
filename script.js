@@ -597,8 +597,9 @@ function login() {
     initAudio();
     const u = document.getElementById("username").value;
     const p = document.getElementById("password").value;
-
-    if (u === "鳴響" && p === "0000") {
+    if (user === "なの" && pass === "226227") {
+        loginAttempts = 0;
+        document.getElementById("loginBox").innerHTML = '<div class="blink">AUTHENTICATING...</div>';
         beep(800, 100);
         document.getElementById("loginScreen").style.display = "none";
         startBoot();
@@ -614,13 +615,45 @@ function login() {
 }
 
 function initiateAmnestic() {
-    const ov = document.getElementById("amnesticOverlay");
-    ov.style.display = "flex";
-    const siren = setInterval(() => { beep(100, 600, 0.3); }, 1200);
+    const overlay = document.getElementById("amnesticOverlay");
+    overlay.style.display = "flex";
+    
+    // サイレン音の演出
+    const siren = setInterval(() => {
+        if (typeof beep === 'function') beep(100, 600, 0.3);
+    }, 1200);
+
     setTimeout(() => {
         clearInterval(siren);
-        location.reload(); // 確実に初期状態に戻す
-    }, 8000);
+        
+        // ログイン試行回数をリセット
+        loginAttempts = 0;
+        
+        // 赤画面を隠す
+        overlay.style.display = "none";
+        
+        // ログイン画面を再表示
+        const loginScreen = document.getElementById("loginScreen");
+        loginScreen.style.display = "flex";
+        
+        // ログインボックスの中身を英語表記の最新版で再構築
+        document.getElementById("loginBox").innerHTML = `
+            <div id="loginTitle">
+                AUTHENTICATION REQUIRED<br>
+                <span style="font-size: 0.8em; opacity: 0.9;">Tenri Order Agency Authentication System</span>
+            </div>
+            <input type="text" id="username" placeholder="[USER ID]" autocomplete="off">
+            <input type="password" id="password" placeholder="[PASS KEY]" autocomplete="off">
+            <button onclick="login()">ACCESS</button>
+            <div id="loginError" style="color:white; margin-top:10px;">SESSION REBOOTED.</div>
+        `;
+        
+        // 内部状態（他の画面）も初期化
+        document.getElementById("bootScreen").style.display = "none";
+        document.getElementById("mainTerminal").style.display = "none";
+        
+    }, 6000); // 記憶処理時間：6秒
+}
 }
 
 function startBoot() {
@@ -685,7 +718,44 @@ function showTab(tab) {
     if (tab === 'record') r.innerText = `[RECORD]\n${f.record}\n\nNOTE: ${f.note}`;
 }
 
+/* --- UI UTILITIES --- */
 function toggleStaffList() {
-    const s = document.getElementById("staffList");
-    s.style.display = s.style.display === "none" ? "block" : "none";
+    // ユーザー操作による音の解禁を確認
+    if (typeof initAudio === 'function') initAudio();
+    if (typeof beep === 'function') beep(1000, 50);
+
+    const list = document.getElementById("staffList");
+    // 初回実行時に style.display が空文字の場合があるため、条件を微調整
+    if (list.style.display === "none" || list.style.display === "") {
+        list.style.display = "block";
+    } else {
+        list.style.display = "none";
+    }
+}
+
+/* --- AUDIO ENGINE --- */
+// グローバルで一度だけ宣言
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function beep(freq, dur) {
+    // ブラウザの保護状態をチェックして再開
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.frequency.value = freq;
+    
+    // 音量設定：0.1 (10%)
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    // 音の終わりを滑らかにする（クリックノイズ防止）
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur/1000);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + dur/1000);
 }
