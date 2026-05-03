@@ -31,9 +31,36 @@ body {
 
 #loginError { margin-top: 15px; color: var(--term-red); font-weight: bold; }
 
-#bootScreen { padding: 40px; font-size: 18px; line-height: 1.8; white-space: pre-line; }
-#bootScreen div { margin-bottom: 8px; overflow: hidden; white-space: nowrap; animation: typing 0.4s steps(40, end); }
+#bootScreen {
+  padding: 20px;
+  font-size: clamp(12px, 3.5vw, 16px); /* 画面幅に合わせて文字サイズを自動調整 */
+  line-height: 1.6;
+  white-space: pre-wrap; /* 文字が端まで行ったら自動で折り返す */
+  word-wrap: break-word; /* 長い英単語も強制改行 */
+  overflow-y: auto;
+  height: 100vh;
+  box-sizing: border-box;
+}
 
+#bootScreen div {
+  margin-bottom: 8px;
+  border-left: 2px solid var(--term-green); /* ログの先頭にバーをつけて視認性アップ */
+  padding-left: 10px;
+  /* animationの width 0% -> 100% は見切れる原因になるので、ふわっと出す演出に変更 */
+  animation: fadeLine 0.3s ease-out forwards;
+}
+
+@keyframes fadeLine {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ステータスバーもスマホで見やすく */
+#statusbar {
+  font-size: 10px;
+  line-height: 1.4;
+  word-break: break-all;
+}
 @keyframes typing { from { width: 0; } to { width: 100%; } }
 
 #logo { font-size: 22px; font-weight: bold; border-bottom: 1px solid var(--term-green); margin-bottom: 15px; padding-bottom: 10px; }

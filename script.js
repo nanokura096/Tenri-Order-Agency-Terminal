@@ -676,7 +676,20 @@ function startLoadingSequence() {
     }
 
     // シーケンス開始
-    addLine();
+    function addLine() {
+    if (i < lines.length) {
+        const div = document.createElement("div");
+        div.innerText = lines[i];
+        boot.appendChild(div);
+        
+        // --- 追加：新しく出た行まで自動スクロール ---
+        div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        
+        beep(600 + (i * 100), 40, 0.03); 
+        i++;
+        setTimeout(addLine, Math.random() * 500 + 1000);
+    } else {
+        // ...以下、既存の終了処理...
 }
 
 /* --- DATABASE LOGIC --- */
