@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<body>
 
 <div id="loginScreen">
   <div id="loginBox">
@@ -23,22 +24,24 @@
 
 <div id="bootScreen" style="display:none;"></div>
 
-<div id="mainTerminal" style="display:none;">
-  <div id="logo">Tenri Order Agency Terminal TOA-226</div>
-  <div id="statusbar">
-    <div id="amnesticOverlay" style="display:none; position:fixed; inset:0; background:#600; color:#fff; z-index:10000; flex-direction:column; justify-content:center; align-items:center; text-align:center; font-family:monospace; padding:20px;">
+<div id="amnesticOverlay" style="display:none;">
     <h1 style="font-size: 3rem; margin-bottom: 20px;">[CRITICAL ERROR]</h1>
     <p style="font-size: 1.5rem; color: #ff3131;">UNAUTHORIZED ACCESS DETECTED.</p>
     <p style="font-size: 1.2rem; margin-top: 20px;">You have been DETECTED</p>
     <div style="font-size: 80px; margin: 30px;" class="blink">⚠️</div>
-    <p style="font-size: 1rem; opacity: 0.8;">INITIATING CLASS-A AMNESTICS INHALATION...<br>Agents is Coming Soon.</p>
-
-  <div class="bottom-controls">
-    <button class="emergency-btn" onclick="triggerEmergency()">
-        REPORT EMERGENCY SITUATION
-    </button>
+    <p style="font-size: 1rem; opacity: 0.8;">INITIATING CLASS-A AMNESTICS INHALATION...<br>Agents are Coming Soon.</p>
 </div>
-  </div>
+
+<div id="emergencyOverlay" style="display:none; position:fixed; inset:0; background:rgba(255,0,0,0.7); z-index:20000; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+    <div class="emergency-content">
+        <div id="emergencyMsg" class="emergency-text" style="color:white; font-weight:bold; margin-bottom:20px;"></div>
+        <div id="emergencyChoices" class="emergency-choices" style="display:flex; flex-direction:column; gap:10px;"></div>
+    </div>
+</div>
+
+<div id="mainTerminal" style="display:none;">
+  <div id="logo">Tenri Order Agency Terminal TOA-226</div>
+  <div id="statusbar"></div>
 
   <div class="inputArea">
     <input type="text" id="staffId" placeholder="Enter ID">
@@ -57,17 +60,22 @@
       <button onclick="showTab('artifact')">███</button>
       <button onclick="showTab('record')">RECORD</button>
     </div>
-    
-    <div id="result" style="min-height: 150px; position: relative; z-index: 1;"></div>
+    <div id="result"></div>
   </div>
 
   <div id="staffListTitle" onclick="toggleStaffList()" style="margin-top:20px; border-top:1px dashed #00FF41; padding-top:15px; cursor:pointer; text-align:center;">
     ▼ Show All Staff List
   </div>
   <div id="staffList" style="display:none;"></div>
-</div>
+
+  <div class="bottom-controls">
+    <button class="emergency-btn" onclick="triggerEmergency()">
+        REPORT EMERGENCY SITUATION
+    </button>
+  </div>
 </div>
 
 <script src="script.js"></script>
+</body>
 </body>
 </html>
