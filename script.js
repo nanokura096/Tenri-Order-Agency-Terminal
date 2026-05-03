@@ -797,18 +797,53 @@ function triggerEmergency() {
     if (!overlay || !container || !msg) return;
 
     overlay.style.display = "flex";
+    overlay.style.background = "rgba(100, 0, 0, 0.9)"; // 深い赤
     
+    // サイレン
     emergencyInterval = setInterval(() => {
-        beep(200, 500, 0.2);
-        setTimeout(() => beep(300, 500, 0.2), 600);
-    }, 1200);
+        beep(100, 800, 0.2); 
+    }, 1000);
 
-    msg.innerHTML = "[ CRITICAL ERROR ]<br>緊急事態は解決しましたか？";
-    container.innerHTML = `
-        <button class="yes-btn" onclick="resolveEmergency()">はい</button>
-        <button class="yes-btn" onclick="resolveEmergency()">はい</button>
-        <button class="yes-btn" onclick="resolveEmergency()">はい</button>
+    // 第1フェーズ：絶望のカウントダウン
+    msg.innerHTML = `
+        <span style="font-size: 2rem; color: #ff3131;">[ ALERT ]</span><br><br>
+        緊急事態を検知しました。<br>
+        現在、エージェントが現場に向かっています。<br>
+        そのまま動かずに待機してください。
     `;
+    container.innerHTML = ""; // ボタンはまだ出さない
+
+    // 5秒後に第2フェーズ：ノイズと「解決しましたか？」
+    setTimeout(() => {
+        // ノイズ音（短く高いビープ音をランダムに）
+        const noise = setInterval(() => beep(Math.random() * 2000 + 500, 20, 0.05), 50);
+        
+        // 画面を一時的に白黒反転させてノイズ感を演出
+        overlay.style.filter = "invert(1) contrast(200%)";
+        
+        setTimeout(() => {
+            clearInterval(noise);
+            overlay.style.filter = "none";
+            overlay.style.background = "black"; // 背景を漆黒に
+            
+            msg.innerHTML = `
+                <div class="blink" style="color: #00ff41; font-family: monospace;">
+                NOISE_DETECTED...<br>
+                SYSTEM_OVERRIDE...<br><br>
+                </div>
+                解決しましたか？
+            `;
+
+            // 「はい」の増殖
+            container.innerHTML = `
+                <button class="yes-btn" onclick="resolveEmergency()" style="margin: 5px; background:transparent; color:red; border:1px solid red; padding:10px;">はい</button>
+                <button class="yes-btn" onclick="resolveEmergency()" style="margin: 5px; background:transparent; color:red; border:1px solid red; padding:10px;">はい</button>
+                <button class="yes-btn" onclick="resolveEmergency()" style="margin: 5px; background:transparent; color:red; border:1px solid red; padding:10px;">はい</button>
+            `;
+            
+            beep(1500, 200, 0.1); // 切り替わり音
+        }, 300); // ノイズの持続時間
+    }, 5000); // 5秒間の待機
 }
 
 function resolveEmergency() {
