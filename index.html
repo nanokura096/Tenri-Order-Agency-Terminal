@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Tenri Order Agency TOA-226</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -12,32 +12,32 @@
   <div id="loginBox">
     <div id="loginTitle">
       AUTHENTICATION REQUIRED<br>
-      <span style="font-size: 0.8em; opacity: 0.9;">Tenri Order Agency Authentication System</span>
+      <span>Tenri Order Agency Authentication System</span>
     </div>
     <input type="text" id="username" placeholder="[USER ID]" autocomplete="off">
     <input type="password" id="password" placeholder="[PASS KEY]" autocomplete="off">
-    <button onclick="login()">ACCESS</button>
+    <button id="loginBtn">ACCESS</button>
     <div id="loginError"></div>
   </div>
 </div>
 
-<div id="bootScreen" style="display:none;"></div>
+<div id="bootScreen"></div>
 
-<div id="amnesticOverlay" style="display:none;">
-    <h1 style="font-size: 3rem; margin-bottom: 20px;">[CRITICAL ERROR]</h1>
-    <p style="font-size: 1.5rem; color: #ff3131;">UNAUTHORIZED ACCESS DETECTED.</p>
-    <div style="font-size: 80px; margin: 30px;" class="blink">⚠️</div>
-    <p style="font-size: 1rem; opacity: 0.8;">INITIATING CLASS-A AMNESTICS INHALATION...</p>
+<div id="amnesticOverlay">
+  <h1>[CRITICAL ERROR]</h1>
+  <p>UNAUTHORIZED ACCESS DETECTED.</p>
+  <div class="blink warning">⚠</div>
+  <p>INITIATING CLASS-A AMNESTICS...</p>
 </div>
 
-<div id="emergencyOverlay" style="display:none; position:fixed; inset:0; background:rgba(255,0,0,0.8); z-index:20000; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
-    <div id="emergencyContent" style="background: black; padding: 30px; border: 3px double red; width: 80%;">
-        <div id="emergencyMsg" style="color:white; font-weight:bold; margin-bottom:20px;"></div>
-        <div id="emergencyChoices" style="display:flex; flex-direction:column; gap:10px;"></div>
-    </div>
+<div id="emergencyOverlay">
+  <div id="emergencyContent">
+    <div id="emergencyMsg"></div>
+    <div id="emergencyChoices"></div>
+  </div>
 </div>
 
-<div id="mainTerminal" style="display:none;">
+<div id="mainTerminal">
   <div id="logo">Tenri Order Agency Terminal TOA-226</div>
   <div id="statusbar"></div>
 
@@ -48,28 +48,23 @@
       <option value="4">LV 4</option>
       <option value="5">LV 5</option>
     </select>
-    <button onclick="searchFile()">SEARCH DATABASE</button>
+    <button id="searchBtn">SEARCH DATABASE</button>
   </div>
 
-  <div id="displayWrapper">
-    <div id="tabs" style="display:none; margin-bottom: 10px; flex-wrap: wrap; gap: 5px;">
-      <button onclick="showTab('personnel')">PERSONNEL</button>
-      <button onclick="showTab('ability')">ABILITY</button>
-      <button onclick="showTab('artifact')">███</button>
-      <button onclick="showTab('record')">RECORD</button>
-    </div>
-    <div id="result"></div>
+  <div id="tabs">
+    <button data-tab="personnel">PERSONNEL</button>
+    <button data-tab="ability">ABILITY</button>
+    <button data-tab="artifact">███</button>
+    <button data-tab="record">RECORD</button>
   </div>
 
-  <div id="staffListTitle" onclick="toggleStaffList()" style="margin-top:20px; border-top:1px dashed #00FF41; padding-top:15px; cursor:pointer; text-align:center;">
-    ▼ Show All Staff List
-  </div>
-  <div id="staffList" style="display:none;"></div>
+  <div id="result"></div>
+
+  <div id="staffListTitle">▼ Show All Staff List</div>
+  <div id="staffList"></div>
 
   <div class="bottom-controls">
-    <button class="emergency-btn" onclick="triggerEmergency()">
-        REPORT EMERGENCY SITUATION
-    </button>
+    <button class="emergency-btn" id="emergencyBtn">REPORT EMERGENCY SITUATION</button>
   </div>
 </div>
 
