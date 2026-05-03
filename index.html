@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<body>
 
 <div id="loginScreen">
   <div id="loginBox">
@@ -27,15 +26,14 @@
 <div id="amnesticOverlay" style="display:none;">
     <h1 style="font-size: 3rem; margin-bottom: 20px;">[CRITICAL ERROR]</h1>
     <p style="font-size: 1.5rem; color: #ff3131;">UNAUTHORIZED ACCESS DETECTED.</p>
-    <p style="font-size: 1.2rem; margin-top: 20px;">You have been DETECTED</p>
     <div style="font-size: 80px; margin: 30px;" class="blink">⚠️</div>
-    <p style="font-size: 1rem; opacity: 0.8;">INITIATING CLASS-A AMNESTICS INHALATION...<br>Agents are Coming Soon.</p>
+    <p style="font-size: 1rem; opacity: 0.8;">INITIATING CLASS-A AMNESTICS INHALATION...</p>
 </div>
 
-<div id="emergencyOverlay" style="display:none; position:fixed; inset:0; background:rgba(255,0,0,0.7); z-index:20000; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
-    <div class="emergency-content">
-        <div id="emergencyMsg" class="emergency-text" style="color:white; font-weight:bold; margin-bottom:20px;"></div>
-        <div id="emergencyChoices" class="emergency-choices" style="display:flex; flex-direction:column; gap:10px;"></div>
+<div id="emergencyOverlay" style="display:none; position:fixed; inset:0; background:rgba(255,0,0,0.8); z-index:20000; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+    <div id="emergencyContent" style="background: black; padding: 30px; border: 3px double red; width: 80%;">
+        <div id="emergencyMsg" style="color:white; font-weight:bold; margin-bottom:20px;"></div>
+        <div id="emergencyChoices" style="display:flex; flex-direction:column; gap:10px;"></div>
     </div>
 </div>
 
@@ -53,7 +51,7 @@
     <button onclick="searchFile()">SEARCH DATABASE</button>
   </div>
 
-  <div id="displayWrapper" style="margin-top: 20px; position: relative;">
+  <div id="displayWrapper">
     <div id="tabs" style="display:none; margin-bottom: 10px; flex-wrap: wrap; gap: 5px;">
       <button onclick="showTab('personnel')">PERSONNEL</button>
       <button onclick="showTab('ability')">ABILITY</button>
@@ -76,6 +74,5 @@
 </div>
 
 <script src="script.js"></script>
-</body>
 </body>
 </html>
