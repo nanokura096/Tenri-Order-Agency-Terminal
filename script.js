@@ -641,39 +641,34 @@ function startLoadingSequence() {
     ];
 
     let i = 0;
-    
     function addLine() {
         if (i < lines.length) {
             const div = document.createElement("div");
             div.innerText = lines[i];
             boot.appendChild(div);
             
-            // 行によって音を変える演出
-            if (lines[i].includes("WARNING")) {
-                beep(200, 400); // 警告音
-            } else {
-                beep(400 + (i * 30), 20); // 通常の読み込み音
-            }
+            // 重要：新しい行が出たらそこまで画面を動かす
+            div.scrollIntoView({ behavior: 'smooth', block: 'end' });
             
+            beep(600 + (i * 100), 40, 0.03); 
             i++;
             
-            // 次の行を表示するまでの時間をランダム（1000ms〜1500ms）にして、人間味（リアルな遅延）を出す
-            const delay = Math.random() *   500 + 1000;
-            setTimeout(addLine, delay);
-            
-            window.scrollTo(0, document.body.scrollHeight);
+            // スピード（お好みで 800〜1500ms 程度に）
+            setTimeout(addLine, Math.random() * 500 + 1000);
         } else {
-            // すべて表示し終わった後、少し溜めてからメインへ
+            // 終了処理
             setTimeout(() => {
                 boot.style.display = "none";
                 document.getElementById("mainTerminal").style.display = "block";
                 updateClock();
                 setInterval(updateClock, 1000);
                 loadStaffList();
-                beep(1000, 200);
-            }, 1200);
+                beep(1200, 400, 0.1); 
+            }, 1500);
         }
     }
+    addLine();
+}
 
     // シーケンス開始
     function addLine() {
