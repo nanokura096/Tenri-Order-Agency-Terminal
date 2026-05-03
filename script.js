@@ -604,7 +604,7 @@ function login() {
     const user = document.getElementById("username").value;
     const pass = document.getElementById("password").value;
 
-    if (user === "鳴響" && pass === "0000") {
+    if (user === "なの" && pass === "226227") {
         loginAttempts = 0;
         document.getElementById("loginBox").innerHTML = '<div class="blink">AUTHENTICATING...</div>';
         beep(800, 100, 0.1);
