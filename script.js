@@ -821,29 +821,47 @@ function triggerEmergency() {
         // 画面を一時的に白黒反転させてノイズ感を演出
         overlay.style.filter = "invert(1) contrast(200%)";
         
+        // ... (triggerEmergencyの前の部分はそのまま)
+
         setTimeout(() => {
             clearInterval(noise);
             overlay.style.filter = "none";
-            overlay.style.background = "black"; // 背景を漆黒に
+            overlay.style.background = "black";
             
             msg.innerHTML = `
-                <div class="blink" style="color: #00ff41; font-family: monospace;">
-                NOISE_DETECTED...<br>
-                SYSTEM_OVERRIDE...<br><br>
+                <div class="blink" style="color: #00ff41; font-family: monospace; margin-bottom: 20px;">
+                SYSTEM_OVERRIDE_COMPLETE...<br>
                 </div>
-                解決しましたか？
+                緊急事態は解決しましたか？
             `;
 
-            // 「はい」の増殖
+            // 最初は「はい」と「いいえ」を出す
             container.innerHTML = `
-                <button class="yes-btn" onclick="resolveEmergency()" style="margin: 5px; background:transparent; color:red; border:1px solid red; padding:10px;">はい</button>
-                <button class="yes-btn" onclick="resolveEmergency()" style="margin: 5px; background:transparent; color:red; border:1px solid red; padding:10px;">はい</button>
-                <button class="yes-btn" onclick="resolveEmergency()" style="margin: 5px; background:transparent; color:red; border:1px solid red; padding:10px;">はい</button>
+                <button class="yes-btn" onclick="resolveEmergency()" style="margin: 5px; background:transparent; color:red; border:1px solid red; padding:10px; width:150px;">はい</button>
+                <button id="noBtn" onclick="forceYes()" style="margin: 5px; background:transparent; color:red; border:1px solid red; padding:10px; width:150px;">いいえ</button>
             `;
             
-            beep(1500, 200, 0.1); // 切り替わり音
-        }, 300); // ノイズの持続時間
-    }, 5000); // 5秒間の待機
+            beep(1500, 200, 0.1);
+        }, 300);
+    }, 5000);
+}
+
+// 「いいえ」が「はい」に書き換わる処理
+function forceYes() {
+    const noBtn = document.getElementById("noBtn");
+    if (!noBtn) return;
+
+    // 嫌な感じのビープ音
+    beep(400, 100, 0.2);
+    
+    // 文字を書き換えて、クリックした時の関数も「解決」に変える
+    noBtn.innerText = "はい";
+    noBtn.style.background = "red";
+    noBtn.style.color = "white";
+    noBtn.onclick = resolveEmergency; 
+
+    // メッセージも少し威圧的に変える
+    document.getElementById("emergencyMsg").innerHTML += `<br><span style="font-size:0.8rem; color:red;">[ 選択エラー: 否定は許可されていません ]</span>`;
 }
 
 function resolveEmergency() {
