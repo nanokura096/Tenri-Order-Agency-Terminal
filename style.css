@@ -1,0 +1,62 @@
+:root {
+  --term-green: #00FF41;
+  --term-bg: #000500;
+  --term-red: #ff3131;
+}
+
+body {
+  background-color: var(--term-bg);
+  color: var(--term-green);
+  font-family: 'Courier New', Courier, monospace;
+  margin: 0;
+  padding: clamp(10px, 3vw, 20px);
+  overflow-x: hidden;
+  min-height: 100vh;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.1) 50%, rgba(255, 255, 255, 0.02) 50%);
+  background-size: 100% 4px;
+}
+
+#loginScreen {
+  position: fixed; inset: 0;
+  background: var(--term-bg);
+  display: flex; justify-content: center; align-items: center; z-index: 9999;
+}
+
+#loginBox {
+  border: 1px solid var(--term-green);
+  padding: 30px; width: min(350px, 90vw);
+  text-align: center; background: rgba(0, 10, 0, 0.9);
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+}
+
+#loginError { margin-top: 15px; color: var(--term-red); font-weight: bold; }
+
+#bootScreen { padding: 40px; font-size: 18px; line-height: 1.8; white-space: pre-line; }
+#bootScreen div { margin-bottom: 8px; overflow: hidden; white-space: nowrap; animation: typing 0.4s steps(40, end); }
+
+@keyframes typing { from { width: 0; } to { width: 100%; } }
+
+#logo { font-size: 22px; font-weight: bold; border-bottom: 1px solid var(--term-green); margin-bottom: 15px; padding-bottom: 10px; }
+#statusbar { margin-bottom: 20px; font-size: 12px; opacity: 0.8; }
+
+.inputArea { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+input, button, select { background: rgba(0, 30, 0, 0.5); color: var(--term-green); border: 1px solid var(--term-green); padding: 12px; font-family: inherit; outline: none; }
+button { cursor: pointer; font-weight: bold; }
+button:hover { background: var(--term-green); color: var(--term-bg); }
+
+#tabs { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
+#tabs button { flex: 1; font-size: 12px; min-width: 80px; }
+
+#result {
+  border: 1px solid var(--term-green); padding: 20px;
+  min-height: 300px; max-height: 60vh; overflow-y: auto;
+  white-space: pre-line; background: rgba(0, 15, 0, 0.5); line-height: 1.8;
+}
+
+.staffEntry { border: 1px solid rgba(0, 255, 65, 0.3); padding: 10px; margin-top: 10px; cursor: pointer; }
+.staffEntry:hover { border-color: var(--term-green); background: rgba(0, 255, 65, 0.1); }
+
+.blink { animation: blink 1s infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+@media (max-width: 600px) { .inputArea input, .inputArea select, .inputArea button { width: 100%; } }
