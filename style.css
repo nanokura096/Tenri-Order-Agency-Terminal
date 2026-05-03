@@ -54,3 +54,34 @@ input, select, button {
 
 .blink { animation: blink 1s infinite; }
 @keyframes blink { 50% { opacity: 0; } }
+
+/* ボタンを囲むコンテナ */
+.bottom-controls {
+    margin-top: 50px;       /* 上のコンテンツとの距離 */
+    padding-bottom: 30px;    /* 画面最下部との余白 */
+    border-top: 1px double var(--term-green); /* 区切り線 */
+    padding-top: 20px;
+    text-align: center;
+}
+
+/* 緊急ボタン：横幅を少し抑えて「押し間違い」を防ぐサイズ感に */
+.emergency-btn {
+    width: 90%;
+    max-width: 400px;
+    padding: 15px;
+    background: transparent;
+    border: 2px solid #ff0000;
+    color: #ff0000;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 0 5px #ff0000;
+    transition: 0.3s;
+}
+
+.emergency-btn:hover {
+    background: #ff0000;
+    color: white;
+    box-shadow: 0 0 20px #ff0000;
+}
