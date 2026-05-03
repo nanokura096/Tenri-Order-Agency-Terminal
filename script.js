@@ -648,6 +648,20 @@ function beep(freq, dur, vol = 0.05) {
    3. LOGIN LOGIC
 ========================= */
 function login() {
+    // 音の初期化を try-catch で囲んでエラー落ちを防ぐ
+    try { initAudio(); } catch(e) { console.log("audio skip"); }
+
+    const uEl = document.getElementById("username");
+    const pEl = document.getElementById("password");
+    
+    // 入力値のデバッグ用（動かない時はブラウザのF12コンソールで確認できます）
+    console.log("ID:", uEl.value, "PASS:", pEl.value);
+
+    if (uEl.value === "admin" && pEl.value === "226227") {
+        // ...以下、以前のコードと同じ
+
+
+  
     initAudio(); 
     const uEl = document.getElementById("username");
     const pEl = document.getElementById("password");
