@@ -1,100 +1,56 @@
 :root {
-  --term-green: #00FF41;
-  --term-bg: #000500;
-  --term-red: #ff3131;
+  --green: #00FF41;
+  --bg: #000;
+  --red: #ff3131;
 }
 
 body {
-  background-color: var(--term-bg);
-  color: var(--term-green);
+  background: var(--bg);
+  color: var(--green);
   font-family: 'Courier New', Courier, monospace;
-  margin: 0;
-  padding: clamp(10px, 3vw, 20px);
+  margin: 0; padding: 15px;
   overflow-x: hidden;
-  min-height: 100vh;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.1) 50%, rgba(255, 255, 255, 0.02) 50%);
-  background-size: 100% 4px;
 }
 
-#loginScreen {
-  position: fixed; inset: 0;
-  background: var(--term-bg);
-  display: flex; justify-content: center; align-items: center; z-index: 9999;
+/* ログイン・記憶処理共通 */
+#loginScreen, #amnesticOverlay {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000;
 }
+#amnesticOverlay { background: #600; color: white; display: none; }
 
 #loginBox {
-  border: 1px solid var(--term-green);
-  padding: 30px; width: min(350px, 90vw);
-  text-align: center; background: rgba(0, 10, 0, 0.9);
-  box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+  border: 1px solid var(--green); padding: 25px;
+  width: min(320px, 85vw); text-align: center;
 }
 
-#loginError { margin-top: 15px; color: var(--term-red); font-weight: bold; }
-
+/* ロード画面（スマホで見切れない設定） */
 #bootScreen {
   padding: 20px;
-  font-size: clamp(12px, 3.8vw, 15px); /* スマホで最適なサイズに */
+  font-size: clamp(12px, 3.8vw, 15px);
   line-height: 1.6;
-  white-space: pre-wrap;   /* 端で自動折り返し */
-  word-break: break-all;   /* 単語の途中でも端なら切る */
-  overflow-y: auto;
-  height: 100vh;
-  box-sizing: border-box;
+  white-space: pre-wrap; /* ここが重要：自動折り返し */
+  word-break: break-all; /* 単語の途中でも折る */
+  height: 100vh; overflow-y: auto;
 }
-
 #bootScreen div {
-  margin-bottom: 10px;
-  border-left: 2px solid var(--term-green);
-  padding-left: 8px;
-  opacity: 0; /* 最初は透明 */
-  animation: slideIn 0.3s ease-out forwards; /* 横からスッと出す */
+  margin-bottom: 10px; border-left: 2px solid var(--green);
+  padding-left: 8px; opacity: 0;
+  animation: slideIn 0.3s forwards;
 }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
 
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+/* 入力エリア */
+input, select, button {
+  background: black; color: var(--green); border: 1px solid var(--green);
+  padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box;
 }
-
-@keyframes fadeLine {
-  from { opacity: 0; transform: translateX(-10px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-/* ステータスバーもスマホで見やすく */
-#statusbar {
-  font-size: 10px;
-  line-height: 1.4;
-  word-break: break-all;
-}
-@keyframes typing { from { width: 0; } to { width: 100%; } }
-
-#logo { font-size: 22px; font-weight: bold; border-bottom: 1px solid var(--term-green); margin-bottom: 15px; padding-bottom: 10px; }
-#statusbar { margin-bottom: 20px; font-size: 12px; opacity: 0.8; }
-
-.inputArea { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-input, button, select { background: rgba(0, 30, 0, 0.5); color: var(--term-green); border: 1px solid var(--term-green); padding: 12px; font-family: inherit; outline: none; }
-button { cursor: pointer; font-weight: bold; }
-button:hover { background: var(--term-green); color: var(--term-bg); }
-
-#tabs { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
-#tabs button { flex: 1; font-size: 12px; min-width: 80px; }
+.inputArea { margin-bottom: 20px; }
 
 #result {
-  border: 1px solid var(--term-green); padding: 20px;
-  min-height: 300px; max-height: 60vh; overflow-y: auto;
-  white-space: pre-line; background: rgba(0, 15, 0, 0.5); line-height: 1.8;
+  border: 1px solid var(--green); padding: 15px;
+  min-height: 200px; white-space: pre-wrap; background: rgba(0,20,0,0.5);
 }
 
-.staffEntry { border: 1px solid rgba(0, 255, 65, 0.3); padding: 10px; margin-top: 10px; cursor: pointer; }
-.staffEntry:hover { border-color: var(--term-green); background: rgba(0, 255, 65, 0.1); }
-
 .blink { animation: blink 1s infinite; }
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-@media (max-width: 600px) { .inputArea input, .inputArea select, .inputArea button { width: 100%; } }
+@keyframes blink { 50% { opacity: 0; } }

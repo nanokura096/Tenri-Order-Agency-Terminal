@@ -10,9 +10,7 @@
 
 <div id="loginScreen">
   <div id="loginBox">
-    <div id="loginTitle">
-      AUTHENTICATION REQUIRED<br>鳴響チーム 認証システム
-    </div>
+    <div id="loginTitle">AUTHENTICATION REQUIRED<br>鳴響チーム 認証システム</div>
     <input type="text" id="username" placeholder="[USER ID]" autocomplete="off">
     <input type="password" id="password" placeholder="[PASS KEY]" autocomplete="off">
     <button onclick="login()">ACCESS</button>
@@ -25,41 +23,34 @@
 <div id="mainTerminal" style="display:none;">
   <div id="logo">鳴響チーム / 天理秩序機関 統合端末</div>
   <div id="statusbar"></div>
-
   <div class="inputArea">
     <input type="text" id="staffId" placeholder="IDを入力">
     <select id="clearance">
-      <option value="0">LV 0</option>
-      <option value="1">LV 1</option>
-      <option value="2">LV 2</option>
       <option value="3" selected>LV 3</option>
       <option value="4">LV 4</option>
       <option value="5">LV 5</option>
     </select>
     <button onclick="searchFile()">SEARCH DATABASE</button>
   </div>
-
   <div id="tabs" style="display:none;">
     <button onclick="showTab('personnel')">PERSONNEL</button>
     <button onclick="showTab('ability')">ABILITY</button>
     <button onclick="showTab('artifact')">███</button>
     <button onclick="showTab('record')">RECORD</button>
   </div>
-
   <div id="result"></div>
-
   <div id="staffListTitle" onclick="toggleStaffList()" style="margin-top:20px; border-top:1px dashed #00FF41; padding-top:15px; cursor:pointer; text-align:center;">
-    ▼ 登録職員一覧を表示 (鳴響チーム専用)
+    ▼ 登録職員一覧を表示
   </div>
-  <div id="staffList" style="display:none; margin-top:10px;"></div>
+  <div id="staffList" style="display:none;"></div>
 </div>
 
-<div id="amnesticOverlay" style="display:none; position:fixed; inset:0; background:#600; color:#fff; z-index:10000; flex-direction:column; justify-content:center; align-items:center; text-align:center; font-family:monospace; padding:20px;">
-    <h1 style="font-size: 3rem; margin-bottom: 20px;">[CRITICAL ERROR]</h1>
-    <p style="font-size: 1.5rem; color: #ff3131;">UNAUTHORIZED ACCESS DETECTED.</p>
-    <p style="font-size: 1.2rem; margin-top: 20px;">不正アクセスを検知。セキュリティプロトコル：記憶処理を起動します。</p>
-    <div style="font-size: 80px; margin: 30px;" class="blink">⚠️</div>
-    <p style="font-size: 1rem; opacity: 0.8;">INITIATING CLASS-A AMNESTICS INHALATION...<br>記憶消去剤の散布を開始しています。端末を離れないでください。</p>
+<div id="amnesticOverlay" style="display:none;">
+    <h1>[CRITICAL ERROR]</h1>
+    <p class="warn">UNAUTHORIZED ACCESS DETECTED.</p>
+    <p>不正アクセスを検知。セキュリティプロトコル：記憶処理を行います。</p>
+    <div class="blink" style="font-size: 60px; margin: 20px;">⚠️</div>
+    <p style="opacity: 0.8; font-size: 0.9rem;">INITIATING CLASS-A AMNESTICS INHALATION...<br>エージェントが派遣されました。端末から離れることはできません。</p>
 </div>
 
 <script src="script.js"></script>

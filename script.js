@@ -574,158 +574,118 @@ E:爆発物
 ========================= */
 
 
-let currentFile = null;
 let loginAttempts = 0;
-const MAX_ATTEMPTS = 3;
+let audioCtx = null;
 
-/* --- LOGIN LOGIC --- */
+function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function beep(freq, dur, vol = 0.1) {
+    initAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur/1000);
+    osc.start(); osc.stop(audioCtx.currentTime + dur/1000);
+}
+
 function login() {
-    const user = document.getElementById("username").value;
-    const pass = document.getElementById("password").value;
+    initAudio();
+    const u = document.getElementById("username").value;
+    const p = document.getElementById("password").value;
 
-    if (user === "鳴響" && pass === "0000") {
-        loginAttempts = 0;
-        document.getElementById("loginBox").innerHTML = '<div class="blink">AUTHENTICATING...</div>';
+    if (u === "鳴響" && p === "0000") {
         beep(800, 100);
-        setTimeout(() => {
-            document.getElementById("loginScreen").style.display = "none";
-            startLoadingSequence();
-        }, 1500);
+        document.getElementById("loginScreen").style.display = "none";
+        startBoot();
     } else {
         loginAttempts++;
-        if (loginAttempts >= MAX_ATTEMPTS) {
+        beep(150, 500, 0.3);
+        if (loginAttempts >= 3) {
             initiateAmnestic();
         } else {
-            document.getElementById("loginError").innerText = "ACCESS DENIED. REMAINING: " + (MAX_ATTEMPTS - loginAttempts);
-            beep(150, 500);
+            document.getElementById("loginError").innerText = `DENIED. REMAINING: ${3 - loginAttempts}`;
         }
     }
 }
 
 function initiateAmnestic() {
-    const overlay = document.getElementById("amnesticOverlay");
-    overlay.style.display = "flex";
-    beep(100, 3000);
-
+    const ov = document.getElementById("amnesticOverlay");
+    ov.style.display = "flex";
+    const siren = setInterval(() => { beep(100, 600, 0.3); }, 1200);
     setTimeout(() => {
-        loginAttempts = 0;
-        overlay.style.display = "none";
-        document.getElementById("loginScreen").style.display = "flex";
-        document.getElementById("loginBox").innerHTML = `
-            <div id="loginTitle">AUTHENTICATION REQUIRED<br>鳴響チーム 認証システム</div>
-            <input type="text" id="username" placeholder="[USER ID]" autocomplete="off">
-            <input type="password" id="password" placeholder="[PASS KEY]" autocomplete="off">
-            <button onclick="login()">ACCESS</button>
-            <div id="loginError">SESSION REBOOTED.</div>
-        `;
-    }, 6000);
+        clearInterval(siren);
+        location.reload(); // 確実に初期状態に戻す
+    }, 8000);
 }
 
-/* --- BOOT SEQUENCE (演出強化版) --- */
-function startLoadingSequence() {
+function startBoot() {
     const boot = document.getElementById("bootScreen");
     boot.style.display = "block";
-    boot.innerHTML = "";
-
     const lines = [
-        "> INITIALIZING BOOT SEQUENCE...",
-        "> CHECKING HARDWARE INTEGRITY... [OK]",
-        "> CONNECTING TO TENRI-NETWORK NODE-01... [ESTABLISHED]",
+        "> INITIALIZING BOOT...",
+        "> CHECKING CONNECTIVITY...",
         "> LOADING ENCRYPTION MODULES...",
-        "> [WARNING] UNSTABLE QUANTUM FLUCTUATION DETECTED",
-        "> STABILIZING... [SUCCESS]",
-        "> DECRYPTING PERSONNEL DATABASE...",
-        "> SYNCING LOCAL TERMINAL WITH CENTRAL HUB...",
-        "> VERIFYING CLEARANCE: LEVEL 3...",
-        "> WELCOME, LEADER. ACCESS GRANTED."
+        "> ACCESSING DATABASE...",
+        "> WELCOME, LEADER."
     ];
-
     let i = 0;
-
     function addLine() {
         if (i < lines.length) {
-            const div = document.createElement("div");
-            div.innerText = lines[i];
-            boot.appendChild(div);
-
-            div.scrollIntoView({ behavior: "smooth", block: "end" });
-
-            beep(600 + (i * 100), 40, 0.03);
+            const d = document.createElement("div");
+            d.innerText = lines[i];
+            boot.appendChild(d);
+            d.scrollIntoView();
+            beep(500 + i * 100, 50, 0.05);
             i++;
-
-            setTimeout(addLine, Math.random() * 500 + 1000);
+            setTimeout(addLine, 1200); // 1.2秒間隔でゆっくり
         } else {
             setTimeout(() => {
                 boot.style.display = "none";
                 document.getElementById("mainTerminal").style.display = "block";
-
-                updateClock();
-                setInterval(updateClock, 1000);
-                loadStaffList();
-
-                beep(1200, 400, 0.1);
-            }, 1500);
+                loadStaff();
+            }, 1000);
         }
     }
-
     addLine();
 }
 
-/* --- DATABASE LOGIC --- */
-function searchFile() {
-    const id = document.getElementById("staffId").value.trim();
-    const cl = parseInt(document.getElementById("clearance").value);
-    const f = files.find(x => x.id === id);
+function loadStaff() {
+    const list = document.getElementById("staffList");
+    list.innerHTML = "";
+    files.forEach(f => {
+        const d = document.createElement("div");
+        d.style.padding = "10px"; d.style.border = "1px solid #00FF41"; d.style.marginTop = "5px";
+        d.innerText = `ID: ${f.id} / NAME: ${f.name}`;
+        d.onclick = () => { document.getElementById("staffId").value = f.id; searchFile(); };
+        list.appendChild(d);
+    });
+}
 
-    if (!f || cl < parseInt(f.clearance)) {
-        alert("ACCESS DENIED");
-        return;
-    }
-    currentFile = f;
+function searchFile() {
+    const id = document.getElementById("staffId").value;
+    const f = files.find(x => x.id === id);
+    if (!f) return alert("NOT FOUND");
     document.getElementById("tabs").style.display = "flex";
+    window.currentFile = f;
     showTab('personnel');
 }
 
 function showTab(tab) {
-    if (!currentFile) return;
+    beep(1200, 30);
+    const f = window.currentFile;
     const r = document.getElementById("result");
-    let content = "";
-    if (tab === 'personnel') content = "NAME: " + currentFile.name + "\nRANK: " + currentFile.rank + "\n\n" + currentFile.ability;
-    else if (tab === 'ability') content = "[ABILITY DATA]\n" + currentFile.ability;
-    else if (tab === 'artifact') content = "WEAPON: " + currentFile.weapon + "\n\n" + currentFile.Description;
-    else if (tab === 'record') content = "RECORD:\n" + currentFile.record + "\n\nNOTE: " + currentFile.note;
-    r.innerText = content;
-}
-
-function updateClock() {
-    const status = document.getElementById("statusbar");
-    if(status) status.innerHTML = "SYSTEM: ONLINE / " + new Date().toLocaleString();
-}
-
-function loadStaffList() {
-    const list = document.getElementById("staffList");
-    list.innerHTML = "";
-    files.forEach(f => {
-        const div = document.createElement("div");
-        div.className = "staffEntry";
-        div.innerText = "ID: " + f.id + " / NAME: " + f.name;
-        div.onclick = () => { document.getElementById("staffId").value = f.id; searchFile(); };
-        list.appendChild(div);
-    });
+    if (tab === 'personnel') r.innerText = `NAME: ${f.name}\nRANK: ${f.rank}\n\n${f.ability}`;
+    if (tab === 'ability') r.innerText = `[ABILITY]\n${f.ability}`;
+    if (tab === 'artifact') r.innerText = `[ARTIFACT]\n${f.weapon}\n${f.Description}`;
+    if (tab === 'record') r.innerText = `[RECORD]\n${f.record}\n\nNOTE: ${f.note}`;
 }
 
 function toggleStaffList() {
-    const list = document.getElementById("staffList");
-    list.style.display = list.style.display === "none" ? "block" : "none";
-}
-
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-function beep(freq, dur) {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur/1000);
-    osc.start(); osc.stop(audioCtx.currentTime + dur/1000);
+    const s = document.getElementById("staffList");
+    s.style.display = s.style.display === "none" ? "block" : "none";
 }
