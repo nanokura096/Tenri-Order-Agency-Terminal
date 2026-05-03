@@ -85,3 +85,27 @@ input, select, button {
     color: white;
     box-shadow: 0 0 20px #ff0000;
 }
+
+/* 記憶処理オーバーレイ */
+#amnesticOverlay {
+    display: none; /* 通常は見せない */
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    pointer-events: none; /* ★重要：非表示の時はクリックを貫通させる */
+}
+
+/* 緊急事態オーバーレイ */
+#emergencyOverlay {
+    display: none; /* 通常は見せない */
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    pointer-events: none; /* ★重要：非表示の時はクリックを貫通させる */
+}
+
+/* 表示された時だけクリックを有効にする設定 */
+#amnesticOverlay[style*="display: flex"],
+#emergencyOverlay[style*="display: flex"] {
+    pointer-events: auto; /* ★表示されたらクリックできるようにする */
+}
