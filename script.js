@@ -20,12 +20,10 @@ const files = [
 アクセス可能職員は「鳴響チーム」、または「鳴響チームから許可があった職員のみ」。
 緊急時、その他任務時は「#鳴響チーム所属職員α」が持ち出す。
 それ以外の場合の他階層への持ち出しは一切禁止されている。
-たとえアクセス権限レベルが「O5」だとしても、アクセスはできない。
-クリアランスレベル「3R」「4R」「5R」「30」「40」の職員限定でロッカーの解錠を許可されている。
 `,
 Description:`全長██cmの鉾。
-天逆鉾のような形をしているが、柄(SCP-110978-R-2)は取り外しが可。
-代わりに、元の柄の1/3の長さの柄(SCP-110978-R-3)を取り付けることも可能。
+天逆鉾のような形をしているが、柄([アクセス拒否])は取り外しが可。
+代わりに、元の柄の1/3の長さの柄([アクセス拒否])を取り付けることも可能。
 その柄は鳴響チーム所属隊員α(以下N)の体とリンクしており、Nの能力を鉾で発動することもできる。
 また、固有の異常性として、攻撃された人間の行動を「拒否」することが可能。
 原因は保持されるため、行動が起こるという選択肢は残っているが「起こさない」という選択肢を強制的に選択させる。
@@ -565,6 +563,45 @@ E:爆発物
     record:"[アクセス拒否]",
     note:"[アクセス拒否]",
   },
+  {
+    id:"AP-ADADAD",
+    name:"ハイカード",
+    sex:"Female",
+    age:"??",
+    division:"なし",
+    rank:"Sub-Leader",
+    ability:`贖罪
+    威力重視な爆発を起こす。
+    精密性を犠牲にして威力に全ふりした爆発を起こす。
+    爆発時には魔法陣を作られる。`,
+    status:"ACTIVE",
+    clearance:"3",
+    need:"LEVEL-4",
+    remark:"LIMITED ACCESS",
+    profile:"対象はどこにも所属しておらず、のらりくらりと任務を受ける。",
+    record:"[アクセス拒否]。",
+    note:"[アクセス拒否]",
+  },
+  {
+    id:"AD-999999",
+    name:"スカー",
+    sex:"Female",
+    age:"??",
+    division:"[アクセス拒否]",
+    rank:"[アクセス拒否]",
+    ability:`抵抗
+    これまでは「異空間から人を呼び出す」能力だったが、解釈を広げた。
+    その結果、「異空間から任意の存在を呼び出すことができる」ように能力が拡張された。
+    例えば、人外の「速さと重さに特化した存在」など。
+    自由にその場で作り出して呼び出すことも可能。`,
+    status:"ACTIVE",
+    clearance:"5",
+    need:"LEVEL-5",
+    remark:"LIMITED ACCESS",
+    profile:"[アクセス拒否]",
+    record:"[アクセス拒否]。",
+    note:"[アクセス拒否]",
+  },
   ]
   
   
@@ -616,7 +653,7 @@ function login() {
     if (!uEl || !pEl) return;
 
     // ログイン情報の確認
-    if (uEl.value === "なの" && pEl.value === "226227") {
+    if (uEl.value === "admin" && pEl.value === "226227") {
         loginAttempts = 0;
         const box = document.getElementById("loginBox");
         if(box) box.innerHTML = '<div class="blink">AUTHENTICATING...</div>';
@@ -716,8 +753,22 @@ function setupClearanceListener() {
             const res = document.getElementById("result");
             if (res) {
                 beep(1200, 50, 0.05);
+                // 1. まず「認証中」を表示
                 res.innerHTML = `<div class="blink" style="text-align:center; margin-top:50px;">[ AUTHENTICATING LEVEL ${e.target.value}... ]</div>`;
-                setTimeout(() => beep(1500, 80, 0.03), 800);
+                
+                // 2. 0.8秒後に実行する処理
+                setTimeout(() => {
+                    beep(1500, 80, 0.03);
+                    
+                    // IDが入力されている場合は、自動で再検索して結果を表示する
+                    const sid = document.getElementById("staffId");
+                    if (sid && sid.value.trim() !== "") {
+                        searchFile(); 
+                    } else {
+                        // IDがない場合は「READY」に戻す
+                        res.innerText = "READY / ACCESS GRANTED";
+                    }
+                }, 800); // 認証が終わるまでの時間
             }
         });
     }
@@ -744,17 +795,38 @@ function searchFile() {
     showTab('personnel');
 }
 
+/* --- script.js 内の showTab 関数をこれに書き換え --- */
+
 function showTab(tab) {
     if (!currentFile) return;
     const r = document.getElementById("result");
     if (!r) return;
 
     beep(1800, 30, 0.05);
+
+    // 一旦中身を空っぽにする（これで「重なり」を防ぎます）
+    r.innerText = ""; 
+
     let content = "";
-    if (tab === 'personnel') content = "NAME: " + currentFile.name + "\nRANK: " + currentFile.rank + "\n\n" + currentFile.ability;
-    else if (tab === 'ability') content = "[ABILITY DATA]\n" + currentFile.ability;
-    else if (tab === 'artifact') content = "WEAPON: " + currentFile.weapon + "\n\n" + currentFile.Description;
-    else if (tab === 'record') content = "RECORD:\n" + currentFile.record + "\n\nNOTE: " + currentFile.note;
+    if (tab === 'personnel') {
+        content = "NAME: " + (currentFile.name || "UNKNOWN") + 
+                  "\nRANK: " + (currentFile.rank || "NONE") + 
+                  "\n\n" + (currentFile.ability || "");
+    } 
+    else if (tab === 'ability') {
+        content = "[ABILITY DATA]\n" + (currentFile.ability || "NO DATA");
+    } 
+    else if (tab === 'artifact') {
+        // Description の undefined 対策
+        content = "WEAPON: " + (currentFile.weapon || "NONE") + 
+                  "\n\n" + (currentFile.Description || currentFile.description || "[ NO DATA ]");
+    } 
+    else if (tab === 'record') {
+        content = "RECORD:\n" + (currentFile.record || "NO RECORD") + 
+                  "\n\nNOTE: " + (currentFile.note || "");
+    }
+
+    // 新しい内容をセット（「+=」ではなく「=」を使うのがコツです）
     r.innerText = content;
 }
 
