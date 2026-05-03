@@ -16,46 +16,49 @@
     </div>
     <input type="text" id="username" placeholder="[USER ID]" autocomplete="off">
     <input type="password" id="password" placeholder="[PASS KEY]" autocomplete="off">
-    <button type="button" id="loginBtn">ACCESS</button>
+    <button id="loginBtn">ACCESS</button>
     <div id="loginError"></div>
   </div>
 </div>
 
-<div id="bootScreen" style="display:none;"></div>
+<div id="bootScreen"></div>
 
-<div id="amnesticOverlay" style="display:none;">
+<div id="amnesticOverlay">
   <h1>[CRITICAL ERROR]</h1>
   <p>UNAUTHORIZED ACCESS DETECTED.</p>
-  <div class="blink warning">&#9888;</div>
+  <div class="blink warning">⚠</div>
   <p>INITIATING CLASS-A AMNESTICS...</p>
 </div>
 
-<div id="emergencyOverlay" style="display:none;">
+<div id="emergencyOverlay">
   <div id="emergencyContent">
     <div id="emergencyMsg"></div>
     <div id="emergencyChoices"></div>
   </div>
 </div>
 
-<div id="mainTerminal" style="display:none;">
+<div id="mainTerminal">
   <div id="logo">Tenri Order Agency Terminal TOA-226</div>
   <div id="statusbar"></div>
 
   <div class="inputArea">
     <input type="text" id="staffId" placeholder="Enter ID">
     <select id="clearance">
+      <option value="0">LV 0</option>
+      <option value="1">LV 1</option>
+      <option value="2">LV 2</option>
       <option value="3" selected>LV 3</option>
       <option value="4">LV 4</option>
       <option value="5">LV 5</option>
     </select>
-    <button type="button" id="searchBtn">SEARCH DATABASE</button>
+    <button id="searchBtn">SEARCH DATABASE</button>
   </div>
 
   <div id="tabs">
-    <button type="button" data-tab="personnel">PERSONNEL</button>
-    <button type="button" data-tab="ability">ABILITY</button>
-    <button type="button" data-tab="artifact">███</button>
-    <button type="button" data-tab="record">RECORD</button>
+    <button data-tab="personnel">PERSONNEL</button>
+    <button data-tab="ability">ABILITY</button>
+    <button data-tab="artifact">███</button>
+    <button data-tab="record">RECORD</button>
   </div>
 
   <div id="result"></div>
@@ -64,7 +67,7 @@
   <div id="staffList"></div>
 
   <div class="bottom-controls">
-    <button type="button" class="emergency-btn" id="emergencyBtn">REPORT EMERGENCY SITUATION</button>
+    <button class="emergency-btn" id="emergencyBtn">REPORT EMERGENCY SITUATION</button>
   </div>
 </div>
 
