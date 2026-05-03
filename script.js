@@ -35,6 +35,7 @@ let loginAttempts = 0;
 const MAX_ATTEMPTS = 3;
 let audioCtx = null;
 let emergencyInterval = null;
+let clockTimer = null;
 
 /* =========================
    AUDIO
@@ -50,6 +51,7 @@ function initAudio(){
 
 function beep(freq,dur,vol=0.05){
   if(!audioCtx) return;
+
   try{
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -74,13 +76,21 @@ function beep(freq,dur,vol=0.05){
 function login(){
   initAudio();
 
-  const u = document.getElementById("username").value.trim();
-  const p = document.getElementById("password").value.trim();
+  const userEl = document.getElementById("username");
+  const passEl = document.getElementById("password");
   const err = document.getElementById("loginError");
+
+  if(!userEl || !passEl || !err) return;
+
+  const u = userEl.value.trim();
+  const p = passEl.value.trim();
 
   if(u === "admin" && p === "226227"){
     loginAttempts = 0;
-    document.getElementById("loginBox").innerHTML = `<div class="blink">AUTHENTICATING...</div>`;
+
+    const box = document.getElementById("loginBox");
+    if(box) box.innerHTML = `<div class="blink">AUTHENTICATING...</div>`;
+
     beep(900,120,0.08);
 
     setTimeout(()=>{
@@ -102,6 +112,8 @@ function login(){
 
 function initiateAmnestic(){
   const ov = document.getElementById("amnesticOverlay");
+  if(!ov) return;
+
   ov.style.display = "flex";
 
   const siren = setInterval(()=>{
@@ -120,6 +132,8 @@ function initiateAmnestic(){
 ========================= */
 function startLoadingSequence(){
   const boot = document.getElementById("bootScreen");
+  if(!boot) return;
+
   boot.style.display = "block";
   boot.innerHTML = "";
 
@@ -156,7 +170,9 @@ function finishBoot(){
   document.getElementById("mainTerminal").style.display = "block";
 
   updateClock();
-  setInterval(updateClock,1000);
+
+  if(clockTimer) clearInterval(clockTimer);
+  clockTimer = setInterval(updateClock,1000);
 
   loadStaffList();
   setupClearanceListener();
@@ -167,18 +183,22 @@ function finishBoot(){
 ========================= */
 function setupClearanceListener(){
   const select = document.getElementById("clearance");
+  if(!select) return;
 
   select.onchange = function(e){
     const res = document.getElementById("result");
     beep(1200,50,0.05);
 
-    res.innerHTML = `<div class="blink" style="text-align:center;margin-top:50px;">[ AUTHENTICATING LEVEL ${e.target.value}... ]</div>`;
+    if(res){
+      res.innerHTML = `<div class="blink" style="text-align:center;margin-top:50px;">[ AUTHENTICATING LEVEL ${e.target.value}... ]</div>`;
+    }
 
     setTimeout(()=>{
-      if(document.getElementById("staffId").value.trim()){
+      const idField = document.getElementById("staffId");
+      if(idField && idField.value.trim()){
         searchFile();
       }else{
-        res.innerText = "READY";
+        if(res) res.innerText = "READY";
       }
     },800);
   };
@@ -186,6 +206,8 @@ function setupClearanceListener(){
 
 function updateClock(){
   const status = document.getElementById("statusbar");
+  if(!status) return;
+
   const now = new Date();
   status.innerText = "SYSTEM ONLINE / USER: admin / " + now.toLocaleString();
 }
@@ -193,12 +215,23 @@ function updateClock(){
 function searchFile(){
   initAudio();
 
-  const id = document.getElementById("staffId").value.trim();
-  const cl = parseInt(document.getElementById("clearance").value);
-  const found = files.find(f=>f.id===id);
+  const idField = document.getElementById("staffId");
+  const clearField = document.getElementById("clearance");
   const r = document.getElementById("result");
 
-  if(!found || cl < parseInt(found.clearance)){
+  if(!idField || !clearField || !r) return;
+
+  const id = idField.value.trim();
+
+  if(!id){
+    r.innerText = "READY";
+    return;
+  }
+
+  const cl = parseInt(clearField.value,10);
+  const found = files.find(f=>f.id===id);
+
+  if(!found || cl < parseInt(found.clearance,10)){
     r.innerText = "ACCESS DENIED";
     beep(200,500,0.2);
     return;
@@ -215,40 +248,44 @@ function showTab(tab){
   beep(1500,30);
 
   const r = document.getElementById("result");
+  if(!r) return;
+
   r.innerHTML = "";
   r.scrollTop = 0;
 
   let txt = "";
 
-  if(tab==="personnel"){
-    txt =
+  switch(tab){
+    case "personnel":
+      txt =
 `NAME: ${currentFile.name}
 DIVISION: ${currentFile.division}
 RANK: ${currentFile.rank}
 STATUS: ${currentFile.status}
 
 ${currentFile.profile}`;
-  }
+      break;
 
-  if(tab==="ability"){
-    txt =
+    case "ability":
+      txt =
 `[ABILITY DATA]
 
 ${currentFile.ability}`;
-  }
+      break;
 
-  if(tab==="artifact"){
-    txt =
+    case "artifact":
+      txt =
 `WEAPON: ${currentFile.weapon}
 
 ${currentFile.Description || "NO DATA"}`;
-  }
+      break;
 
-  if(tab==="record"){
-    txt =
+    case "record":
+      txt =
 `RECORD: ${currentFile.record}
 
 NOTE: ${currentFile.note}`;
+      break;
   }
 
   r.innerText = txt;
@@ -256,6 +293,8 @@ NOTE: ${currentFile.note}`;
 
 function loadStaffList(){
   const list = document.getElementById("staffList");
+  if(!list) return;
+
   list.innerHTML = "";
 
   files.forEach(f=>{
@@ -268,17 +307,14 @@ function loadStaffList(){
       searchFile();
     });
 
-    div.addEventListener("touchend",()=>{
-      document.getElementById("staffId").value = f.id;
-      searchFile();
-    });
-
     list.appendChild(div);
   });
 }
 
 function toggleStaffList(){
   const list = document.getElementById("staffList");
+  if(!list) return;
+
   list.style.display = list.style.display === "block" ? "none" : "block";
   beep(1000,50,0.04);
 }
@@ -292,6 +328,8 @@ function triggerEmergency(){
   const ov = document.getElementById("emergencyOverlay");
   const msg = document.getElementById("emergencyMsg");
   const choices = document.getElementById("emergencyChoices");
+
+  if(!ov || !msg || !choices) return;
 
   ov.style.display = "flex";
   ov.style.pointerEvents = "auto";
@@ -309,9 +347,12 @@ function triggerEmergency(){
     msg.innerHTML = `SYSTEM_OVERRIDE_COMPLETE...<br><br>緊急事態は解決しましたか？`;
 
     choices.innerHTML = `
-      <button onclick="resolveEmergency()">はい</button>
-      <button onclick="forceYes()" id="noBtn">いいえ</button>
+      <button type="button" id="yesBtn">はい</button>
+      <button type="button" id="noBtn">いいえ</button>
     `;
+
+    document.getElementById("yesBtn").addEventListener("click",resolveEmergency);
+    document.getElementById("noBtn").addEventListener("click",forceYes);
 
     beep(1500,200,0.1);
   },5000);
@@ -319,10 +360,15 @@ function triggerEmergency(){
 
 function forceYes(){
   const noBtn = document.getElementById("noBtn");
-  noBtn.innerText = "はい";
-  noBtn.onclick = resolveEmergency;
+  const msg = document.getElementById("emergencyMsg");
 
-  document.getElementById("emergencyMsg").innerHTML += `<br><span style="color:red;">[ 否定は許可されていません ]</span>`;
+  if(!noBtn || !msg) return;
+
+  noBtn.innerText = "はい";
+  noBtn.removeEventListener("click",forceYes);
+  noBtn.addEventListener("click",resolveEmergency);
+
+  msg.innerHTML += `<br><span style="color:red;">[ 否定は許可されていません ]</span>`;
   beep(400,100,0.2);
 }
 
@@ -330,6 +376,8 @@ function resolveEmergency(){
   clearInterval(emergencyInterval);
 
   const ov = document.getElementById("emergencyOverlay");
+  if(!ov) return;
+
   ov.style.background = "white";
 
   setTimeout(()=>{
@@ -340,3 +388,25 @@ function resolveEmergency(){
 
   beep(1800,100,0.1);
 }
+
+/* =========================
+   EVENT BIND
+========================= */
+document.addEventListener("DOMContentLoaded",()=>{
+
+  document.getElementById("loginBtn").addEventListener("click",login);
+  document.getElementById("searchBtn").addEventListener("click",searchFile);
+  document.getElementById("staffListTitle").addEventListener("click",toggleStaffList);
+  document.getElementById("emergencyBtn").addEventListener("click",triggerEmergency);
+
+  document.getElementById("password").addEventListener("keydown",(e)=>{
+    if(e.key === "Enter") login();
+  });
+
+  document.querySelectorAll("#tabs button").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      showTab(btn.dataset.tab);
+    });
+  });
+
+});
