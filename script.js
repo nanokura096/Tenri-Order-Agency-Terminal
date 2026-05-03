@@ -610,6 +610,11 @@ E:爆発物
    1. DATABASE (鳴響チーム / 天理秩序機関)
 ========================= */
 
+/* =========================
+   1. DATABASE
+========================= */
+// ※ files配列の中身はご自身のデータ（鳴瀬可楚など）をここに入れてください。
+
 let currentFile = null;
 let loginAttempts = 0;
 const MAX_ATTEMPTS = 3;
@@ -621,13 +626,9 @@ let emergencyInterval = null;
 ========================= */
 function initAudio() {
     try {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-    } catch (e) { console.warn("Audio init failed"); }
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+    } catch (e) { console.warn("Audio failed"); }
 }
 
 function beep(freq, dur, vol = 0.05) {
@@ -650,10 +651,7 @@ function login() {
     initAudio(); 
     const uEl = document.getElementById("username");
     const pEl = document.getElementById("password");
-    if (!uEl || !pEl) return;
-
     if (uEl.value === "admin" && pEl.value === "226227") {
-        loginAttempts = 0;
         document.getElementById("loginBox").innerHTML = '<div class="blink">AUTHENTICATING...</div>';
         beep(800, 100, 0.1);
         setTimeout(() => {
@@ -662,10 +660,9 @@ function login() {
         }, 1500);
     } else {
         loginAttempts++;
-        if (loginAttempts >= MAX_ATTEMPTS) {
-            initiateAmnestic();
-        } else {
-            document.getElementById("loginError").innerText = "ACCESS DENIED. REMAINING: " + (MAX_ATTEMPTS - loginAttempts);
+        if (loginAttempts >= MAX_ATTEMPTS) initiateAmnestic();
+        else {
+            document.getElementById("loginError").innerText = `ACCESS DENIED. REMAINING: ${MAX_ATTEMPTS - loginAttempts}`;
             beep(150, 500, 0.2);
         }
     }
@@ -673,14 +670,9 @@ function login() {
 
 function initiateAmnestic() {
     const overlay = document.getElementById("amnesticOverlay");
-    if (overlay) {
-        overlay.style.display = "flex";
-        const siren = setInterval(() => {
-            beep(100, 700, 0.2);
-            setTimeout(() => beep(150, 700, 0.2), 800);
-        }, 1600);
-        setTimeout(() => { clearInterval(siren); location.reload(); }, 8000);
-    }
+    overlay.style.display = "flex";
+    const siren = setInterval(() => { beep(100, 700, 0.2); setTimeout(() => beep(150, 700, 0.2), 800); }, 1600);
+    setTimeout(() => { clearInterval(siren); location.reload(); }, 8000);
 }
 
 /* =========================
@@ -688,30 +680,14 @@ function initiateAmnestic() {
 ========================= */
 function startLoadingSequence() {
     const boot = document.getElementById("bootScreen");
-    boot.style.display = "block";
-    boot.innerHTML = "";
-    const lines = [
-        "> INITIALIZING BOOT SEQUENCE...",
-        "> CHECKING HARDWARE INTEGRITY... [OK]",
-        "> CONNECTING TO TENRI-NETWORK... [CONNECTED]",
-        "> LOADING ENCRYPTION MODULES...",
-        "> VERIFYING CLEARANCE: LEVEL 3...",
-        "> WELCOME, AGENT NANO. ACCESS GRANTED."
-    ];
-
+    boot.style.display = "block"; boot.innerHTML = "";
+    const lines = ["> INITIALIZING...", "> HARDWARE CHECK... [OK]", "> CONNECTING... [OK]", "> WELCOME, AGENT NANO."];
     let i = 0;
     function addLine() {
         if (i < lines.length) {
-            const div = document.createElement("div");
-            div.innerText = lines[i];
-            boot.appendChild(div);
-            div.scrollIntoView({ behavior: 'smooth', block: 'end' });
-            beep(600 + (i * 100), 40, 0.03); 
-            i++;
-            setTimeout(addLine, Math.random() * 400 + 400); 
-        } else {
-            setTimeout(finishBoot, 1000);
-        }
+            const div = document.createElement("div"); div.innerText = lines[i]; boot.appendChild(div);
+            beep(600 + (i * 100), 40, 0.03); i++; setTimeout(addLine, 500);
+        } else setTimeout(finishBoot, 1000);
     }
     addLine();
 }
@@ -719,49 +695,29 @@ function startLoadingSequence() {
 function finishBoot() {
     document.getElementById("bootScreen").style.display = "none";
     document.getElementById("mainTerminal").style.display = "block";
-    updateClock();
-    setInterval(updateClock, 1000);
-    loadStaffList();
-    setupClearanceListener(); 
+    updateClock(); setInterval(updateClock, 1000);
+    loadStaffList(); setupClearanceListener(); 
 }
 
 /* =========================
-   5. TERMINAL ENGINE (バグ対策済)
+   5. TERMINAL ENGINE
 ========================= */
 function setupClearanceListener() {
     const select = document.getElementById("clearance");
-    if (select) {
-        select.onchange = function(e) {
-            const res = document.getElementById("result");
-            beep(1200, 50, 0.05);
-            res.innerHTML = `<div class="blink" style="text-align:center; margin-top:50px;">[ AUTHENTICATING LEVEL ${e.target.value}... ]</div>`;
-            
-            setTimeout(() => {
-                beep(1500, 80, 0.03);
-                const sid = document.getElementById("staffId");
-                if (sid && sid.value.trim() !== "") {
-                    searchFile(); 
-                } else {
-                    res.innerText = "READY / ACCESS GRANTED";
-                }
-            }, 800);
-        };
-    }
+    select.onchange = function(e) {
+        const res = document.getElementById("result");
+        beep(1200, 50, 0.05);
+        res.innerHTML = `<div class="blink" style="text-align:center; margin-top:50px;">[ AUTHENTICATING LEVEL ${e.target.value}... ]</div>`;
+        setTimeout(() => { if (document.getElementById("staffId").value.trim()) searchFile(); else res.innerText = "READY"; }, 800);
+    };
 }
 
 function searchFile() {
-    initAudio();
-    beep(1000, 50, 0.05);
+    initAudio(); beep(1000, 50, 0.05);
     const sid = document.getElementById("staffId").value.trim();
     const cl = document.getElementById("clearance").value;
     const f = files.find(x => x.id === sid);
-
-    if (!f || parseInt(cl) < parseInt(f.clearance)) {
-        beep(200, 600, 0.2);
-        alert("ACCESS DENIED: INSUFFICIENT PRIVILEGES");
-        return;
-    }
-    
+    if (!f || parseInt(cl) < parseInt(f.clearance)) { beep(200, 600, 0.2); alert("ACCESS DENIED"); return; }
     currentFile = f;
     document.getElementById("tabs").style.display = "flex";
     showTab('personnel');
@@ -770,144 +726,65 @@ function searchFile() {
 function showTab(tab) {
     if (!currentFile) return;
     const r = document.getElementById("result");
-    if (!r) return;
-
-    // --- ここが重要！ ---
-    // innerText と innerHTML の両方を空っぽにして、前の残像を物理的に消す
-    r.innerText = "";
-    r.innerHTML = ""; 
-    // --------------------
+    r.innerHTML = ""; // 重なり防止
 
     beep(1800, 30, 0.05);
-
     let content = "";
-    if (tab === 'personnel') {
-        content = `NAME: ${currentFile.name}\nRANK: ${currentFile.rank}\n\n${currentFile.ability}`;
-    } else if (tab === 'ability') {
-        content = `[ABILITY DATA]\n${currentFile.ability}`;
-    } else if (tab === 'artifact') {
-        // currentFile の中身を反映
-        const desc = currentFile.Description || currentFile.description || "[データ抹消]";
-        content = `WEAPON: ${currentFile.weapon}\n\n${desc}`;
-    } else if (tab === 'record') {
-        // RECORD ページの内容を反映
-        content = `RECORD:\n${currentFile.record || "記録なし"}`;
-    }
+    if (tab === 'personnel') content = `NAME: ${currentFile.name}\nRANK: ${currentFile.rank}\n\n${currentFile.ability}`;
+    else if (tab === 'ability') content = `[ABILITY DATA]\n${currentFile.ability}`;
+    else if (tab === 'artifact') content = `WEAPON: ${currentFile.weapon}\n\n${currentFile.description || currentFile.Description || "NO DATA"}`;
+    else if (tab === 'record') content = `RECORD:\n${currentFile.record || "NO RECORD"}\n\nNOTE: ${currentFile.note || ""}`;
 
-    // 「+=」ではなく「=」を使い、新しい内容だけで上書きする
     r.innerText = content;
-
-    // スマホで文字が下に溜まらないよう、表示位置を一番上に戻す
-    r.scrollTop = 0;
-}
-
-    let content = "";
-    if (tab === 'personnel') {
-        content = `NAME: ${currentFile.name}\nRANK: ${currentFile.rank}\n\n${currentFile.ability}`;
-    } else if (tab === 'ability') {
-        content = `[ABILITY DATA]\n${currentFile.ability}`;
-    } else if (tab === 'artifact') {
-        // 大文字のDescriptionと小文字のdescription、両方に対応
-        const desc = currentFile.Description || currentFile.description || "NO DATA";
-        content = `WEAPON: ${currentFile.weapon}\n\n${desc}`;
-    } else if (tab === 'record') {
-        content = `RECORD:\n${currentFile.record || "NO RECORD"}\n\nNOTE: ${currentFile.note || ""}`;
-    }
-
-    // 2. 「+=」ではなく「=」で代入する
-    r.innerText = content;
-    
-    // 3. 念押し：スクロール位置を一番上に戻す
     r.scrollTop = 0;
 }
 
 /* =========================
-   6. EMERGENCY SYSTEM (追加)
+   6. EMERGENCY SYSTEM
 ========================= */
 function triggerEmergency() {
     initAudio();
     const overlay = document.getElementById("emergencyOverlay");
     const container = document.getElementById("emergencyChoices");
     const msg = document.getElementById("emergencyMsg");
-    if (!overlay || !container || !msg) return;
-
-    overlay.style.display = "flex";
-    overlay.style.background = "rgba(100, 0, 0, 0.9)"; // 深い赤
     
-    // サイレン
-    emergencyInterval = setInterval(() => {
-        beep(100, 800, 0.2); 
-    }, 1000);
+    overlay.style.display = "flex";
+    overlay.style.background = "rgba(100, 0, 0, 0.9)";
+    emergencyInterval = setInterval(() => { beep(100, 800, 0.2); }, 1000);
 
-    // 第1フェーズ：絶望のカウントダウン
-    msg.innerHTML = `
-        <span style="font-size: 2rem; color: #ff3131;">[ ALERT ]</span><br><br>
-        緊急事態を検知しました。<br>
-        現在、エージェントが現場に向かっています。<br>
-        そのまま動かずに待機してください。
-    `;
-    container.innerHTML = ""; // ボタンはまだ出さない
+    msg.innerHTML = `<span style="font-size: 1.5rem; color: #ff3131;">[ ALERT ]</span><br><br>緊急事態を検知。<br>エージェントが向かっています。<br>そのまま待機してください。`;
+    container.innerHTML = "";
 
-    // 5秒後に第2フェーズ：ノイズと「解決しましたか？」
     setTimeout(() => {
-        // ノイズ音（短く高いビープ音をランダムに）
         const noise = setInterval(() => beep(Math.random() * 2000 + 500, 20, 0.05), 50);
-        
-        // 画面を一時的に白黒反転させてノイズ感を演出
         overlay.style.filter = "invert(1) contrast(200%)";
         
-        // ... (triggerEmergencyの前の部分はそのまま)
-
         setTimeout(() => {
             clearInterval(noise);
-            overlay.style.filter = "none";
-            overlay.style.background = "black";
-            
-            msg.innerHTML = `
-                <div class="blink" style="color: #00ff41; font-family: monospace; margin-bottom: 20px;">
-                SYSTEM_OVERRIDE_COMPLETE...<br>
-                </div>
-                緊急事態は解決しましたか？
-            `;
-
-            // 最初は「はい」と「いいえ」を出す
+            overlay.style.filter = "none"; overlay.style.background = "black";
+            msg.innerHTML = `<div class="blink" style="color: #00ff41;">SYSTEM_OVERRIDE_COMPLETE...</div><br>緊急事態は解決しましたか？`;
             container.innerHTML = `
-                <button class="yes-btn" onclick="resolveEmergency()" style="margin: 5px; background:transparent; color:red; border:1px solid red; padding:10px; width:150px;">はい</button>
-                <button id="noBtn" onclick="forceYes()" style="margin: 5px; background:transparent; color:red; border:1px solid red; padding:10px; width:150px;">いいえ</button>
+                <button class="yes-btn" onclick="resolveEmergency()" style="margin:5px; background:transparent; color:red; border:1px solid red; padding:10px; width:150px;">はい</button>
+                <button id="noBtn" onclick="forceYes()" style="margin:5px; background:transparent; color:red; border:1px solid red; padding:10px; width:150px;">いいえ</button>
             `;
-            
             beep(1500, 200, 0.1);
         }, 300);
     }, 5000);
 }
 
-// 「いいえ」が「はい」に書き換わる処理
 function forceYes() {
     const noBtn = document.getElementById("noBtn");
-    if (!noBtn) return;
-
-    // 嫌な感じのビープ音
     beep(400, 100, 0.2);
-    
-    // 文字を書き換えて、クリックした時の関数も「解決」に変える
-    noBtn.innerText = "はい";
-    noBtn.style.background = "red";
-    noBtn.style.color = "white";
+    noBtn.innerText = "はい"; noBtn.style.background = "red"; noBtn.style.color = "white";
     noBtn.onclick = resolveEmergency; 
-
-    // メッセージも少し威圧的に変える
     document.getElementById("emergencyMsg").innerHTML += `<br><span style="font-size:0.8rem; color:red;">[ 選択エラー: 否定は許可されていません ]</span>`;
 }
 
 function resolveEmergency() {
     clearInterval(emergencyInterval);
-    beep(1500, 100, 0.1);
     const overlay = document.getElementById("emergencyOverlay");
     overlay.style.background = "white";
-    setTimeout(() => {
-        overlay.style.display = "none";
-        overlay.style.background = "rgba(255, 0, 0, 0.8)";
-    }, 150);
+    setTimeout(() => { overlay.style.display = "none"; overlay.style.background = "rgba(255, 0, 0, 0.8)"; }, 150);
 }
 
 /* =========================
@@ -915,38 +792,22 @@ function resolveEmergency() {
 ========================= */
 function updateClock() {
     const status = document.getElementById("statusbar");
-    if(!status) return;
-
-    const now = new Date();
-    const hour = now.getHours();
+    const now = new Date(); const hour = now.getHours();
     let msg = "SYSTEM: ONLINE";
-
-    // 時間帯によって一言変える
-    if (hour >= 5 && hour < 10) {
-        msg = "SYSTEM: GOOD MORNING / 朝の点検完了";
-    } else if (hour >= 17 && hour < 22) {
-        msg = "SYSTEM: NIGHT MODE / 夜間警備強化中";
-    } else if (hour >= 22 || hour < 5) {
-        msg = "SYSTEM: [!] WARNING / 深夜アクセス記録中";
-    }
-
+    if (hour >= 5 && hour < 10) msg = "SYSTEM: GOOD MORNING / 点検完了";
+    else if (hour >= 17 && hour < 22) msg = "SYSTEM: NIGHT MODE / 警備強化";
+    else if (hour >= 22 || hour < 5) msg = "SYSTEM: [!] WARNING / 深夜アクセス記録中";
     status.innerHTML = `${msg} / USER: NANO / ${now.toLocaleString()}`;
 }
 
-
 function loadStaffList() {
     const list = document.getElementById("staffList");
-    if(!list) return;
     list.innerHTML = "";
     files.forEach(f => {
         const div = document.createElement("div");
-        div.className = "staffEntry";
         div.style = "cursor:pointer; padding:5px; border-bottom:1px solid #111;";
         div.innerText = `ID: ${f.id} / NAME: ${f.name}`;
-        div.onclick = () => { 
-            document.getElementById("staffId").value = f.id; 
-            searchFile(); 
-        };
+        div.onclick = () => { document.getElementById("staffId").value = f.id; searchFile(); };
         list.appendChild(div);
     });
 }
