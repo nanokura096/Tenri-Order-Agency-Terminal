@@ -583,7 +583,7 @@ function login() {
     const user = document.getElementById("username").value;
     const pass = document.getElementById("password").value;
 
-    if (user === "鳴響" && pass === "0000") {
+    if (user === "なの" && pass === "226227") {
         loginAttempts = 0;
         document.getElementById("loginBox").innerHTML = '<div class="blink">AUTHENTICATING...</div>';
         beep(800, 100);
@@ -612,7 +612,7 @@ function initiateAmnestic() {
         overlay.style.display = "none";
         document.getElementById("loginScreen").style.display = "flex";
         document.getElementById("loginBox").innerHTML = `
-            <div id="loginTitle">AUTHENTICATION REQUIRED<br>鳴響チーム 認証システム</div>
+            <div id="loginTitle">AUTHENTICATION REQUIRED<br>Tenri Order Agency Authentication System</div>
             <input type="text" id="username" placeholder="[USER ID]" autocomplete="off">
             <input type="password" id="password" placeholder="[PASS KEY]" autocomplete="off">
             <button onclick="login()">ACCESS</button>
