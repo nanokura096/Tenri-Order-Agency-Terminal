@@ -652,7 +652,7 @@ function login() {
     const pEl = document.getElementById("password");
     if (!uEl || !pEl) return;
 
-    if (uEl.value === "なの" && pEl.value === "226227") {
+    if (uEl.value === "admin" && pEl.value === "226227") {
         loginAttempts = 0;
         document.getElementById("loginBox").innerHTML = '<div class="blink">AUTHENTICATING...</div>';
         beep(800, 100, 0.1);
