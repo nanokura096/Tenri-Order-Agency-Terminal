@@ -614,6 +614,7 @@ let currentFile = null;
 let loginAttempts = 0;
 const MAX_ATTEMPTS = 3;
 let audioCtx = null;
+let emergencyInterval = null;
 
 /* =========================
    2. AUDIO ENGINE
@@ -623,10 +624,10 @@ function initAudio() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-    } catch (e) {
-        console.warn("Audio Context init failed.");
-    }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    } catch (e) { console.warn("Audio init failed"); }
 }
 
 function beep(freq, dur, vol = 0.05) {
@@ -643,7 +644,7 @@ function beep(freq, dur, vol = 0.05) {
 }
 
 /* =========================
-   3. LOGIN & SECURITY (USER: admin)
+   3. LOGIN LOGIC
 ========================= */
 function login() {
     initAudio(); 
@@ -651,15 +652,12 @@ function login() {
     const pEl = document.getElementById("password");
     if (!uEl || !pEl) return;
 
-    if (uEl.value === "admin" && pEl.value === "226227") {
+    if (uEl.value === "なの" && pEl.value === "226227") {
         loginAttempts = 0;
-        const box = document.getElementById("loginBox");
-        if(box) box.innerHTML = '<div class="blink">AUTHENTICATING...</div>';
+        document.getElementById("loginBox").innerHTML = '<div class="blink">AUTHENTICATING...</div>';
         beep(800, 100, 0.1);
-        
         setTimeout(() => {
-            const screen = document.getElementById("loginScreen");
-            if(screen) screen.style.display = "none";
+            document.getElementById("loginScreen").style.display = "none";
             startLoadingSequence();
         }, 1500);
     } else {
@@ -667,8 +665,7 @@ function login() {
         if (loginAttempts >= MAX_ATTEMPTS) {
             initiateAmnestic();
         } else {
-            const err = document.getElementById("loginError");
-            if(err) err.innerText = "ACCESS DENIED. REMAINING: " + (MAX_ATTEMPTS - loginAttempts);
+            document.getElementById("loginError").innerText = "ACCESS DENIED. REMAINING: " + (MAX_ATTEMPTS - loginAttempts);
             beep(150, 500, 0.2);
         }
     }
@@ -682,10 +679,7 @@ function initiateAmnestic() {
             beep(100, 700, 0.2);
             setTimeout(() => beep(150, 700, 0.2), 800);
         }, 1600);
-        setTimeout(() => {
-            clearInterval(siren);
-            location.reload(); 
-        }, 8000);
+        setTimeout(() => { clearInterval(siren); location.reload(); }, 8000);
     }
 }
 
@@ -694,7 +688,6 @@ function initiateAmnestic() {
 ========================= */
 function startLoadingSequence() {
     const boot = document.getElementById("bootScreen");
-    if (!boot) return;
     boot.style.display = "block";
     boot.innerHTML = "";
     const lines = [
@@ -702,10 +695,8 @@ function startLoadingSequence() {
         "> CHECKING HARDWARE INTEGRITY... [OK]",
         "> CONNECTING TO TENRI-NETWORK... [CONNECTED]",
         "> LOADING ENCRYPTION MODULES...",
-        "> [WARNING] UNSTABLE QUANTUM DETECTED",
-        "> STABILIZING... [SUCCESS]",
-        "> VERIFYING CLEARANCE: LEVEL 5...",
-        "> WELCOME, ADMINISTRATOR. ACCESS GRANTED."
+        "> VERIFYING CLEARANCE: LEVEL 3...",
+        "> WELCOME, AGENT NANO. ACCESS GRANTED."
     ];
 
     let i = 0;
@@ -717,41 +708,42 @@ function startLoadingSequence() {
             div.scrollIntoView({ behavior: 'smooth', block: 'end' });
             beep(600 + (i * 100), 40, 0.03); 
             i++;
-            setTimeout(addLine, Math.random() * 500 + 800); 
+            setTimeout(addLine, Math.random() * 400 + 400); 
         } else {
-            finishBoot();
+            setTimeout(finishBoot, 1000);
         }
     }
     addLine();
 }
 
 function finishBoot() {
-    setTimeout(() => {
-        const boot = document.getElementById("bootScreen");
-        const main = document.getElementById("mainTerminal");
-        if (boot) boot.style.display = "none";
-        if (main) main.style.display = "block";
-        updateClock();
-        setInterval(updateClock, 1000);
-        loadStaffList();
-        setupClearanceListener(); 
-    }, 1000);
+    document.getElementById("bootScreen").style.display = "none";
+    document.getElementById("mainTerminal").style.display = "block";
+    updateClock();
+    setInterval(updateClock, 1000);
+    loadStaffList();
+    setupClearanceListener(); 
 }
 
 /* =========================
-   5. TERMINAL FUNCTIONS
+   5. TERMINAL ENGINE (バグ対策済)
 ========================= */
 function setupClearanceListener() {
     const select = document.getElementById("clearance");
     if (select) {
         select.onchange = function(e) {
             const res = document.getElementById("result");
-            if (!res) return;
             beep(1200, 50, 0.05);
-            res.innerHTML = `<div class="blink" style="text-align:center; margin-top:50px; font-weight:bold;">[ AUTHENTICATING LEVEL ${e.target.value}... ]</div>`;
+            res.innerHTML = `<div class="blink" style="text-align:center; margin-top:50px;">[ AUTHENTICATING LEVEL ${e.target.value}... ]</div>`;
+            
             setTimeout(() => {
                 beep(1500, 80, 0.03);
-                searchFile(); 
+                const sid = document.getElementById("staffId");
+                if (sid && sid.value.trim() !== "") {
+                    searchFile(); 
+                } else {
+                    res.innerText = "READY / ACCESS GRANTED";
+                }
             }, 800);
         };
     }
@@ -760,105 +752,43 @@ function setupClearanceListener() {
 function searchFile() {
     initAudio();
     beep(1000, 50, 0.05);
-    const sid = document.getElementById("staffId");
-    const cl = document.getElementById("clearance");
-    if (!sid || !cl) return;
+    const sid = document.getElementById("staffId").value.trim();
+    const cl = document.getElementById("clearance").value;
+    const f = files.find(x => x.id === sid);
 
-    const f = files.find(x => x.id === sid.value.trim());
-    const res = document.getElementById("result");
-
-    if (!f || parseInt(cl.value) < parseInt(f.clearance)) {
+    if (!f || parseInt(cl) < parseInt(f.clearance)) {
         beep(200, 600, 0.2);
-        if(res) res.innerText = "ACCESS DENIED: INSUFFICIENT PRIVILEGES";
+        alert("ACCESS DENIED: INSUFFICIENT PRIVILEGES");
         return;
     }
     
     currentFile = f;
-    const tabs = document.getElementById("tabs");
-    if(tabs) tabs.style.display = "flex";
+    document.getElementById("tabs").style.display = "flex";
     showTab('personnel');
 }
 
-// ★重なりバグを物理的に破壊する showTab
 function showTab(tab) {
     if (!currentFile) return;
     const r = document.getElementById("result");
-    if (!r) return;
+    r.innerText = ""; // 重なり防止のクリア
 
     beep(1800, 30, 0.05);
-
-    // 1. 物理的な全削除
-    while (r.firstChild) {
-        r.removeChild(r.firstChild);
-    }
-
-    // 2. スクロール位置を強制的にトップに戻す（重なり防止の基本）
-    r.scrollTop = 0;
-
     let content = "";
     if (tab === 'personnel') {
-        content = "NAME: " + (currentFile.name || "UNKNOWN") + 
-                  "\nDIVISION: " + (currentFile.division || "TENRI") +
-                  "\nRANK: " + (currentFile.rank || "NONE") + 
-                  "\nSTATUS: " + (currentFile.status || "UNKNOWN");
-    } 
-    else if (tab === 'ability') {
-        content = "[ABILITY DATA]\n" + (currentFile.ability || "NO DATA");
-    } 
-    else if (tab === 'artifact') {
-        content = "WEAPON: " + (currentFile.weapon || "NONE") + 
-                  "\n\n" + (currentFile.Description || currentFile.description || "[ NO DATA ]");
-    } 
-    else if (tab === 'record') {
-        content = "RECORD:\n" + (currentFile.record || "NO RECORD") + 
-                  "\n\nNOTE: " + (currentFile.note || "");
+        content = `NAME: ${currentFile.name}\nRANK: ${currentFile.rank}\n\n${currentFile.ability}`;
+    } else if (tab === 'ability') {
+        content = `[ABILITY DATA]\n${currentFile.ability}`;
+    } else if (tab === 'artifact') {
+        content = `WEAPON: ${currentFile.weapon}\n\n${currentFile.Description || currentFile.description || "NO DATA"}`;
+    } else if (tab === 'record') {
+        content = `RECORD:\n${currentFile.record || "NO RECORD"}`;
     }
-
-    // 3. 表示要素の作成
-    const display = document.createElement("pre");
-    display.style.fontFamily = "inherit";
-    display.style.whiteSpace = "pre-wrap";
-    display.style.margin = "0";
-    display.style.position = "relative"; // 👈 これで描画順を整理
-    display.style.zIndex = "10";         // 👈 これで最前面へ
-    display.innerText = content;
-    
-    r.appendChild(display);
-}
-
-function updateClock() {
-    const status = document.getElementById("statusbar");
-    if(status) status.innerHTML = "SYSTEM: ONLINE / USER: admin / " + new Date().toLocaleString();
-}
-
-function loadStaffList() {
-    const list = document.getElementById("staffList");
-    if(!list) return;
-    list.innerHTML = "";
-    files.forEach(f => {
-        const div = document.createElement("div");
-        div.className = "staffEntry";
-        div.innerText = "ID: " + f.id + " / NAME: " + f.name;
-        div.onclick = () => { 
-            const sid = document.getElementById("staffId");
-            if(sid) sid.value = f.id; 
-            searchFile(); 
-        };
-        list.appendChild(div);
-    });
-}
-
-function toggleStaffList() {
-    beep(1000, 50);
-    const list = document.getElementById("staffList");
-    if(list) list.style.display = list.style.display === "none" ? "block" : "none";
+    r.innerText = content; // 上書き(innerText = )
 }
 
 /* =========================
-   EMERGENCY SYSTEM PROTOCOL
+   6. EMERGENCY SYSTEM (追加)
 ========================= */
-let emergencyInterval;
-
 function triggerEmergency() {
     initAudio();
     const overlay = document.getElementById("emergencyOverlay");
@@ -868,31 +798,57 @@ function triggerEmergency() {
 
     overlay.style.display = "flex";
     
-    // サイレン音のループ開始
     emergencyInterval = setInterval(() => {
         beep(200, 500, 0.2);
         setTimeout(() => beep(300, 500, 0.2), 600);
     }, 1200);
 
-    // メッセージと「はい」だけの選択肢を生成
     msg.innerHTML = "[ CRITICAL ERROR ]<br>緊急事態は解決しましたか？";
     container.innerHTML = `
-        <button class="yes-btn" onclick="resolveEmergency()" style="background:red; color:white; border:none; padding:10px; font-weight:bold; cursor:pointer;">はい</button>
-        <button class="yes-btn" onclick="resolveEmergency()" style="background:red; color:white; border:none; padding:10px; font-weight:bold; cursor:pointer;">はい</button>
-        <button class="yes-btn" onclick="resolveEmergency()" style="background:red; color:white; border:none; padding:10px; font-weight:bold; cursor:pointer;">はい</button>
+        <button class="yes-btn" onclick="resolveEmergency()">はい</button>
+        <button class="yes-btn" onclick="resolveEmergency()">はい</button>
+        <button class="yes-btn" onclick="resolveEmergency()">はい</button>
     `;
 }
 
 function resolveEmergency() {
     clearInterval(emergencyInterval);
     beep(1500, 100, 0.1);
-    
     const overlay = document.getElementById("emergencyOverlay");
-    // 解決時のフラッシュ演出
     overlay.style.background = "white";
-    
     setTimeout(() => {
         overlay.style.display = "none";
-        overlay.style.background = "rgba(255, 0, 0, 0.8)"; // 元の赤に戻す
+        overlay.style.background = "rgba(255, 0, 0, 0.8)";
     }, 150);
+}
+
+/* =========================
+   7. UTILS
+========================= */
+function updateClock() {
+    const status = document.getElementById("statusbar");
+    if(status) status.innerHTML = "SYSTEM: ONLINE / USER: NANO / " + new Date().toLocaleString();
+}
+
+function loadStaffList() {
+    const list = document.getElementById("staffList");
+    if(!list) return;
+    list.innerHTML = "";
+    files.forEach(f => {
+        const div = document.createElement("div");
+        div.className = "staffEntry";
+        div.style = "cursor:pointer; padding:5px; border-bottom:1px solid #111;";
+        div.innerText = `ID: ${f.id} / NAME: ${f.name}`;
+        div.onclick = () => { 
+            document.getElementById("staffId").value = f.id; 
+            searchFile(); 
+        };
+        list.appendChild(div);
+    });
+}
+
+function toggleStaffList() {
+    beep(1000, 50);
+    const list = document.getElementById("staffList");
+    list.style.display = list.style.display === "none" ? "block" : "none";
 }
