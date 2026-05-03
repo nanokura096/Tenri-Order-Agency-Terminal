@@ -574,30 +574,42 @@ E:爆発物
 ========================= */
 
 
-let currentFile = null;
 let loginAttempts = 0;
-const MAX_ATTEMPTS = 3;
+let audioCtx = null;
 
-/* --- LOGIN LOGIC --- */
+function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function beep(freq, dur, vol = 0.1) {
+    initAudio();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur/1000);
+    osc.start(); osc.stop(audioCtx.currentTime + dur/1000);
+}
+
 function login() {
-    const user = document.getElementById("username").value;
-    const pass = document.getElementById("password").value;
-
+    initAudio();
+    const u = document.getElementById("username").value;
+    const p = document.getElementById("password").value;
     if (user === "なの" && pass === "226227") {
         loginAttempts = 0;
         document.getElementById("loginBox").innerHTML = '<div class="blink">AUTHENTICATING...</div>';
         beep(800, 100);
-        setTimeout(() => {
-            document.getElementById("loginScreen").style.display = "none";
-            startLoadingSequence();
-        }, 1500);
+        document.getElementById("loginScreen").style.display = "none";
+        startBoot();
     } else {
         loginAttempts++;
-        if (loginAttempts >= MAX_ATTEMPTS) {
+        beep(150, 500, 0.3);
+        if (loginAttempts >= 3) {
             initiateAmnestic();
         } else {
-            document.getElementById("loginError").innerText = "ACCESS DENIED. REMAINING: " + (MAX_ATTEMPTS - loginAttempts);
-            beep(150, 500);
+            document.getElementById("loginError").innerText = `DENIED. REMAINING: ${3 - loginAttempts}`;
         }
     }
 }
@@ -605,127 +617,145 @@ function login() {
 function initiateAmnestic() {
     const overlay = document.getElementById("amnesticOverlay");
     overlay.style.display = "flex";
-    beep(100, 3000);
+    
+    // サイレン音の演出
+    const siren = setInterval(() => {
+        if (typeof beep === 'function') beep(100, 600, 0.3);
+    }, 1200);
 
     setTimeout(() => {
+        clearInterval(siren);
+        
+        // ログイン試行回数をリセット
         loginAttempts = 0;
+        
+        // 赤画面を隠す
         overlay.style.display = "none";
-        document.getElementById("loginScreen").style.display = "flex";
+        
+        // ログイン画面を再表示
+        const loginScreen = document.getElementById("loginScreen");
+        loginScreen.style.display = "flex";
+        
+        // ログインボックスの中身を英語表記の最新版で再構築
         document.getElementById("loginBox").innerHTML = `
-            <div id="loginTitle">AUTHENTICATION REQUIRED<br>Tenri Order Agency Authentication System</div>
+            <div id="loginTitle">
+                AUTHENTICATION REQUIRED<br>
+                <span style="font-size: 0.8em; opacity: 0.9;">Tenri Order Agency Authentication System</span>
+            </div>
             <input type="text" id="username" placeholder="[USER ID]" autocomplete="off">
             <input type="password" id="password" placeholder="[PASS KEY]" autocomplete="off">
             <button onclick="login()">ACCESS</button>
-            <div id="loginError">SESSION REBOOTED.</div>
+            <div id="loginError" style="color:white; margin-top:10px;">SESSION REBOOTED.</div>
         `;
-    }, 6000);
+        
+        // 内部状態（他の画面）も初期化
+        document.getElementById("bootScreen").style.display = "none";
+        document.getElementById("mainTerminal").style.display = "none";
+        
+    }, 6000); // 記憶処理時間：6秒
+}
 }
 
-/* --- BOOT SEQUENCE (演出強化版) --- */
-function startLoadingSequence() {
+function startBoot() {
     const boot = document.getElementById("bootScreen");
     boot.style.display = "block";
-    boot.innerHTML = "";
-
     const lines = [
-        "> INITIALIZING BOOT SEQUENCE...",
-        "> CHECKING HARDWARE INTEGRITY... [OK]",
-        "> CONNECTING TO TENRI-NETWORK NODE-01... [ESTABLISHED]",
+        "> INITIALIZING BOOT...",
+        "> CHECKING CONNECTIVITY...",
         "> LOADING ENCRYPTION MODULES...",
-        "> [WARNING] UNSTABLE QUANTUM FLUCTUATION DETECTED",
-        "> STABILIZING... [SUCCESS]",
-        "> DECRYPTING PERSONNEL DATABASE...",
-        "> SYNCING LOCAL TERMINAL WITH CENTRAL HUB...",
-        "> VERIFYING CLEARANCE: LEVEL 3...",
-        "> WELCOME, LEADER. ACCESS GRANTED."
+        "> ACCESSING DATABASE...",
+        "> WELCOME, LEADER."
     ];
-
     let i = 0;
-
     function addLine() {
         if (i < lines.length) {
-            const div = document.createElement("div");
-            div.innerText = lines[i];
-            boot.appendChild(div);
-
-            div.scrollIntoView({ behavior: "smooth", block: "end" });
-
-            beep(600 + (i * 100), 40, 0.03);
+            const d = document.createElement("div");
+            d.innerText = lines[i];
+            boot.appendChild(d);
+            d.scrollIntoView();
+            beep(500 + i * 100, 50, 0.05);
             i++;
-
-            setTimeout(addLine, Math.random() * 500 + 1000);
+            setTimeout(addLine, 1200); // 1.2秒間隔でゆっくり
         } else {
             setTimeout(() => {
                 boot.style.display = "none";
                 document.getElementById("mainTerminal").style.display = "block";
-
-                updateClock();
-                setInterval(updateClock, 1000);
-                loadStaffList();
-
-                beep(1200, 400, 0.1);
-            }, 1500);
+                loadStaff();
+            }, 1000);
         }
     }
-
     addLine();
 }
 
-/* --- DATABASE LOGIC --- */
-function searchFile() {
-    const id = document.getElementById("staffId").value.trim();
-    const cl = parseInt(document.getElementById("clearance").value);
-    const f = files.find(x => x.id === id);
+function loadStaff() {
+    const list = document.getElementById("staffList");
+    list.innerHTML = "";
+    files.forEach(f => {
+        const d = document.createElement("div");
+        d.style.padding = "10px"; d.style.border = "1px solid #00FF41"; d.style.marginTop = "5px";
+        d.innerText = `ID: ${f.id} / NAME: ${f.name}`;
+        d.onclick = () => { document.getElementById("staffId").value = f.id; searchFile(); };
+        list.appendChild(d);
+    });
+}
 
-    if (!f || cl < parseInt(f.clearance)) {
-        alert("ACCESS DENIED");
-        return;
-    }
-    currentFile = f;
+function searchFile() {
+    const id = document.getElementById("staffId").value;
+    const f = files.find(x => x.id === id);
+    if (!f) return alert("NOT FOUND");
     document.getElementById("tabs").style.display = "flex";
+    window.currentFile = f;
     showTab('personnel');
 }
 
 function showTab(tab) {
-    if (!currentFile) return;
+    beep(1200, 30);
+    const f = window.currentFile;
     const r = document.getElementById("result");
-    let content = "";
-    if (tab === 'personnel') content = "NAME: " + currentFile.name + "\nRANK: " + currentFile.rank + "\n\n" + currentFile.ability;
-    else if (tab === 'ability') content = "[ABILITY DATA]\n" + currentFile.ability;
-    else if (tab === 'artifact') content = "WEAPON: " + currentFile.weapon + "\n\n" + currentFile.Description;
-    else if (tab === 'record') content = "RECORD:\n" + currentFile.record + "\n\nNOTE: " + currentFile.note;
-    r.innerText = content;
+    if (tab === 'personnel') r.innerText = `NAME: ${f.name}\nRANK: ${f.rank}\n\n${f.ability}`;
+    if (tab === 'ability') r.innerText = `[ABILITY]\n${f.ability}`;
+    if (tab === 'artifact') r.innerText = `[ARTIFACT]\n${f.weapon}\n${f.Description}`;
+    if (tab === 'record') r.innerText = `[RECORD]\n${f.record}\n\nNOTE: ${f.note}`;
 }
 
-function updateClock() {
-    const status = document.getElementById("statusbar");
-    if(status) status.innerHTML = "SYSTEM: ONLINE / " + new Date().toLocaleString();
-}
-
-function loadStaffList() {
-    const list = document.getElementById("staffList");
-    list.innerHTML = "";
-    files.forEach(f => {
-        const div = document.createElement("div");
-        div.className = "staffEntry";
-        div.innerText = "ID: " + f.id + " / NAME: " + f.name;
-        div.onclick = () => { document.getElementById("staffId").value = f.id; searchFile(); };
-        list.appendChild(div);
-    });
-}
-
+/* --- UI UTILITIES --- */
 function toggleStaffList() {
+    // ユーザー操作による音の解禁を確認
+    if (typeof initAudio === 'function') initAudio();
+    if (typeof beep === 'function') beep(1000, 50);
+
     const list = document.getElementById("staffList");
-    list.style.display = list.style.display === "none" ? "block" : "none";
+    // 初回実行時に style.display が空文字の場合があるため、条件を微調整
+    if (list.style.display === "none" || list.style.display === "") {
+        list.style.display = "block";
+    } else {
+        list.style.display = "none";
+    }
 }
 
+/* --- AUDIO ENGINE --- */
+// グローバルで一度だけ宣言
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
 function beep(freq, dur) {
+    // ブラウザの保護状態をチェックして再開
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
     osc.frequency.value = freq;
+    
+    // 音量設定：0.1 (10%)
     gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    // 音の終わりを滑らかにする（クリックノイズ防止）
     gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur/1000);
-    osc.start(); osc.stop(audioCtx.currentTime + dur/1000);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + dur/1000);
 }
