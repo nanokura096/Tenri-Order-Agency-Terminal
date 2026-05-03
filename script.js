@@ -577,39 +577,54 @@ let loginAttempts = 0;
 const MAX_ATTEMPTS = 3;
 let audioCtx = null;
 
-/* --- 音響エンジン --- */
+/* =========================
+   2. AUDIO ENGINE
+========================= */
 function initAudio() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
+    try {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    } catch (e) {
+        console.error("Audio init error");
     }
 }
 
 function beep(freq, dur, vol = 0.05) {
     if (!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur/1000);
-    osc.start(); osc.stop(audioCtx.currentTime + dur/1000);
+    try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur/1000);
+        osc.start(); osc.stop(audioCtx.currentTime + dur/1000);
+    } catch (e) {}
 }
 
-/* --- LOGIN LOGIC --- */
+/* =========================
+   3. LOGIN & SECURITY
+========================= */
 function login() {
-    initAudio(); // 最初のクリックで音声を有効化
-    const user = document.getElementById("username").value;
-    const pass = document.getElementById("password").value;
+    initAudio(); 
+    const uEl = document.getElementById("username");
+    const pEl = document.getElementById("password");
+    if (!uEl || !pEl) return;
 
-    if (user === "なの" && pass === "226227") {
+    // ログイン情報の確認
+    if (uEl.value === "なの" && pEl.value === "226227") {
         loginAttempts = 0;
-        document.getElementById("loginBox").innerHTML = '<div class="blink">AUTHENTICATING...</div>';
+        const box = document.getElementById("loginBox");
+        if(box) box.innerHTML = '<div class="blink">AUTHENTICATING...</div>';
         beep(800, 100, 0.1);
+        
         setTimeout(() => {
-            document.getElementById("loginScreen").style.display = "none";
+            const screen = document.getElementById("loginScreen");
+            if(screen) screen.style.display = "none";
             startLoadingSequence();
         }, 1500);
     } else {
@@ -617,35 +632,36 @@ function login() {
         if (loginAttempts >= MAX_ATTEMPTS) {
             initiateAmnestic();
         } else {
-            document.getElementById("loginError").innerText = "ACCESS DENIED. REMAINING: " + (MAX_ATTEMPTS - loginAttempts);
+            const err = document.getElementById("loginError");
+            if(err) err.innerText = "ACCESS DENIED. REMAINING: " + (MAX_ATTEMPTS - loginAttempts);
             beep(150, 500, 0.2);
         }
     }
 }
 
-/* --- 記憶処理プロトコル --- */
 function initiateAmnestic() {
     const overlay = document.getElementById("amnesticOverlay");
-    if (!overlay) {
-        alert("CRITICAL ERROR: AMNESTIC SYSTEM FAILURE.");
-        location.reload();
-        return;
-    }
-    overlay.style.display = "flex";
-    const siren = setInterval(() => {
-        beep(100, 700, 0.2);
-        setTimeout(() => beep(150, 700, 0.2), 800);
-    }, 1600);
+    if (overlay) {
+        overlay.style.display = "flex";
+        const siren = setInterval(() => {
+            beep(100, 700, 0.2);
+            setTimeout(() => beep(150, 700, 0.2), 800);
+        }, 1600);
 
-    setTimeout(() => {
-        clearInterval(siren);
-        location.reload(); // 確実なリセット
-    }, 8000);
+        setTimeout(() => {
+            clearInterval(siren);
+            location.reload(); 
+        }, 8000);
+    }
 }
 
-/* --- BOOT SEQUENCE (スマホ対応版) --- */
+/* =========================
+   4. BOOT SEQUENCE
+========================= */
 function startLoadingSequence() {
     const boot = document.getElementById("bootScreen");
+    if (!boot) return;
+    
     boot.style.display = "block";
     boot.innerHTML = "";
     const lines = [
@@ -656,7 +672,7 @@ function startLoadingSequence() {
         "> [WARNING] UNSTABLE QUANTUM DETECTED",
         "> STABILIZING... [SUCCESS]",
         "> VERIFYING CLEARANCE: LEVEL 3...",
-        "> WELCOME, LEADER. ACCESS GRANTED."
+        "> WELCOME, AGENT NANO. ACCESS GRANTED."
     ];
 
     let i = 0;
@@ -668,55 +684,72 @@ function startLoadingSequence() {
             div.scrollIntoView({ behavior: 'smooth', block: 'end' });
             beep(600 + (i * 100), 40, 0.03); 
             i++;
-            setTimeout(addLine, Math.random() * 500 + 1000); // 1.0~1.5秒間隔
+            setTimeout(addLine, Math.random() * 500 + 800); 
         } else {
-            setTimeout(() => {
-                boot.style.display = "none";
-                document.getElementById("mainTerminal").style.display = "block";
-                updateClock();
-                setInterval(updateClock, 1000);
-                loadStaffList();
-                // 起動後にイベントリスナーをセット（エラー防止）
-                setupClearanceListener();
-            }, 1200);
+            finishBoot();
         }
     }
     addLine();
 }
 
-/* --- DATABASE LOGIC --- */
+function finishBoot() {
+    setTimeout(() => {
+        const boot = document.getElementById("bootScreen");
+        const main = document.getElementById("mainTerminal");
+        if (boot) boot.style.display = "none";
+        if (main) main.style.display = "block";
+        
+        updateClock();
+        setInterval(updateClock, 1000);
+        loadStaffList();
+        setupClearanceListener(); 
+    }, 1000);
+}
+
+/* =========================
+   5. TERMINAL FUNCTIONS
+========================= */
 function setupClearanceListener() {
     const select = document.getElementById("clearance");
     if (select) {
-        select.addEventListener("change", function() {
+        select.addEventListener("change", function(e) {
             const res = document.getElementById("result");
-            beep(1200, 50, 0.05);
-            res.innerHTML = `<div class="blink" style="text-align:center; margin-top:50px;">[ AUTHENTICATING LEVEL ${this.value}... ]</div>`;
-            setTimeout(() => beep(1500, 80, 0.03), 800);
+            if (res) {
+                beep(1200, 50, 0.05);
+                res.innerHTML = `<div class="blink" style="text-align:center; margin-top:50px;">[ AUTHENTICATING LEVEL ${e.target.value}... ]</div>`;
+                setTimeout(() => beep(1500, 80, 0.03), 800);
+            }
         });
     }
 }
 
 function searchFile() {
+    initAudio();
     beep(1000, 50, 0.05);
-    const id = document.getElementById("staffId").value.trim();
-    const cl = parseInt(document.getElementById("clearance").value);
-    const f = files.find(x => x.id === id);
+    const sid = document.getElementById("staffId");
+    const cl = document.getElementById("clearance");
+    if (!sid || !cl) return;
 
-    if (!f || cl < parseInt(f.clearance)) {
+    const f = files.find(x => x.id === sid.value.trim());
+
+    if (!f || parseInt(cl.value) < parseInt(f.clearance)) {
         beep(200, 600, 0.2);
         alert("ACCESS DENIED: INSUFFICIENT PRIVILEGES");
         return;
     }
+    
     currentFile = f;
-    document.getElementById("tabs").style.display = "flex";
+    const tabs = document.getElementById("tabs");
+    if(tabs) tabs.style.display = "flex";
     showTab('personnel');
 }
 
 function showTab(tab) {
-    beep(1800, 30, 0.05);
     if (!currentFile) return;
     const r = document.getElementById("result");
+    if (!r) return;
+
+    beep(1800, 30, 0.05);
     let content = "";
     if (tab === 'personnel') content = "NAME: " + currentFile.name + "\nRANK: " + currentFile.rank + "\n\n" + currentFile.ability;
     else if (tab === 'ability') content = "[ABILITY DATA]\n" + currentFile.ability;
@@ -727,7 +760,7 @@ function showTab(tab) {
 
 function updateClock() {
     const status = document.getElementById("statusbar");
-    if(status) status.innerHTML = "SYSTEM: ONLINE / " + new Date().toLocaleString();
+    if(status) status.innerHTML = "SYSTEM: ONLINE / USER: NANO / " + new Date().toLocaleString();
 }
 
 function loadStaffList() {
@@ -738,7 +771,11 @@ function loadStaffList() {
         const div = document.createElement("div");
         div.className = "staffEntry";
         div.innerText = "ID: " + f.id + " / NAME: " + f.name;
-        div.onclick = () => { beep(1000, 50); document.getElementById("staffId").value = f.id; searchFile(); };
+        div.onclick = () => { 
+            const sid = document.getElementById("staffId");
+            if(sid) sid.value = f.id; 
+            searchFile(); 
+        };
         list.appendChild(div);
     });
 }
@@ -746,5 +783,5 @@ function loadStaffList() {
 function toggleStaffList() {
     beep(1000, 50);
     const list = document.getElementById("staffList");
-    list.style.display = list.style.display === "none" ? "block" : "none";
+    if(list) list.style.display = list.style.display === "none" ? "block" : "none";
 }
