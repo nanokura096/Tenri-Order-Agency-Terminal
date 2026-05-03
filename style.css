@@ -1,111 +1,213 @@
 :root {
-  --green: #00FF41;
-  --bg: #000;
-  --red: #ff3131;
+  --green:#00FF41;
+  --bg:#000;
+  --red:#ff3131;
+}
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
 }
 
-body {
-  background: var(--bg);
-  color: var(--green);
-  font-family: 'Courier New', Courier, monospace;
-  margin: 0; padding: 15px;
-  overflow-x: hidden;
+body{
+  background:var(--bg);
+  color:var(--green);
+  font-family:Courier New, monospace;
+  margin:0;
+  padding:15px;
+  overflow-x:hidden;
 }
 
-/* ログイン・記憶処理共通 */
-#loginScreen, #amnesticOverlay {
-  position: fixed; inset: 0; background: var(--bg);
-  display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000;
-}
-#amnesticOverlay { background: #600; color: white; display: none; }
-
-#loginBox {
-  border: 1px solid var(--green); padding: 25px;
-  width: min(320px, 85vw); text-align: center;
-}
-
-/* ロード画面（スマホで見切れない設定） */
-#bootScreen {
-  padding: 20px;
-  font-size: clamp(12px, 3.8vw, 15px);
-  line-height: 1.6;
-  white-space: pre-wrap; /* ここが重要：自動折り返し */
-  word-break: break-all; /* 単語の途中でも折る */
-  height: 100vh; overflow-y: auto;
-}
-#bootScreen div {
-  margin-bottom: 10px; border-left: 2px solid var(--green);
-  padding-left: 8px; opacity: 0;
-  animation: slideIn 0.3s forwards;
-}
-@keyframes slideIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
-
-/* 入力エリア */
-input, select, button {
-  background: black; color: var(--green); border: 1px solid var(--green);
-  padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box;
-}
-.inputArea { margin-bottom: 20px; }
-
-#result {
-  border: 1px solid var(--green); padding: 15px;
-  min-height: 200px; white-space: pre-wrap; background: rgba(0,20,0,0.5);
+/* =========================
+   FULLSCREEN LAYERS
+========================= */
+#loginScreen,
+#amnesticOverlay,
+#emergencyOverlay,
+#bootScreen{
+  position:fixed;
+  inset:0;
 }
 
-.blink { animation: blink 1s infinite; }
-@keyframes blink { 50% { opacity: 0; } }
-
-/* ボタンを囲むコンテナ */
-.bottom-controls {
-    margin-top: 50px;       /* 上のコンテンツとの距離 */
-    padding-bottom: 30px;    /* 画面最下部との余白 */
-    border-top: 1px double var(--term-green); /* 区切り線 */
-    padding-top: 20px;
-    text-align: center;
+#loginScreen{
+  z-index:9999;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
 }
 
-/* 緊急ボタン：横幅を少し抑えて「押し間違い」を防ぐサイズ感に */
-.emergency-btn {
-    width: 90%;
-    max-width: 400px;
-    padding: 15px;
-    background: transparent;
-    border: 2px solid #ff0000;
-    color: #ff0000;
-    font-family: 'Courier New', Courier, monospace;
-    font-weight: bold;
-    letter-spacing: 2px;
-    cursor: pointer;
-    box-shadow: 0 0 5px #ff0000;
-    transition: 0.3s;
+#bootScreen{
+  z-index:9000;
+  display:none;
 }
 
-.emergency-btn:hover {
-    background: #ff0000;
-    color: white;
-    box-shadow: 0 0 20px #ff0000;
+#amnesticOverlay{
+  z-index:10000;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  background:#600;
+  color:#fff;
+  text-align:center;
+  pointer-events:none;
 }
 
-/* 記憶処理オーバーレイ */
-#amnesticOverlay {
-    display: none; /* 通常は見せない */
-    position: fixed;
-    inset: 0;
-    z-index: 10000;
-    pointer-events: none; /* ★重要：非表示の時はクリックを貫通させる */
+#emergencyOverlay{
+  z-index:20000;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  background:rgba(255,0,0,0.8);
+  pointer-events:none;
 }
 
-/* 緊急事態オーバーレイ */
-#emergencyOverlay {
-    display: none; /* 通常は見せない */
-    position: fixed;
-    inset: 0;
-    z-index: 20000;
-    pointer-events: none; /* ★重要：非表示の時はクリックを貫通させる */
+/* 表示時だけ触れる */
+#amnesticOverlay.active,
+#emergencyOverlay.active{
+  pointer-events:auto;
 }
 
-/* 表示された時だけクリックを有効にする設定 */
-#amnesticOverlay[style*="display: flex"],
-#emergencyOverlay[style*="display: flex"] {
-    pointer-events: auto; /* ★表示されたらクリックできるようにする */
+#emergencyContent{
+  background:#000;
+  padding:25px;
+  border:2px solid red;
+  width:85%;
+}
+
+#mainTerminal{
+  display:none;
+  position:relative;
+  z-index:5;
+}
+
+/* =========================
+   LOGIN
+========================= */
+#loginBox{
+  border:1px solid var(--green);
+  padding:25px;
+  width:min(320px,90vw);
+  text-align:center;
+}
+
+#loginTitle span{
+  font-size:12px;
+  opacity:.8;
+}
+
+/* =========================
+   INPUT
+========================= */
+input,select,button{
+  width:100%;
+  margin:6px 0;
+  padding:12px;
+  background:#000;
+  color:var(--green);
+  border:1px solid var(--green);
+  font-family:inherit;
+  font-size:16px;
+  touch-action:manipulation;
+}
+
+button:active,.staffEntry:active{
+  transform:scale(.98);
+}
+
+/* =========================
+   BOOT
+========================= */
+#bootScreen{
+  padding:20px;
+  font-size:14px;
+  line-height:1.6;
+  white-space:pre-wrap;
+  overflow-y:auto;
+}
+
+#bootScreen div{
+  margin-bottom:10px;
+  border-left:2px solid var(--green);
+  padding-left:8px;
+}
+
+/* =========================
+   TERMINAL
+========================= */
+#logo{
+  font-size:20px;
+  border-bottom:1px solid var(--green);
+  padding-bottom:10px;
+  margin-bottom:15px;
+}
+
+#statusbar{
+  font-size:12px;
+  margin-bottom:15px;
+}
+
+#tabs{
+  display:none;
+  gap:5px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+#tabs button{
+  flex:1;
+  min-width:80px;
+}
+
+#result{
+  border:1px solid var(--green);
+  min-height:220px;
+  max-height:50vh;
+  overflow-y:auto;
+  padding:15px;
+  white-space:pre-wrap;
+  background:rgba(0,20,0,.4);
+}
+
+#staffListTitle{
+  margin-top:20px;
+  text-align:center;
+  border-top:1px dashed var(--green);
+  padding-top:15px;
+  cursor:pointer;
+}
+
+#staffList{
+  display:none;
+}
+
+.staffEntry{
+  border:1px solid var(--green);
+  padding:10px;
+  margin-top:8px;
+}
+
+.bottom-controls{
+  margin-top:30px;
+  text-align:center;
+  border-top:1px double var(--green);
+  padding-top:20px;
+}
+
+.emergency-btn{
+  border-color:red;
+  color:red;
+}
+
+.blink{
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  50%{opacity:0;}
+}
+
+.warning{
+  font-size:80px;
 }
