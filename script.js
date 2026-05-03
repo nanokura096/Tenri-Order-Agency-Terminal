@@ -607,8 +607,9 @@ E:爆発物
   
 
 /* =========================
-   DATABASE (鳴響チーム / 天理秩序機関)
+   1. DATABASE (鳴響チーム / 天理秩序機関)
 ========================= */
+
 let currentFile = null;
 let loginAttempts = 0;
 const MAX_ATTEMPTS = 3;
@@ -626,7 +627,7 @@ function initAudio() {
             audioCtx.resume();
         }
     } catch (e) {
-        console.error("Audio init error");
+        console.warn("Audio Context init failed.");
     }
 }
 
@@ -644,7 +645,7 @@ function beep(freq, dur, vol = 0.05) {
 }
 
 /* =========================
-   3. LOGIN & SECURITY
+   3. LOGIN & SECURITY (USER: admin)
 ========================= */
 function login() {
     initAudio(); 
@@ -652,7 +653,6 @@ function login() {
     const pEl = document.getElementById("password");
     if (!uEl || !pEl) return;
 
-    // ログイン情報の確認
     if (uEl.value === "admin" && pEl.value === "226227") {
         loginAttempts = 0;
         const box = document.getElementById("loginBox");
@@ -693,7 +693,7 @@ function initiateAmnestic() {
 }
 
 /* =========================
-   4. BOOT SEQUENCE
+   4. BOOT SEQUENCE (スマホ対応・admin歓迎)
 ========================= */
 function startLoadingSequence() {
     const boot = document.getElementById("bootScreen");
@@ -708,8 +708,8 @@ function startLoadingSequence() {
         "> LOADING ENCRYPTION MODULES...",
         "> [WARNING] UNSTABLE QUANTUM DETECTED",
         "> STABILIZING... [SUCCESS]",
-        "> VERIFYING CLEARANCE: LEVEL 3...",
-        "> WELCOME, AGENT NANO. ACCESS GRANTED."
+        "> VERIFYING CLEARANCE: LEVEL 5...",
+        "> WELCOME, ADMINISTRATOR. ACCESS GRANTED."
     ];
 
     let i = 0;
@@ -744,33 +744,28 @@ function finishBoot() {
 }
 
 /* =========================
-   5. TERMINAL FUNCTIONS
+   5. TERMINAL FUNCTIONS (PERSONNEL 整理済)
 ========================= */
 function setupClearanceListener() {
     const select = document.getElementById("clearance");
     if (select) {
-        select.addEventListener("change", function(e) {
+        select.onchange = function(e) {
             const res = document.getElementById("result");
-            if (res) {
-                beep(1200, 50, 0.05);
-                // 1. まず「認証中」を表示
-                res.innerHTML = `<div class="blink" style="text-align:center; margin-top:50px;">[ AUTHENTICATING LEVEL ${e.target.value}... ]</div>`;
-                
-                // 2. 0.8秒後に実行する処理
-                setTimeout(() => {
-                    beep(1500, 80, 0.03);
-                    
-                    // IDが入力されている場合は、自動で再検索して結果を表示する
-                    const sid = document.getElementById("staffId");
-                    if (sid && sid.value.trim() !== "") {
-                        searchFile(); 
-                    } else {
-                        // IDがない場合は「READY」に戻す
-                        res.innerText = "READY / ACCESS GRANTED";
-                    }
-                }, 800); // 認証が終わるまでの時間
-            }
-        });
+            if (!res) return;
+
+            beep(1200, 50, 0.05);
+            res.innerHTML = `<div class="blink" style="text-align:center; margin-top:50px; font-weight:bold;">[ AUTHENTICATING LEVEL ${e.target.value}... ]</div>`;
+            
+            setTimeout(() => {
+                beep(1500, 80, 0.03);
+                const sid = document.getElementById("staffId");
+                if (sid && sid.value.trim() !== "") {
+                    searchFile(); 
+                } else {
+                    res.innerText = "READY / ACCESS GRANTED";
+                }
+            }, 800);
+        };
     }
 }
 
@@ -785,7 +780,8 @@ function searchFile() {
 
     if (!f || parseInt(cl.value) < parseInt(f.clearance)) {
         beep(200, 600, 0.2);
-        alert("ACCESS DENIED: INSUFFICIENT PRIVILEGES");
+        const res = document.getElementById("result");
+        if(res) res.innerText = "ACCESS DENIED: INSUFFICIENT PRIVILEGES";
         return;
     }
     
@@ -795,29 +791,26 @@ function searchFile() {
     showTab('personnel');
 }
 
-/* --- script.js 内の showTab 関数をこれに書き換え --- */
-
 function showTab(tab) {
     if (!currentFile) return;
     const r = document.getElementById("result");
     if (!r) return;
 
     beep(1800, 30, 0.05);
-
-    // 一旦中身を空っぽにする（これで「重なり」を防ぎます）
-    r.innerText = ""; 
+    r.innerText = ""; // 画面クリア
 
     let content = "";
     if (tab === 'personnel') {
+        // ability を除外したプロフィール
         content = "NAME: " + (currentFile.name || "UNKNOWN") + 
+                  "\nDIVISION: " + (currentFile.division || "TENRI") +
                   "\nRANK: " + (currentFile.rank || "NONE") + 
-                  "\n\n" + (currentFile.ability || "");
+                  "\nSTATUS: " + (currentFile.status || "UNKNOWN");
     } 
     else if (tab === 'ability') {
         content = "[ABILITY DATA]\n" + (currentFile.ability || "NO DATA");
     } 
     else if (tab === 'artifact') {
-        // Description の undefined 対策
         content = "WEAPON: " + (currentFile.weapon || "NONE") + 
                   "\n\n" + (currentFile.Description || currentFile.description || "[ NO DATA ]");
     } 
@@ -826,13 +819,12 @@ function showTab(tab) {
                   "\n\nNOTE: " + (currentFile.note || "");
     }
 
-    // 新しい内容をセット（「+=」ではなく「=」を使うのがコツです）
-    r.innerText = content;
+    r.innerText = content; // 上書き
 }
 
 function updateClock() {
     const status = document.getElementById("statusbar");
-    if(status) status.innerHTML = "SYSTEM: ONLINE / USER: NANO / " + new Date().toLocaleString();
+    if(status) status.innerHTML = "SYSTEM: ONLINE / USER: admin / " + new Date().toLocaleString();
 }
 
 function loadStaffList() {
