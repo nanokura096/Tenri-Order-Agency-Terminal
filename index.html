@@ -25,7 +25,20 @@
 
 <div id="mainTerminal" style="display:none;">
   <div id="logo">Tenri Order Agency Terminal TOA-226</div>
-  <div id="statusbar"></div>
+  <div id="statusbar">
+    <div id="amnesticOverlay" style="display:none; position:fixed; inset:0; background:#600; color:#fff; z-index:10000; flex-direction:column; justify-content:center; align-items:center; text-align:center; font-family:monospace; padding:20px;">
+    <h1 style="font-size: 3rem; margin-bottom: 20px;">[CRITICAL ERROR]</h1>
+    <p style="font-size: 1.5rem; color: #ff3131;">UNAUTHORIZED ACCESS DETECTED.</p>
+    <p style="font-size: 1.2rem; margin-top: 20px;">You have been DETECTED</p>
+    <div style="font-size: 80px; margin: 30px;" class="blink">⚠️</div>
+    <p style="font-size: 1rem; opacity: 0.8;">INITIATING CLASS-A AMNESTICS INHALATION...<br>Agents is Coming Soon.</p>
+
+  <div class="bottom-controls">
+    <button class="emergency-btn" onclick="triggerEmergency()">
+        REPORT EMERGENCY SITUATION
+    </button>
+</div>
+  </div>
 
   <div class="inputArea">
     <input type="text" id="staffId" placeholder="Enter ID">
@@ -52,19 +65,6 @@
     ▼ Show All Staff List
   </div>
   <div id="staffList" style="display:none;"></div>
-</div>
-
-<div id="amnesticOverlay" style="display:none; position:fixed; inset:0; background:#600; color:#fff; z-index:10000; flex-direction:column; justify-content:center; align-items:center; text-align:center; font-family:monospace; padding:20px;">
-    <h1 style="font-size: 3rem; margin-bottom: 20px;">[CRITICAL ERROR]</h1>
-    <p style="font-size: 1.5rem; color: #ff3131;">UNAUTHORIZED ACCESS DETECTED.</p>
-    <p style="font-size: 1.2rem; margin-top: 20px;">You have been DETECTED</p>
-    <div style="font-size: 80px; margin: 30px;" class="blink">⚠️</div>
-    <p style="font-size: 1rem; opacity: 0.8;">INITIATING CLASS-A AMNESTICS INHALATION...<br>Agents is Coming Soon.</p>
-
-  <div class="bottom-controls">
-    <button class="emergency-btn" onclick="triggerEmergency()">
-        REPORT EMERGENCY SITUATION
-    </button>
 </div>
 </div>
 
