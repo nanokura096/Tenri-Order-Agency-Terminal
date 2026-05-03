@@ -759,3 +759,25 @@ function beep(freq, dur) {
     osc.start();
     osc.stop(audioCtx.currentTime + dur/1000);
 }
+/* --- script.js の一番下などに追加 --- */
+
+// クリアランスレベルを選択した時の演出
+document.getElementById("clearance").addEventListener("change", function() {
+    const res = document.getElementById("result");
+    const lv = this.value;
+
+    // 選択するたびに音を鳴らす
+    beep(1200, 50, 0.05);
+
+    // 一旦リセットエリアを「認証中」に書き換える
+    res.innerHTML = `<div class="blink" style="color:var(--term-green); font-size:1.2rem; text-align:center; margin-top:50px;">
+        [ AUTHENTICATING CLEARANCE LEVEL ${lv}... ]
+    </div>`;
+
+    // 0.8秒後に「認証完了」のような音を鳴らす（演出用）
+    setTimeout(() => {
+        beep(1500, 100, 0.03);
+        // ここで自動で検索を実行させたい場合は以下のコメントアウトを外してください
+        // searchFile(); 
+    }, 800);
+});
