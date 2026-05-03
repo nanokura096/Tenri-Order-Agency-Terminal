@@ -915,8 +915,24 @@ function resolveEmergency() {
 ========================= */
 function updateClock() {
     const status = document.getElementById("statusbar");
-    if(status) status.innerHTML = "SYSTEM: ONLINE / USER: NANO / " + new Date().toLocaleString();
+    if(!status) return;
+
+    const now = new Date();
+    const hour = now.getHours();
+    let msg = "SYSTEM: ONLINE";
+
+    // 時間帯によって一言変える
+    if (hour >= 5 && hour < 10) {
+        msg = "SYSTEM: GOOD MORNING / 朝の点検完了";
+    } else if (hour >= 17 && hour < 22) {
+        msg = "SYSTEM: NIGHT MODE / 夜間警備強化中";
+    } else if (hour >= 22 || hour < 5) {
+        msg = "SYSTEM: [!] WARNING / 深夜アクセス記録中";
+    }
+
+    status.innerHTML = `${msg} / USER: NANO / ${now.toLocaleString()}`;
 }
+
 
 function loadStaffList() {
     const list = document.getElementById("staffList");
