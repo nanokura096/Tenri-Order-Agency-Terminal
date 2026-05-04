@@ -1,5 +1,3 @@
-"use strict";
-
 /* =========================
    DATABASE
 ========================= */
@@ -45,48 +43,42 @@ let currentCategory = "personnel";
 ========================= */
 function setCategory(cat) {
   currentCategory = cat;
-  const panel = document.getElementById("staffPanel");
-  if (panel) panel.classList.add("open");
-
-  const list = document.getElementById("staffList");
-  if (list) {
-    list.innerHTML = "LOADING ARCHIVE...";
-    list.style.maxHeight = "400px";
-    list.style.opacity = "1";
-  }
-
-  setTimeout(loadStaffList, 300);
+  loadStaffList();
 }
 
 /* =========================
    AUDIO
 ========================= */
 function initAudio() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if (audioCtx.state === "suspended") audioCtx.resume();
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch {}
 }
 
 function beep(freq, dur, vol = 0.05) {
   if (!audioCtx) return;
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
+  try {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
 
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
 
-  osc.frequency.value = freq;
-  osc.type = "square";
+    osc.frequency.value = freq;
+    osc.type = "square";
 
-  gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(
-    0.0001,
-    audioCtx.currentTime + dur / 1000
-  );
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      audioCtx.currentTime + dur / 1000
+    );
 
-  osc.start();
-  osc.stop(audioCtx.currentTime + dur / 1000);
+    osc.start();
+    osc.stop(audioCtx.currentTime + dur / 1000);
+  } catch {}
 }
 
 /* =========================
@@ -111,12 +103,13 @@ function login() {
       document.getElementById("loginScreen").style.display = "none";
       startBoot();
     }, 1000);
+
   } else {
     loginAttempts++;
     beep(180, 400, 0.15);
 
     if (loginAttempts >= MAX_ATTEMPTS) {
-      startAltReality();
+      location.reload();
     } else if (err) {
       err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
     }
@@ -128,19 +121,23 @@ function login() {
 ========================= */
 function startBoot() {
   const boot = document.getElementById("bootScreen");
+  const main = document.getElementById("mainTerminal");
+
   boot.style.display = "block";
+  main.style.display = "none";
   boot.innerHTML = "";
 
   const lines = [
-    "> ACCESS GRANTED",
-    "> INITIALIZING SYSTEM CORE...",
-    "> LOADING SECURITY MODULES...",
-    "> VERIFYING CLEARANCE...",
-    "> CONNECTING DATABASE...",
-    "> SYNC PERSONNEL ARCHIVE...",
-    "> SYNC OBJECT ARCHIVE...",
-    "> FINALIZING...",
-    "> WELCOME, OPERATOR"
+    "TENRI NETWORK CORE INITIALIZED",
+    "LOADING SECURITY MODULES...",
+    "CHECKING CLEARANCE LEVELS...",
+    "SYNCING PERSONNEL DATABASE...",
+    "SYNCING OBJECT DATABASE...",
+    "MOUNTING ARCHIVE NODES...",
+    "ESTABLISHING TERMINAL LINK...",
+    "FINALIZING BOOT SEQUENCE...",
+    "ACCESS GRANTED",
+    "WELCOME, OPERATOR"
   ];
 
   let i = 0;
@@ -155,14 +152,10 @@ function startBoot() {
     div.innerText = lines[i];
     boot.appendChild(div);
 
-    beep(300 + i * 50, 40, 0.03);
+    beep(300 + i * 40, 40, 0.03);
 
     i++;
-
-    let delay = 500;
-    if (i === 5) delay = 1200;
-
-    setTimeout(add, delay);
+    setTimeout(add, 500);
   }
 
   add();
@@ -175,12 +168,12 @@ function finishBoot() {
   updateClock();
   setInterval(updateClock, 1000);
 
-  const panel = document.getElementById("staffPanel");
-  if (panel) panel.style.display = "block";
-
+  loadStaffList();
   setupTabs();
   setupToggle();
-  loadStaffList();
+
+  const panel = document.getElementById("staffPanel");
+  if (panel) panel.style.display = "block";
 }
 
 /* =========================
@@ -242,6 +235,7 @@ function showTab(tab) {
   if (!currentFile) return;
 
   const r = document.getElementById("result");
+
   let txt = "";
 
   switch (tab) {
@@ -286,7 +280,6 @@ function loadStaffList() {
     div.innerHTML = `
       <div>ID: ${f.id}</div>
       <div>NAME: ${f.name}</div>
-      <div>STATUS: ${f.status || "ACTIVE"}</div>
     `;
 
     div.onclick = () => {
@@ -302,7 +295,7 @@ function loadStaffList() {
    TOGGLE
 ========================= */
 function setupToggle() {
-  const toggle = document.getElementById("staffListToggle");
+  const toggle = document.getElementById("categoryTabs");
   const panel = document.getElementById("staffPanel");
 
   if (!toggle || !panel) return;
@@ -310,7 +303,6 @@ function setupToggle() {
   toggle.addEventListener("click", () => {
     panel.classList.toggle("open");
     beep(800, 50, 0.05);
-    loadStaffList();
   });
 }
 
@@ -328,8 +320,8 @@ function startAltReality() {
 
   const lines = [
     "Agent is in coming...",
-    "> Alternative Reality System Is Starting",
-    "> Alternative Reality System Is Already To Start",
+    "Alternative Reality System Is Starting",
+    "Alternative Reality System Is Already Ready",
     "",
     "EXECUTE PROCESS?"
   ];
@@ -337,13 +329,16 @@ function startAltReality() {
   let i = 0;
 
   function type() {
-    if (i >= lines.length) return showChoices();
+    if (i >= lines.length) {
+      showChoices();
+      return;
+    }
 
-    const d = document.createElement("div");
-    d.innerText = lines[i];
-    text.appendChild(d);
+    const div = document.createElement("div");
+    div.innerText = lines[i];
+    text.appendChild(div);
 
-    beep(200 + i * 50, 60, 0.05);
+    beep(200 + i * 40, 50, 0.05);
 
     i++;
     setTimeout(type, 600);
@@ -359,8 +354,8 @@ function startAltReality() {
     yes.onclick = () => location.reload();
 
     no.onclick = () => {
-      choices.innerHTML = "<div>Yes / Yes</div>";
-      setTimeout(() => location.reload(), 1500);
+      choices.innerHTML = "Yes / Yes";
+      setTimeout(() => location.reload(), 1200);
     };
 
     choices.appendChild(yes);
@@ -370,71 +365,14 @@ function startAltReality() {
   type();
 }
 
+/* =========================
+   INIT
+========================= */
 document.addEventListener("DOMContentLoaded", () => {
-
   document.getElementById("loginBtn")?.addEventListener("click", login);
   document.getElementById("searchBtn")?.addEventListener("click", searchFile);
   document.getElementById("emergencyBtn")?.addEventListener("click", startAltReality);
 
   setupTabs();
   setupToggle();
-
-  // =========================
-  // STARTUP SCREEN FIX版
-  // =========================
-  const startup = document.getElementById("startupScreen");
-  const loginScreen = document.getElementById("loginScreen");
-  const text = document.getElementById("startupText");
-
-  if (!startup || !loginScreen || !text) {
-    console.warn("startup UI missing");
-    return;
-  }
-
-  loginScreen.style.display = "none";
-  startup.style.display = "flex";
-
-  const dots = ["", ".", "..", "...", "...."];
-  let i = 0;
-
-  const interval = setInterval(() => {
-    text.innerHTML = `
-      TENRI NETWORK<br><br>
-      LOADING${dots[i]}
-    `;
-    i = (i + 1) % dots.length;
-  }, 400);
-
-  setTimeout(() => {
-    clearInterval(interval);
-    startup.style.display = "none";
-    loginScreen.style.display = "flex";
-  }, 5000);
-
-  // 起動音
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  const audioCtx = new AudioCtx();
-
-  function bootBeep() {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    osc.frequency.value = 600;
-    osc.type = "square";
-
-    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
-
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.12);
-  }
-
-  const beepInterval = setInterval(bootBeep, 500);
-
-  setTimeout(() => {
-    clearInterval(beepInterval);
-  }, 5000);
 });
