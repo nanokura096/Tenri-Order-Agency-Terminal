@@ -278,9 +278,18 @@ function triggerAmnestic(){
   setTimeout(()=>location.reload(),6000);
 }
 
-/* INIT */
-document.addEventListener("DOMContentLoaded",()=>{
-  document.getElementById("loginBtn")?.addEventListener("click",login);
-  document.getElementById("searchBtn")?.addEventListener("click",searchFile);
-  document.getElementById("emergencyBtn")?.addEventListener("click",triggerAmnestic);
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("loginBtn")?.addEventListener("click", login);
+  document.getElementById("searchBtn")?.addEventListener("click", searchFile);
+  document.getElementById("emergencyBtn")?.addEventListener("click", triggerAmnestic);
+
+  const toggle = document.getElementById("staffListToggle");
+  const panel = document.getElementById("staffPanel");
+
+  if (toggle && panel) {
+    toggle.addEventListener("click", () => {
+      panel.classList.toggle("open");
+      console.log("toggle:", panel.classList.contains("open"));
+    });
+  }
 });
