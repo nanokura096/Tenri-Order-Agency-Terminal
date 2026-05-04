@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const dots = ['','.','..','...'];
   let i = 0;
   const loading = setInterval(()=>{
-    if(text) text.innerHTML = 'TENRI NETWORK<br><br>LOADING${dots[i]}';
+    if(text) text.innerHTML = `TENRI NETWORK<br><br>LOADING${dots[i]}`;
     i = (i+1)%dots.length;
   },400);
   setTimeout(()=>{
