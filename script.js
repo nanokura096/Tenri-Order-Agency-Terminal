@@ -46,7 +46,7 @@ const database = {
 
 そのため使用後、周囲で別の重大事故が必ず発生する。`,
 
-  status: "ACTIVE",
+  status: "MISSING",
   clearance: "3",
 
   Description: `能力発動時、対象周囲の環境に軽度の“静止感”が発生する。
@@ -72,7 +72,7 @@ const database = {
   ability: `未来演算
 短時間先の情報分岐を観測可能。
 観測回数が増えるほど精神疲労が蓄積する。`,
-  status: "ACTIVE",
+  status: "TERMINATED",
   clearance: "2",
   Description: `黒色端末を常時携帯。
 演算補助用の特殊レンズを使用。`,
