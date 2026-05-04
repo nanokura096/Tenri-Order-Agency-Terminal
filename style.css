@@ -284,3 +284,8 @@ button:active{
     font-size:12px;
   }
 }
+
+.activeCat{
+  background:#00FF41;
+  color:#000;
+}

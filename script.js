@@ -290,31 +290,54 @@ STATUS: ${currentFile.status || "UNKNOWN"}`;
    STAFF PANEL
 ========================= */
 function toggleStaffPanel(){
-  document.getElementById("staffPanel").classList.toggle("open");
+  const panel = document.getElementById("staffPanel");
+  panel.classList.toggle("open");
+
+  if(panel.classList.contains("open")){
+    loadStaffList();
+  }
 }
 
 function setCategory(cat){
   currentCategory = cat;
   loadStaffList();
+
+  document.querySelectorAll("#categoryTabs button").forEach(btn=>{
+    btn.classList.remove("activeCat");
+  });
+
+  if(cat === "personnel"){
+    document.querySelectorAll("#categoryTabs button")[0].classList.add("activeCat");
+  }else{
+    document.querySelectorAll("#categoryTabs button")[1].classList.add("activeCat");
+  }
 }
 
 function loadStaffList(){
   const list = document.getElementById("staffList");
+  if(!list) return;
+
   list.innerHTML = "";
 
   const data = database[currentCategory];
+
+  if(!data || data.length === 0){
+    list.innerHTML = "<div class='staffEntry'>NO DATA</div>";
+    return;
+  }
 
   data.forEach(f=>{
     const div = document.createElement("div");
     div.className = "staffEntry";
     div.innerHTML = `
-      <div>ID: ${f.id}</div>
-      <div>NAME: ${f.name}</div>
+      <div>ID : ${f.id}</div>
+      <div>NAME : ${f.name}</div>
     `;
 
     div.onclick = ()=>{
       document.getElementById("staffId").value = f.id;
       searchFile();
+      document.getElementById("staffPanel").classList.remove("open");
     };
 
     list.appendChild(div);
@@ -355,7 +378,6 @@ function startAltReality(){
     log.innerText += lines[i] + "\n";
     log.scrollTop = log.scrollHeight;
     beep(220 + i*25,25,0.025);
-
     i++;
     setTimeout(printLine,450);
   }
