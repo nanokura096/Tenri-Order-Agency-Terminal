@@ -92,15 +92,21 @@
     <div id="consoleButtons"></div>
   </div>
 
-  <div id="clearanceAuth" style="display:none;">
+  <div id="clearanceAuth">
   <div id="authBox">
-    <div id="authTitle">CLEARANCE AUTHENTICATION</div>
+    <div id="authTitle">[ CLEARANCE AUTHORIZATION REQUIRED ]</div>
     <div id="authLevelText"></div>
-    <input type="password" id="authInput" placeholder="ENTER PASSPHRASE">
-    <button id="authBtn">VERIFY</button>
+
+    <input type="password" id="authInput" placeholder="ENTER PASSPHRASE" autocomplete="off">
+
+    <div class="authButtons">
+      <button id="authBtn">VERIFY</button>
+      <button id="authCancelBtn">CANCEL</button>
+    </div>
+
     <div id="authError"></div>
   </div>
-</div>
+
 
   <script src="script.js" defer></script>
 </body>
