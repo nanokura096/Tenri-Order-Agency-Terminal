@@ -407,33 +407,58 @@ function dispatchAgent(){
   const log = document.getElementById("agentLog");
   log.innerText = "";
 
-  const lines = [
+  const introLines = [
     "[SECURITY ALERT]",
     "UNAUTHORIZED LOGIN ATTEMPTS : 3",
     "IDENTITY CONFIRMATION FAILED",
     "CURRENT TERMINAL FLAGGED",
     "",
     "DISPATCHING FIELD AGENT...",
-    "REQUESTING NEAREST RESPONSE UNIT...",
-    "AGENT ETA : 00:00:12",
-    "",
-    "[ YOU CAN NOT LEAVE YOUR POSITION ]"
+    "REQUESTING NEAREST RESPONSE UNIT..."
   ];
 
   let i = 0;
 
-  function print(){
-    if(i >= lines.length){
-      setTimeout(()=>location.reload(),3000);
+  function printIntro(){
+    if(i >= introLines.length){
+      startCountdown();
       return;
     }
 
-    log.innerText += lines[i] + "\n";
+    log.innerText += introLines[i] + "\n";
     beep(120+i*10,35);
-
     i++;
-    setTimeout(print,600);
+    setTimeout(printIntro,600);
   }
 
-  print();
+  function startCountdown(){
+    let time = 12;
+
+    const timer = setInterval(()=>{
+      log.innerText =
+`[SECURITY ALERT]
+UNAUTHORIZED LOGIN ATTEMPTS : 3
+IDENTITY CONFIRMATION FAILED
+CURRENT TERMINAL FLAGGED
+
+DISPATCHING FIELD AGENT...
+REQUESTING NEAREST RESPONSE UNIT...
+AGENT ETA : 00:00:${String(time).padStart(2,"0")}
+
+[ DO NOT LEAVE YOUR POSITION ]`;
+
+      beep(180,25,0.02);
+      time--;
+
+      if(time < 0){
+        clearInterval(timer);
+        log.innerText += "\n\nCONNECTION TERMINATED";
+        beep(80,300,0.05);
+
+        setTimeout(()=>location.reload(),1500);
+      }
+    },1000);
+  }
+
+  printIntro();
 }
