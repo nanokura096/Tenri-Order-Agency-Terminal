@@ -3,75 +3,14 @@
 ========================= */
 const database = {
   personnel: [
-    {
-      id: 'AP-000000',
-      category: 'personnel',
-      name: '鳴瀬 可楚',
-      sex: 'FEMALE',
-      age: '██',
-      division: '鳴響',
-      rank: 'Leader',
-      ability: '因報\n強大な力を利用して戦闘を行うが彼女自身には限界がないため危険な状態に陥っても活動を続ける可能性がある。\nまた、翠色の結晶を飛ばすことが可能で、任意のタイミングで爆破可能。\nだが、観測者が増えるごとに威力が弱まる。',
-      status: 'ACTIVE',
-      clearance: '3',
-      record: '[アクセス拒否]'
-    },
-    {
-      id: 'AP-838383',
-      category: 'personnel',
-      name: '天城 ユウラ',
-      sex: 'FEMALE',
-      age: '19',
-      division: '観測局 第3解析班',
-      rank: 'Field Analyst',
-      ability: '■確率固定化（Probability Lock）\n周囲で発生する「結果が揺らぐ現象」を1つだけ選び、その結果を“確定状態”に固定する能力。',
-      status: 'MISSING',
-      clearance: '3',
-      record: '初期記録：施設外で原因不明の交通事故が発生。現在、使用回数は1日1回に制限。'
-    },
-    {
-      id: 'AP-383838',
-      category: 'personnel',
-      name: '雨宮 志乃',
-      sex: 'FEMALE',
-      age: '19',
-      division: '情報解析部',
-      rank: 'Analyst',
-      ability: '未来演算\n短時間先の情報分岐を観測可能。',
-      status: 'NEUTRALIZED',
-      clearance: '2',
-      record: 'TOA-214情報漏洩事件にて初確認。現在監視付きで運用中。'
-    }
+    { id: 'AP-000000', category: 'personnel', name: '鳴瀬 可楚', status: 'ACTIVE', clearance: '3', ability: '因報', record: '[アクセス拒否]' },
+    { id: 'AP-838383', category: 'personnel', name: '天城 ユウラ', status: 'MISSING', clearance: '3', ability: '確率固定化', record: '交通事故後に失踪。' },
+    { id: 'AP-383838', category: 'personnel', name: '雨宮 志乃', status: 'NEUTRALIZED', clearance: '2', ability: '未来演算', record: '現在監視下。' }
   ],
   objects: [
-    {
-      id: 'OBJ-001',
-      category: 'object',
-      name: '天理楔',
-      description: '全長██cmの鉾。天逆鉾のような形をしているが、柄は取り外し可能。効果は「突き刺した対象の結果を生まない」。',
-      status: 'CONTAINED',
-      clearance: '3'
-    },
-    {
-      id: 'OBJ-002',
-      category: 'object',
-      name: '黒玻璃片',
-      description: '手のひら大の黒色結晶。鏡面のような反射率を持つ。',
-      clearance: '2',
-      status: 'SEALED',
-      ability: '視認した人物の短期記憶を反転混濁させる。布越しでは効果減衰。',
-      record: '天理市旧坑道にて回収。回収班2名が記憶混濁を発症した。'
-    },
-    {
-      id: 'OBJ-003',
-      category: 'object',
-      name: '不確定な砂時計',
-      description: '中身の砂が「過去から未来」へ流れると推測される砂時計。',
-      clearance: '2',
-      status: 'CONTAINED',
-      ability: '砂時計を反転させた際、周囲の「直近10秒間の出来事」をランダムに再抽選する。',
-      record: '回収任務中、エージェントが誤って反転。深刻な因果律崩壊は免れた。'
-    }
+    { id: 'OBJ-001', category: 'object', name: '天理楔', status: 'CONTAINED', clearance: '3', description: '突き刺した対象の結果を生まない。' },
+    { id: 'OBJ-002', category: 'object', name: '黒玻璃片', status: 'SEALED', clearance: '2', description: '短期記憶を反転混濁させる。' },
+    { id: 'OBJ-003', category: 'object', name: '不確定な砂時計', status: 'CONTAINED', clearance: '2', description: '時間の流れを不安定にさせる。' }
   ]
 };
 
@@ -88,78 +27,79 @@ let pendingClearanceLevel = 1;
 let audioCtx = null;
 let clockLoop = null;
 
-const clearanceCodes = {
-  "2": "late",
-  "3": "true",
-  "4": "fake",
-  "5": "null"
-};
+const clearanceCodes = { "2": "late", "3": "true", "4": "fake", "5": "null" };
 
 /* =========================
    SCREEN CONTROL
 ========================= */
 function showScreen(mode){
-  ['startupScreen','loginScreen','bootScreen','mainTerminal','emergencyConsole','agentDispatch','amnesticOverlay','clearanceAuth'].forEach(id=>{
+  const screens = ['startupScreen','loginScreen','bootScreen','mainTerminal','emergencyConsole','agentDispatch','amnesticOverlay','clearanceAuth'];
+  screens.forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = 'none';
   });
 
-  if(mode==='startup') document.getElementById('startupScreen').style.display='flex';
-  if(mode==='login') document.getElementById('loginScreen').style.display='flex';
-  if(mode==='boot') document.getElementById('bootScreen').style.display='block';
-  if(mode==='main') document.getElementById('mainTerminal').style.display='block';
-  if(mode==='emergency') document.getElementById('emergencyConsole').style.display='flex';
-  if(mode==='agent') document.getElementById('agentDispatch').style.display='flex';
-  if(mode==='amnestic') document.getElementById('amnesticOverlay').style.display='flex';
-  if(mode==='auth') document.getElementById('clearanceAuth').style.display='flex';
+  const targetMap = {
+    'startup': 'startupScreen', 'login': 'loginScreen', 'boot': 'bootScreen',
+    'main': 'mainTerminal', 'emergency': 'emergencyConsole', 'agent': 'agentDispatch',
+    'amnestic': 'amnesticOverlay', 'auth': 'clearanceAuth'
+  };
+  
+  const targetId = targetMap[mode];
+  const targetEl = document.getElementById(targetId);
+  if(targetEl) {
+    targetEl.style.display = (mode === 'startup' || mode === 'login' || mode === 'emergency' || mode === 'auth') ? 'flex' : 'block';
+  }
 }
 
 /* =========================
    AUDIO
 ========================= */
-function initAudio(){
-  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-}
+function initAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 function beep(freq,dur,vol=0.03){
   if(!audioCtx) return;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
   osc.connect(gain); gain.connect(audioCtx.destination);
-  osc.frequency.value = freq;
-  osc.type = 'square';
+  osc.frequency.value = freq; osc.type = 'square';
   gain.gain.setValueAtTime(vol,audioCtx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime + dur/1000);
   osc.start(); osc.stop(audioCtx.currentTime + dur/1000);
 }
 
 /* =========================
-   STARTUP
+   STARTUP & INITIALIZE
 ========================= */
 document.addEventListener('DOMContentLoaded',()=>{
   showScreen('startup');
   const text = document.querySelector('.startupText');
   const dots = ['','.','..','...'];
-  let i = 0;
-  const loading = setInterval(()=>{
-    if(text) text.innerHTML = "TENRI NETWORK<br><br>LOADING" + dots[i];
-    i = (i+1)%dots.length;
-  },400);
+  let dotIdx = 0;
 
+  // アニメーション
+  const loadingInterval = setInterval(()=>{
+    if(text) text.innerHTML = "TENRI NETWORK<br><br>LOADING" + dots[dotIdx];
+    dotIdx = (dotIdx + 1) % dots.length;
+  }, 400);
+
+  // ログイン画面へ遷移
   setTimeout(()=>{
-    clearInterval(loading);
+    clearInterval(loadingInterval);
     showScreen('login');
-  },5000);
+  }, 3000);
 
-  document.getElementById('loginBtn')?.addEventListener('click',login);
-  document.getElementById('searchBtn')?.addEventListener('click',searchFile);
-  document.getElementById('emergencyBtn')?.addEventListener('click',startAltReality);
-  document.getElementById('dataToggleBtn')?.addEventListener('click',toggleDataPanel);
-  document.getElementById('clearance')?.addEventListener('change',requestClearanceAuth);
-  document.getElementById('authBtn')?.addEventListener('click',verifyClearanceCode);
-  document.getElementById('authCancelBtn')?.addEventListener('click',()=>{
-    document.getElementById('clearanceAuth').style.display = 'none';
+  // イベントリスナー登録
+  document.getElementById('loginBtn')?.addEventListener('click', login);
+  document.getElementById('searchBtn')?.addEventListener('click', searchFile);
+  document.getElementById('emergencyBtn')?.addEventListener('click', () => showScreen('emergency'));
+  document.getElementById('dataToggleBtn')?.addEventListener('click', toggleDataPanel);
+  document.getElementById('clearance')?.addEventListener('change', requestClearanceAuth);
+  document.getElementById('authBtn')?.addEventListener('click', verifyClearanceCode);
+  document.getElementById('authCancelBtn')?.addEventListener('click', () => {
+    showScreen('main');
     document.getElementById('clearance').value = '1';
   });
+  
   setupTabs();
 });
 
@@ -172,88 +112,146 @@ function login(){
   const p = document.getElementById('password').value.trim();
   const err = document.getElementById('loginError');
 
-  if(u==='admin' && p==='226227'){
-    document.querySelector('.loginBox').innerHTML = '<div class="blink">AUTHENTICATING...</div>';
-    beep(900,100);
-    setTimeout(()=>{ showScreen('boot'); startBoot(); },1000);
+  if(u === 'admin' && p === '226227'){
+    const box = document.querySelector('.loginBox');
+    if(box) box.innerHTML = '<div class="blink">AUTHENTICATING...</div>';
+    beep(900, 100);
+    setTimeout(() => { showScreen('boot'); startBoot(); }, 1000);
   } else {
     loginAttempts++;
-    beep(150,200);
-    if(loginAttempts >= MAX_ATTEMPTS) dispatchAgent();
-    else err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
+    beep(150, 200);
+    if(loginAttempts >= MAX_ATTEMPTS) {
+      dispatchAgent();
+    } else {
+      if(err) err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
+    }
   }
 }
 
 /* =========================
-   BOOT
+   BOOT & MAIN
 ========================= */
 function startBoot(){
   const boot = document.getElementById('bootScreen');
+  if(!boot) return;
   boot.innerHTML = '';
-  const lines = ['TENRI NETWORK CORE INITIALIZED', 'LOADING SECURITY MODULES...', 'ACCESS GRANTED', 'WELCOME, OPERATOR'];
+  const lines = ['CORE INITIALIZED', 'LOADING MODULES...', 'SYNCING DATABASE...', 'ACCESS GRANTED'];
   let i = 0;
   function addLine(){
-    if(i >= lines.length){ setTimeout(finishBoot,700); return; }
+    if(i >= lines.length){ setTimeout(finishBoot, 500); return; }
     const div = document.createElement('div');
-    div.innerText = lines[i]; boot.appendChild(div);
-    beep(260+i*25,20); i++;
-    setTimeout(addLine,450);
+    div.innerText = lines[i];
+    boot.appendChild(div);
+    beep(300 + i * 50, 20);
+    i++;
+    setTimeout(addLine, 400);
   }
   addLine();
 }
 
 function finishBoot(){
   showScreen('main');
-  document.getElementById('clearance').value = '1';
-  if(clockLoop) clearInterval(clockLoop);
-  clockLoop = setInterval(updateClock,1000);
   loadDataList();
+  if(!clockLoop) clockLoop = setInterval(updateClock, 1000);
 }
 
 function updateClock(){
-  document.getElementById('statusbar').innerText = 'SYSTEM ONLINE / ' + new Date().toLocaleString();
+  const bar = document.getElementById('statusbar');
+  if(bar) bar.innerText = 'SYSTEM ONLINE / ' + new Date().toLocaleString();
 }
 
 /* =========================
-   SEARCH
+   SEARCH & TABS
 ========================= */
 function searchFile(){
-  initAudio();
   const id = document.getElementById('staffId').value.trim();
   const cl = parseInt(document.getElementById('clearance').value);
   const r = document.getElementById('result');
-  if(!id){ r.innerText = 'READY'; return; }
-  const found = database.personnel.find(x=>x.id===id) || database.objects.find(x=>x.id===id);
-  if(!found){ r.innerText = 'NOT FOUND'; beep(150,200); return; }
-  if(cl < parseInt(found.clearance)){ r.innerText = 'ACCESS DENIED'; beep(120,250); return; }
+  if(!id) return;
+
+  const found = database.personnel.find(x => x.id === id) || database.objects.find(x => x.id === id);
+  if(!found){ 
+    if(r) r.innerText = 'NOT FOUND'; 
+    beep(150, 200); 
+    return; 
+  }
+  
+  if(cl < parseInt(found.clearance)){ 
+    if(r) r.innerText = 'ACCESS DENIED: CLEARANCE LEVEL TOO LOW'; 
+    beep(120, 250); 
+    return; 
+  }
+
   currentFile = found;
-  document.getElementById('tabs').style.display = 'flex';
+  const tabArea = document.getElementById('tabs');
+  if(tabArea) tabArea.style.display = 'flex';
   showTab('personnel');
 }
 
-/* =========================
-   TAB SYSTEM
-========================= */
 function setupTabs(){
-  document.querySelectorAll('#tabs button').forEach(btn=>{
-    btn.onclick = ()=>showTab(btn.dataset.tab);
+  document.querySelectorAll('#tabs button').forEach(btn => {
+    btn.onclick = () => showTab(btn.dataset.tab);
   });
 }
 
 function showTab(tab){
   if(!currentFile) return;
   const r = document.getElementById('result');
+  if(!r) return;
+  
   let txt = '';
+  const sClass = getStatusClass(currentFile.status);
+
   switch(tab){
     case 'personnel':
-      const sClass = getStatusClass(currentFile.status);
-      txt = `NAME: ${currentFile.name}\nCATEGORY: ${currentFile.category.toUpperCase()}\nSTATUS: <span class="status ${sClass}">${currentFile.status || 'UNKNOWN'}</span>`;
+      txt = `NAME: ${currentFile.name}<br>STATUS: <span class="status ${sClass}">${currentFile.status}</span>`;
       break;
     case 'ability': txt = currentFile.ability || 'NO DATA'; break;
-    case 'artifact': txt = currentFile.description || currentFile.Description || 'NO DATA'; break;
+    case 'artifact': txt = currentFile.description || 'NO DATA'; break;
     case 'record': txt = currentFile.record || 'NO DATA'; break;
   }
-  r.innerHTML = txt; beep(1000,15);
+  r.innerHTML = txt;
+  beep(800, 20);
+}
+
+/* =========================
+   DATABASE LIST
+========================= */
+function toggleDataPanel(){
+  const panel = document.getElementById('dataPanel');
+  if(panel) panel.classList.toggle('open');
+}
+
+// 修正点：HTMLのonclickから呼ばれるグローバル関数
+window.setCategory = function(cat){
+  currentCategory = cat;
+  loadDataList();
+};
+
+function loadDataList(){
+  const list = document.getElementById('dataList');
+  if(!list) return;
+  list.innerHTML = '';
+  
+  const data = database[currentCategory] || [];
+  data.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'staffEntry';
+    const sClass = getStatusClass(f.status);
+    div.innerHTML = `
+      <div style="display:flex; justify-content:space-between;">
+        <span style="font-size:10px; opacity:0.7;">${f.id}</span>
+        <span class="${sClass}" style="font-size:10px;">●</span>
+      </div>
+      <div style="font-weight:bold;">${f.name}</div>
+    `;
+    div.onclick = () => {
+      document.getElementById('staffId').value = f.id;
+      searchFile();
+      toggleDataPanel();
+    };
+    list.appendChild(div);
+  });
 }
 
 /* =========================
@@ -264,100 +262,40 @@ function requestClearanceAuth(){
   if(level === '0' || level === '1') return;
   pendingClearanceLevel = level;
   showScreen('auth');
-  document.getElementById('authLevelText').innerText = `LEVEL ${level} AUTHORIZATION REQUIRED`;
-  document.getElementById('authInput').value = '';
-  document.getElementById('authError').innerText = '';
+  const authTxt = document.getElementById('authLevelText');
+  if(authTxt) authTxt.innerText = `LEVEL ${level} AUTHORIZATION REQUIRED`;
 }
 
 function verifyClearanceCode(){
-  initAudio();
   const input = document.getElementById('authInput').value.trim();
-  const correct = clearanceCodes[pendingClearanceLevel];
-  if(input === correct){
-    beep(900,80);
-    document.getElementById('clearanceAuth').style.display = 'none';
+  if(input === clearanceCodes[pendingClearanceLevel]){
+    beep(1000, 100);
     showScreen('main');
-    document.getElementById('result').innerText = `CLEARANCE LEVEL ${pendingClearanceLevel} VERIFIED`;
+    const r = document.getElementById('result');
+    if(r) r.innerText = `LEVEL ${pendingClearanceLevel} ACCESS GRANTED`;
     clearanceAttempts = 0;
   } else {
-    clearanceAttempts++; beep(120,250);
-    document.getElementById('authError').innerText = `AUTH FAILED (${clearanceAttempts}/${MAX_CLEARANCE_ATTEMPTS})`;
-    if(clearanceAttempts >= MAX_CLEARANCE_ATTEMPTS) startAmnesticProtocol();
+    clearanceAttempts++;
+    beep(100, 300);
+    const err = document.getElementById('authError');
+    if(err) err.innerText = `INVALID CODE (${clearanceAttempts}/${MAX_CLEARANCE_ATTEMPTS})`;
+    if(clearanceAttempts >= MAX_CLEARANCE_ATTEMPTS) location.reload();
   }
 }
 
 /* =========================
-   DATA PANEL
+   UTILITIES
 ========================= */
-function toggleDataPanel(){
-  document.getElementById('dataPanel').classList.toggle('open');
+function getStatusClass(s){
+  if(['ACTIVE','CONTAINED'].includes(s)) return 'state-ACTIVE';
+  if(['TERMINATED','NEUTRALIZED','SEALED'].includes(s)) return 'state-TERMINATED';
+  return 'state-MISSING';
 }
 
-function setCategory(cat){
-  currentCategory = cat; loadDataList();
-}
-
-function loadDataList(){
-  const list = document.getElementById('dataList');
-  if(!list) return;
-  list.innerHTML = '';
-  const data = database[currentCategory];
-  data.forEach(f => {
-    const div = document.createElement('div');
-    div.className = 'staffEntry';
-    const sClass = getStatusClass(f.status);
-    div.innerHTML = `
-      <div style="display:flex; justify-content:space-between;">
-        <div style="font-size:12px; opacity:0.8;">ID: ${f.id}</div>
-        <div class="${sClass}" style="font-size:10px;">● ${f.status}</div>
-      </div>
-      <div style="font-weight:bold;">NAME: ${f.name}</div>`;
-    div.onclick = () => { document.getElementById('staffId').value = f.id; searchFile(); };
-    list.appendChild(div);
-  });
-}
-
-/* =========================
-   AGENT DISPATCH
-========================= */
 function dispatchAgent(){
-  initAudio(); showScreen('agent');
+  showScreen('agent');
   const log = document.getElementById('agentLog');
-  const intro = ['[SECURITY ALERT]', 'UNAUTHORIZED LOGIN ATTEMPTS : 3', 'DISPATCHING FIELD AGENT...'];
-  let i = 0;
-  function print(){
-    if(i >= intro.length){ startCountdown(); return; }
-    log.innerText += intro[i] + '\n';
-    beep(130+i*10,35); i++;
-    setTimeout(print,500);
-  }
-  function startCountdown(){
-    let time = 12;
-    const timer = setInterval(()=>{
-      log.innerText = intro.join('\n') + `\n\nAGENT ETA : 00:00:${String(time).padStart(2,'0')}\n[ DO NOT LEAVE YOUR POSITION ]`;
-      beep(180,20,0.02); time--;
-      if(time < 0){ clearInterval(timer); location.reload(); }
-    },1000);
-  }
-  print();
-}
-
-/* =========================
-   AMNESTIC PROTOCOL
-========================= */
-function startAmnesticProtocol(){
-  showScreen('amnestic');
-  setTimeout(()=>location.reload(),5000);
-}
-
-function getStatusClass(status) {
-  if(!status) return '';
-  if(['ACTIVE','CONTAINED'].includes(status)) return 'state-ACTIVE';
-  if(['TERMINATED','NEUTRALIZED'].includes(status)) return 'state-TERMINATED';
-  if(status === 'MISSING') return 'state-MISSING';
-  return '';
-}
-
-function startAltReality(){
-  showScreen('emergency');
+  if(!log) return;
+  log.innerText = 'DISPATCHING FIELD AGENT...';
+  setTimeout(() => location.reload(), 5000);
 }
