@@ -354,53 +354,63 @@ function setupToggle() {
    ALT REALITY
 ========================= */
 function startAltReality() {
-  const ov = document.getElementById("altRealityOverlay");
-  const text = document.getElementById("altText");
-  const choices = document.getElementById("altChoices");
+  const consoleScreen = document.getElementById("emergencyConsole");
+  const log = document.getElementById("consoleLog");
+  const inputLine = document.querySelector(".consoleInputLine");
 
-  ov.style.display = "flex";
-  text.innerHTML = "";
-  choices.innerHTML = "";
+  consoleScreen.style.display = "flex";
+  if (inputLine) inputLine.style.display = "none";
+
+  log.innerText = "";
 
   const lines = [
-    "Agent is in coming...",
-    "Alternative Reality System Is Starting",
-    "Alternative Reality System Is Already Ready",
+    "[SYSTEM] EMERGENCY OVERRIDE INITIATED",
+    "[SYSTEM] TERMINAL LINK COMPROMISED",
+    "[WARNING] UNKNOWN PROCESS DETECTED",
+    "[SYSTEM] ISOLATING CORE SYSTEMS...",
+    "[SYSTEM] ACCESS RESTRICTED ZONE ENTERED",
     "",
-    "EXECUTE PROCESS?"
+    "[ACTION REQUIRED]"
   ];
 
   let i = 0;
 
-  function type() {
-    if (i >= lines.length) return showChoices();
+  function printLine() {
+    if (i >= lines.length) {
+      showButtons();
+      return;
+    }
 
-    const div = document.createElement("div");
-    div.innerText = lines[i];
-    text.appendChild(div);
+    log.innerText += lines[i] + "\n";
+    log.scrollTop = log.scrollHeight;
 
-    beep(200 + i * 40, 50, 0.05);
-
+    beep(200 + i * 60, 40, 0.05);
     i++;
-    setTimeout(type, 500);
+
+    setTimeout(printLine, 500);
   }
 
-  function showChoices() {
-    const yes = document.createElement("button");
-    const no = document.createElement("button");
+  function showButtons() {
+    const btnYes = document.createElement("button");
+    const btnNo = document.createElement("button");
 
-    yes.innerText = "Yes";
-    no.innerText = "No";
+    btnYes.innerText = "EXECUTE CONTAINMENT";
+    btnNo.innerText = "ABORT";
 
-    yes.onclick = () => location.reload();
-    no.onclick = () => {
-      choices.innerHTML = "Yes / Yes";
+    btnYes.onclick = () => {
+      log.innerText += "\n[SYSTEM] CONTAINMENT EXECUTED";
       setTimeout(() => location.reload(), 1200);
     };
 
-    choices.appendChild(yes);
-    choices.appendChild(no);
+    btnNo.onclick = () => {
+      log.innerText += "\n[SYSTEM] OVERRIDE FAILED";
+      setTimeout(() => location.reload(), 1200);
+    };
+
+    log.appendChild(document.createElement("br"));
+    log.appendChild(btnYes);
+    log.appendChild(btnNo);
   }
 
-  type();
+  printLine();
 }

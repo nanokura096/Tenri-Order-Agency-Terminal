@@ -73,13 +73,42 @@ body{
 }
 
 /* EMERGENCY */
-#emergencyOverlay{
-  z-index:20000;
-  display:none;
-  justify-content:center;
-  align-items:center;
+#emergencyConsole{
+  position:fixed;
+  inset:0;
+  background:#000;
+  color:#00ff41;
+  font-family:Courier New, monospace;
+  padding:20px;
+  z-index:99999;
+  display:flex;
   flex-direction:column;
-  background:rgba(255,0,0,0.85);
+}
+
+#consoleLog{
+  flex:1;
+  overflow-y:auto;
+  white-space:pre-wrap;
+  font-size:14px;
+  line-height:1.5;
+}
+
+#consoleButtons{
+  display:flex;
+  gap:10px;
+}
+
+#consoleButtons button{
+  flex:1;
+  padding:12px;
+  border:1px solid #00ff41;
+  background:#000;
+  color:#00ff41;
+  cursor:pointer;
+}
+
+#consoleButtons button:active{
+  transform:scale(0.98);
 }
 
 #emergencyContent{
