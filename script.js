@@ -14,11 +14,8 @@ const database = {
       ability: `因報\n強大な力を利用して戦闘を行うが彼女自身には限界がないため危険な状態に陥っても活動を続ける可能性がある。\nまた、翠色の結晶を飛ばすことが可能で、任意のタイミングで爆破可能。\nだが、観測者が増えるごとに威力が弱まる。`,
       status: "ACTIVE",
       clearance: "3",
-      profile: "対象は鳴響隊長である。",
-      weapon: "天理楔",
       Description: `全長██cmの鉾。\n天逆鉾のような形をしているが、柄は取り外し可能。`,
-      record: "[アクセス拒否]",
-      note: "精神状態は安定しているが、いつも問題を持ってくる。"
+      record: "[アクセス拒否]"
     }
   ],
   objects: [
@@ -26,22 +23,10 @@ const database = {
       id: "OBJ-001",
       category: "object",
       name: "天理楔",
-      type: "weapon",
       description: "異常武装オブジェクト。",
       clearance: "3"
     }
   ]
-};
-
-/* =========================
-   CLEARANCE
-========================= */
-const clearancePasswords = {
-  1: "ACCESS",
-  2: "TENRI",
-  3: "BLACKBOX",
-  4: "CONTAINMENT",
-  5: "SOVEREIGN"
 };
 
 /* =========================
@@ -50,11 +35,7 @@ const clearancePasswords = {
 let currentFile = null;
 let loginAttempts = 0;
 const MAX_ATTEMPTS = 3;
-
 let audioCtx = null;
-let emergencyInterval = null;
-let clockTimer = null;
-
 let currentCategory = "personnel";
 
 /* =========================
@@ -62,7 +43,26 @@ let currentCategory = "personnel";
 ========================= */
 function setCategory(cat) {
   currentCategory = cat;
+
+  const panel = document.getElementById("staffPanel");
+  const list = document.getElementById("staffList");
+
+  // ★パネルを強制的に開く
+  if (panel) panel.classList.add("open");
+
+  // ★リスト再描画
   loadStaffList();
+
+  // ★アニメ用リセット（確実に見えるように）
+  if (list) {
+    list.style.maxHeight = "0";
+    list.style.opacity = "0";
+
+    setTimeout(() => {
+      list.style.maxHeight = "400px";
+      list.style.opacity = "1";
+    }, 10);
+  }
 }
 
 /* =========================
@@ -112,7 +112,6 @@ function login() {
 
   if (u === "admin" && p === "226227") {
     loginAttempts = 0;
-
     document.querySelector(".loginBox").innerHTML =
       `<div class="blink">AUTHENTICATING...</div>`;
 
@@ -122,13 +121,13 @@ function login() {
       document.getElementById("loginScreen").style.display = "none";
       startBoot();
     }, 1000);
-
   } else {
     loginAttempts++;
     beep(180, 400, 0.15);
 
     if (loginAttempts >= MAX_ATTEMPTS) {
-      triggerAmnestic();
+      alert("ACCESS DENIED - LOCKDOWN");
+      location.reload();
     } else if (err) {
       err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
     }
@@ -164,7 +163,6 @@ function startBoot() {
 
     beep(400 + i * 80, 40, 0.03);
     i++;
-
     setTimeout(add, 450);
   }
 
@@ -176,18 +174,15 @@ function finishBoot() {
   document.getElementById("mainTerminal").style.display = "block";
 
   updateClock();
-
-  if (clockTimer) clearInterval(clockTimer);
-  clockTimer = setInterval(updateClock, 1000);
+  setInterval(updateClock, 1000);
 
   loadStaffList();
-  setupTabs();
 
-  // 🔥重要：ここで必ず表示
   const panel = document.getElementById("staffPanel");
   if (panel) panel.style.display = "block";
 
   setupToggle();
+  setupTabs();
 }
 
 /* =========================
@@ -224,9 +219,7 @@ function searchFile() {
     return;
   }
 
-  const req = parseInt(found.clearance || "0");
-
-  if (cl < req) {
+  if (cl < parseInt(found.clearance || "0")) {
     r.innerText = "ACCESS DENIED";
     beep(200, 500, 0.2);
     return;
@@ -234,9 +227,7 @@ function searchFile() {
 
   currentFile = found;
 
-  const tabs = document.getElementById("tabs");
-  if (tabs) tabs.style.display = "flex";
-
+  document.getElementById("tabs").style.display = "flex";
   showTab("personnel");
 }
 
@@ -265,7 +256,7 @@ STATUS: ${currentFile.status || "UNKNOWN"}`;
       break;
 
     case "ability":
-      txt = `[ABILITY]\n${currentFile.ability || "NO DATA"}`;
+      txt = currentFile.ability || "NO DATA";
       break;
 
     case "artifact":
@@ -312,7 +303,7 @@ function loadStaffList() {
 }
 
 /* =========================
-   TOGGLE
+   TOGGLE（完全修正版）
 ========================= */
 function setupToggle() {
   const toggle = document.getElementById("staffListToggle");
@@ -323,23 +314,12 @@ function setupToggle() {
   toggle.addEventListener("click", () => {
     panel.classList.toggle("open");
     beep(800, 50, 0.05);
+
+    // 開いた瞬間に確実に更新
+    if (panel.classList.contains("open")) {
+      loadStaffList();
+    }
   });
-}
-
-/* =========================
-   AMNESTIC
-========================= */
-function triggerAmnestic() {
-  const ov = document.getElementById("amnesticOverlay");
-  if (!ov) return;
-
-  ov.style.display = "flex";
-
-  emergencyInterval = setInterval(() => {
-    beep(100, 400, 0.2);
-  }, 700);
-
-  setTimeout(() => location.reload(), 6000);
 }
 
 /* =========================
@@ -348,5 +328,7 @@ function triggerAmnestic() {
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("loginBtn")?.addEventListener("click", login);
   document.getElementById("searchBtn")?.addEventListener("click", searchFile);
-  document.getElementById("emergencyBtn")?.addEventListener("click", triggerAmnestic);
+  document.getElementById("emergencyBtn")?.addEventListener("click", () => {
+    location.reload();
+  });
 });
