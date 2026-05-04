@@ -410,4 +410,17 @@ function startAltReality() {
   }
 
   printLine();
+}function printLine() {
+  if (i >= lines.length) {
+    showButtons();
+    return;
+  }
+
+  log.innerText += lines[i] + "\n";
+  log.scrollTop = log.scrollHeight;
+
+  beep(220 + i * 35, 60, 0.04);
+
+  i++;
+  setTimeout(printLine, 500);
 }
