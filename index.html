@@ -9,12 +9,14 @@
 
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div id="loginScreen">
   <div class="loginBox">
     <input type="text" id="username" placeholder="[USER ID]" autocomplete="off">
     <input type="password" id="password" placeholder="[PASS KEY]" autocomplete="off">
-    <button type="button" id="loginBtn">ACCESS</button>
+    <button id="loginBtn">ACCESS</button>
+
+    <!-- ❌ 1個に統一 -->
     <div id="loginError"></div>
   </div>
 </div>
@@ -38,7 +40,7 @@
   </div>
 </div>
 
-<!-- MAIN TERMINAL -->
+<!-- MAIN -->
 <div id="mainTerminal" style="display:none;">
 
   <div id="logo">Tenri Order Agency Terminal TOA-226</div>
@@ -47,6 +49,7 @@
   <!-- SEARCH -->
   <div class="inputArea">
     <input type="text" id="staffId" placeholder="Enter ID">
+
     <select id="clearance">
       <option value="0">LV 0</option>
       <option value="1">LV 1</option>
@@ -55,29 +58,30 @@
       <option value="4">LV 4</option>
       <option value="5">LV 5</option>
     </select>
-    <button type="button" id="searchBtn">SEARCH DATABASE</button>
+
+    <button id="searchBtn">SEARCH DATABASE</button>
   </div>
 
   <!-- TABS -->
-  <div id="tabs">
-    <button type="button" data-tab="personnel">PERSONNEL</button>
-    <button type="button" data-tab="ability">ABILITY</button>
-    <button type="button" data-tab="artifact">OBJECT</button>
-    <button type="button" data-tab="record">RECORD</button>
+  <div id="tabs" style="display:none;">
+    <button data-tab="personnel">PERSONNEL</button>
+    <button data-tab="ability">ABILITY</button>
+    <button data-tab="artifact">OBJECT</button>
+    <button data-tab="record">RECORD</button>
   </div>
 
   <!-- RESULT -->
   <div id="result"></div>
 
-  <!-- STAFF PANEL -->
+  <!-- STAFF -->
   <div id="staffPanel">
 
-    <div id="staffListToggle">PERSONNEL DATABASE ▼</div>
+    <div id="staffListToggle">DATABASE ▼</div>
 
-    <!-- CATEGORY -->
     <div id="categoryTabs">
-      <button type="button" onclick="setCategory('personal')">PERSONAL</button>
-      <button type="button" onclick="setCategory('object')">OBJECT</button>
+      <!-- ❗ JSと一致させる -->
+      <button onclick="setCategory('personnel')">PERSONNEL</button>
+      <button onclick="setCategory('objects')">OBJECT</button>
     </div>
 
     <div id="staffList"></div>
@@ -85,8 +89,7 @@
 
   <!-- CONTROLS -->
   <div class="bottom-controls">
-    <button type="button" id="staffListToggleBtn">TOGGLE LIST</button>
-    <button type="button" class="emergency-btn" id="emergencyBtn">
+    <button id="emergencyBtn" class="emergency-btn">
       REPORT EMERGENCY
     </button>
   </div>

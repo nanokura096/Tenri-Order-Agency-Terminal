@@ -5,14 +5,11 @@
   --orange:#ff8c00;
 }
 
-/* =========================
-   BASE
-========================= */
+/* BASE */
 *{
   box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
 }
-
 body{
   margin:0;
   padding:15px;
@@ -22,9 +19,7 @@ body{
   overflow-x:hidden;
 }
 
-/* =========================
-   FULLSCREEN LAYERS
-========================= */
+/* LAYERS */
 #loginScreen,
 #amnesticOverlay,
 #emergencyOverlay,
@@ -33,9 +28,7 @@ body{
   inset:0;
 }
 
-/* =========================
-   LOGIN
-========================= */
+/* LOGIN */
 #loginScreen{
   z-index:9999;
   display:flex;
@@ -51,9 +44,7 @@ body{
   text-align:center;
 }
 
-/* =========================
-   BOOT
-========================= */
+/* BOOT */
 #bootScreen{
   z-index:9000;
   display:none;
@@ -63,16 +54,13 @@ body{
   white-space:pre-wrap;
   overflow-y:auto;
 }
-
 #bootScreen div{
   margin-bottom:10px;
   border-left:2px solid var(--green);
   padding-left:8px;
 }
 
-/* =========================
-   AMNESTIC
-========================= */
+/* AMNESTIC */
 #amnesticOverlay{
   z-index:10000;
   display:none;
@@ -84,9 +72,7 @@ body{
   text-align:center;
 }
 
-/* =========================
-   EMERGENCY
-========================= */
+/* EMERGENCY */
 #emergencyOverlay{
   z-index:20000;
   display:none;
@@ -94,7 +80,6 @@ body{
   align-items:center;
   flex-direction:column;
   background:rgba(255,0,0,0.85);
-  pointer-events:auto;
 }
 
 #emergencyContent{
@@ -105,14 +90,11 @@ body{
   text-align:center;
 }
 
-/* =========================
-   MAIN
-========================= */
+/* MAIN */
 #mainTerminal{
   display:none;
 }
 
-/* LOGO */
 #logo{
   font-size:20px;
   border-bottom:1px solid var(--green);
@@ -120,16 +102,13 @@ body{
   margin-bottom:15px;
 }
 
-/* STATUS */
 #statusbar{
   font-size:12px;
   margin-bottom:15px;
   opacity:0.8;
 }
 
-/* =========================
-   INPUT AREA
-========================= */
+/* INPUT */
 input,select,button{
   width:100%;
   margin:6px 0;
@@ -143,7 +122,6 @@ input,select,button{
 
 button{
   cursor:pointer;
-  transition:0.15s;
 }
 
 button:active,
@@ -151,9 +129,7 @@ button:active,
   transform:scale(.98);
 }
 
-/* =========================
-   TABS
-========================= */
+/* TABS */
 #tabs{
   display:none;
   gap:5px;
@@ -166,9 +142,7 @@ button:active,
   min-width:80px;
 }
 
-/* =========================
-   RESULT
-========================= */
+/* RESULT */
 #result{
   border:1px solid var(--green);
   min-height:220px;
@@ -179,19 +153,7 @@ button:active,
   background:rgba(0,20,0,.4);
 }
 
-/* =========================
-   CONTROLS
-========================= */
-.bottom-controls{
-  margin-top:25px;
-  padding-top:15px;
-  border-top:1px double var(--green);
-  text-align:center;
-}
-
-/* =========================
-   STAFF PANEL
-========================= */
+/* STAFF */
 #staffPanel{
   display:none;
   margin-top:20px;
@@ -203,37 +165,20 @@ button:active,
   display:block;
 }
 
-/* =========================
-   TOGGLE BUTTON
-========================= */
 #staffListToggle{
   padding:12px;
   text-align:center;
   cursor:pointer;
   border:1px solid var(--green);
   margin-bottom:10px;
-  background:rgba(0,0,0,0.6);
-  transition:0.2s;
 }
 
-#staffListToggle:hover{
-  background:rgba(0,255,65,0.1);
-}
-
-/* =========================
-   CATEGORY TABS
-========================= */
 #categoryTabs button{
   margin:3px;
   padding:8px;
-  border:1px solid var(--green);
-  background:#000;
-  color:var(--green);
 }
 
-/* =========================
-   STAFF LIST (SLIDE)
-========================= */
+/* LIST */
 #staffList{
   max-height:0;
   overflow:hidden;
@@ -246,9 +191,6 @@ button:active,
   opacity:1;
 }
 
-/* =========================
-   STAFF ENTRY
-========================= */
 .staffEntry{
   border:1px solid var(--green);
   padding:10px;
@@ -260,44 +202,30 @@ button:active,
   background:rgba(0,255,65,0.12);
 }
 
-/* =========================
-   STATUS COLORS
-========================= */
-.status-ACTIVE{
-  color:#00FF41;
-}
-
-.status-MISSING{
-  color:#ffcc00;
-}
-
+/* COLORS */
+.status-ACTIVE{ color:#00FF41; }
+.status-MISSING{ color:#ffcc00; }
 .status-DECEASED{
   color:#ff3131;
   text-decoration:line-through;
   opacity:0.8;
 }
-
 .status-TERMINATED{
   color:#666;
   text-decoration:line-through;
   opacity:0.5;
 }
 
-/* =========================
-   EMERGENCY BUTTON
-========================= */
+/* EMERGENCY */
 .emergency-btn{
   border-color:var(--red);
   color:var(--red);
 }
 
-/* =========================
-   EFFECTS
-========================= */
+/* EFFECTS */
 .blink{
   animation:blink 1s infinite;
 }
-
 @keyframes blink{
   50%{opacity:0;}
 }
@@ -306,25 +234,9 @@ button:active,
   font-size:60px;
 }
 
-/* =========================
-   MOBILE
-========================= */
+/* MOBILE */
 @media (max-width:600px){
-  body{
-    font-size:17px;
-    padding:10px;
-  }
-
-  #logo{
-    font-size:18px;
-  }
-
-  input,select,button{
-    font-size:17px;
-    padding:14px;
-  }
-
-  #tabs button{
-    min-width:100px;
-  }
+  body{ font-size:17px; padding:10px; }
+  #logo{ font-size:18px; }
+  input,select,button{ font-size:17px; padding:14px; }
 }
