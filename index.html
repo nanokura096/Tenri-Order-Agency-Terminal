@@ -8,7 +8,6 @@
 </head>
 <body>
 
-  <!-- STARTUP -->
   <div id="startupScreen">
     <div class="startupText">
       TENRI NETWORK<br><br>
@@ -16,7 +15,6 @@
     </div>
   </div>
 
-  <!-- LOGIN -->
   <div id="loginScreen">
     <div class="loginBox">
       <input type="text" id="username" placeholder="[USER ID]" autocomplete="off">
@@ -26,18 +24,14 @@
     </div>
   </div>
 
-  <!-- BOOT -->
   <div id="bootScreen" style="display:none;"></div>
 
-  <!-- AMNESTIC -->
   <div id="amnesticOverlay" style="display:none;"></div>
 
-  <!-- MAIN TERMINAL -->
   <div id="mainTerminal" style="display:none;">
     <div id="logo">Tenri Order Agency Terminal TOA-226</div>
     <div id="statusbar"></div>
 
-    <!-- SEARCH -->
     <div class="inputArea">
       <input type="text" id="staffId" placeholder="Enter ID">
       <select id="clearance">
@@ -51,7 +45,6 @@
       <button id="searchBtn">SEARCH DATABASE</button>
     </div>
 
-    <!-- TABS -->
     <div id="tabs" style="display:none;">
       <button data-tab="personnel">PERSONNEL</button>
       <button data-tab="ability">ABILITY</button>
@@ -59,10 +52,8 @@
       <button data-tab="record">RECORD</button>
     </div>
 
-    <!-- RESULT -->
     <div id="result"></div>
 
-    <!-- DATA PANEL -->
     <div id="dataPanel">
       <button id="dataToggleBtn">DATABASE LIST ▼</button>
       <div id="categoryTabs">
@@ -72,7 +63,6 @@
       <div id="dataList"></div>
     </div>
 
-    <!-- CONTROLS -->
     <div class="bottom-controls">
       <button id="emergencyBtn" class="emergency-btn">
         REPORT EMERGENCY
@@ -80,33 +70,27 @@
     </div>
   </div>
 
-  <!-- AGENT DISPATCH -->
   <div id="agentDispatch" style="display:none;">
     <div id="agentLog"></div>
   </div>
 
-
-  <!-- EMERGENCY CONSOLE -->
   <div id="emergencyConsole" style="display:none;">
     <div id="consoleLog"></div>
     <div id="consoleButtons"></div>
   </div>
 
-  <div id="clearanceAuth">
-  <div id="authBox">
-    <div id="authTitle">[ CLEARANCE AUTHORIZATION REQUIRED ]</div>
-    <div id="authLevelText"></div>
-
-    <input type="password" id="authInput" placeholder="ENTER PASSPHRASE" autocomplete="off">
-
-    <div class="authButtons">
-      <button id="authBtn">VERIFY</button>
-      <button id="authCancelBtn">CANCEL</button>
+  <div id="clearanceAuth" style="display:none;">
+    <div id="authBox">
+      <div id="authTitle">[ CLEARANCE AUTHORIZATION REQUIRED ]</div>
+      <div id="authLevelText"></div>
+      <input type="password" id="authInput" placeholder="ENTER PASSPHRASE" autocomplete="off">
+      <div class="authButtons">
+        <button id="authBtn">VERIFY</button>
+        <button id="authCancelBtn">CANCEL</button>
+      </div>
+      <div id="authError"></div>
     </div>
-
-    <div id="authError"></div>
   </div>
-
 
   <script src="script.js" defer></script>
 </body>
