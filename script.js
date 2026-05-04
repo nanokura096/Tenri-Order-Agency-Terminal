@@ -200,6 +200,8 @@ function startBoot() {
    FINISH BOOT
 ========================= */
 function finishBoot() {
+  showScreen("main");
+
   updateClock();
   setInterval(updateClock, 1000);
 
