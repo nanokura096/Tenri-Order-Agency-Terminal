@@ -6,101 +6,92 @@
   <title>Tenri Order Agency TOA-226</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
   <div id="startupScreen">
-  <div class="startupText">
-    TENRI NETWORK<br><br>
-    LOADING...
-  </div>
-</div>
-
-<!-- LOGIN -->
-<div id="loginScreen">
-  <div class="loginBox">
-    <input type="text" id="username" placeholder="[USER ID]" autocomplete="off">
-    <input type="password" id="password" placeholder="[PASS KEY]" autocomplete="off">
-    <button id="loginBtn">ACCESS</button>
-
-    <!-- ❌ 1個に統一 -->
-    <div id="loginError"></div>
-  </div>
-</div>
-
-<!-- BOOT -->
-<div id="bootScreen" style="display:none;"></div>
-
-<!-- AMNESTIC -->
-<div id="amnesticOverlay" style="display:none;">
-  <h1>[CRITICAL ERROR]</h1>
-  <p>UNAUTHORIZED ACCESS DETECTED.</p>
-  <div class="blink warning">⚠</div>
-  <p>INITIATING CLASS-A AMNESTICS...</p>
-</div>
-
-
-<!-- MAIN -->
-<div id="mainTerminal" style="display:none;">
-
-  <div id="logo">Tenri Order Agency Terminal TOA-226</div>
-  <div id="statusbar"></div>
-
-  <!-- SEARCH -->
-  <div class="inputArea">
-    <input type="text" id="staffId" placeholder="Enter ID">
-
-    <select id="clearance">
-      <option value="0">LV 0</option>
-      <option value="1">LV 1</option>
-      <option value="2">LV 2</option>
-      <option value="3" selected>LV 3</option>
-      <option value="4">LV 4</option>
-      <option value="5">LV 5</option>
-    </select>
-
-    <button id="searchBtn">SEARCH DATABASE</button>
+    <div class="startupText">
+      TENRI NETWORK<br><br>
+      LOADING...
+    </div>
   </div>
 
-  <!-- TABS -->
-  <div id="tabs" style="display:none;">
-    <button data-tab="personnel">PERSONNEL</button>
-    <button data-tab="ability">ABILITY</button>
-    <button data-tab="artifact">OBJECT</button>
-    <button data-tab="record">RECORD</button>
+  <!-- LOGIN -->
+  <div id="loginScreen">
+    <div class="loginBox">
+      <input type="text" id="username" placeholder="[USER ID]" autocomplete="off">
+      <input type="password" id="password" placeholder="[PASS KEY]" autocomplete="off">
+      <button id="loginBtn">ACCESS</button>
+      <div id="loginError"></div>
+    </div>
   </div>
 
-  <!-- RESULT -->
-  <div id="result"></div>
+  <!-- BOOT -->
+  <div id="bootScreen" style="display:none;"></div>
 
-  <!-- STAFF -->
-  <div id="staffPanel">
-  <button id="staffToggleBtn">STAFF LIST ▼</button>
-
-  <div id="categoryTabs">
-    <button onclick="setCategory('personnel')">PERSONNEL</button>
-    <button onclick="setCategory('objects')">OBJECT</button>
+  <!-- AMNESTIC -->
+  <div id="amnesticOverlay" style="display:none;">
+    <h1>[CRITICAL ERROR]</h1>
+    <p>UNAUTHORIZED ACCESS DETECTED.</p>
+    <div class="blink warning">⚠</div>
+    <p>INITIATING CLASS-A AMNESTICS...</p>
   </div>
 
-  <div id="staffList"></div>
-</div>
+  <!-- MAIN -->
+  <div id="mainTerminal" style="display:none;">
+    <div id="logo">Tenri Order Agency Terminal TOA-226</div>
+    <div id="statusbar"></div>
 
-  <!-- CONTROLS -->
-  <div class="bottom-controls">
-    <button id="emergencyBtn" class="emergency-btn">
-      REPORT EMERGENCY
-    </button>
+    <!-- SEARCH -->
+    <div class="inputArea">
+      <input type="text" id="staffId" placeholder="Enter ID">
+      <select id="clearance">
+        <option value="0">LV 0</option>
+        <option value="1">LV 1</option>
+        <option value="2">LV 2</option>
+        <option value="3" selected>LV 3</option>
+        <option value="4">LV 4</option>
+        <option value="5">LV 5</option>
+      </select>
+      <button id="searchBtn">SEARCH DATABASE</button>
+    </div>
+
+    <!-- TABS -->
+    <div id="tabs" style="display:none;">
+      <button data-tab="personnel">PERSONNEL</button>
+      <button data-tab="ability">ABILITY</button>
+      <button data-tab="artifact">OBJECT</button>
+      <button data-tab="record">RECORD</button>
+    </div>
+
+    <!-- RESULT -->
+    <div id="result"></div>
+
+    <!-- DATA PANEL -->
+    <div id="dataPanel">
+      <button id="dataToggleBtn">DATABASE LIST ▼</button>
+
+      <div id="categoryTabs">
+        <button onclick="setCategory('personnel')">PERSONNEL</button>
+        <button onclick="setCategory('objects')">OBJECT</button>
+      </div>
+
+      <div id="dataList"></div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="bottom-controls">
+      <button id="emergencyBtn" class="emergency-btn">
+        REPORT EMERGENCY
+      </button>
+    </div>
   </div>
 
-</div>
+  <!-- EMERGENCY CONSOLE -->
+  <div id="emergencyConsole" style="display:none;">
+    <div id="consoleLog"></div>
+    <div id="consoleButtons"></div>
+  </div>
 
-<script src="script.js" defer></script>
-
-<div id="emergencyConsole" style="display:none;">
-  <div id="consoleLog"></div>
-  <div id="consoleButtons"></div>
-</div>
-
-<script src="script.js" defer></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
