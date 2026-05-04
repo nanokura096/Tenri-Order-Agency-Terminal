@@ -106,7 +106,7 @@ let audioCtx = null;
 let clockLoop = null;
 
 const clearanceCodes = {
-  "2": "",
+  "2": "late",
   "3": "true",
   "4": "fake",
   "5": "null"
@@ -315,18 +315,15 @@ function showTab(tab){
   if(!currentFile) return;
 
   const r = document.getElementById("result");
-  const stateClass = getStateClass(currentFile.status);
-
   let txt = "";
 
   switch(tab){
     case "personnel":
       txt = `
-ID: ${currentFile.id}
 NAME: ${currentFile.name}
 CATEGORY: ${currentFile.category}
-STATUS: <span class="${stateClass}">${currentFile.status}</span>
-`;
+STATUS: ${currentFile.status}
+      `;
       break;
 
     case "ability":
@@ -342,8 +339,8 @@ STATUS: <span class="${stateClass}">${currentFile.status}</span>
       break;
   }
 
-  r.innerHTML = txt;
-  beep(1000, 15);
+  r.innerHTML = txt; // ←ここ重要（innerHTMLにする）
+  beep(1000,15);
 }
 
 /* =========================
@@ -726,3 +723,6 @@ function setState(id, newState){
   loadDataList();
 }
 
+function getStateClass(status){
+  return "state-" + status;
+}
