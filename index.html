@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tenri Order Agency TOA-226</title>
-
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -20,10 +19,10 @@
   </div>
 </div>
 
-<!-- BOOT SCREEN -->
+<!-- BOOT -->
 <div id="bootScreen" style="display:none;"></div>
 
-<!-- AMNESTIC OVERLAY -->
+<!-- AMNESTIC -->
 <div id="amnesticOverlay" style="display:none;">
   <h1>[CRITICAL ERROR]</h1>
   <p>UNAUTHORIZED ACCESS DETECTED.</p>
@@ -31,7 +30,7 @@
   <p>INITIATING CLASS-A AMNESTICS...</p>
 </div>
 
-<!-- EMERGENCY OVERLAY -->
+<!-- EMERGENCY -->
 <div id="emergencyOverlay" style="display:none;">
   <div id="emergencyContent">
     <div id="emergencyMsg"></div>
@@ -41,12 +40,13 @@
 
 <!-- MAIN TERMINAL -->
 <div id="mainTerminal" style="display:none;">
+
   <div id="logo">Tenri Order Agency Terminal TOA-226</div>
   <div id="statusbar"></div>
 
+  <!-- SEARCH -->
   <div class="inputArea">
     <input type="text" id="staffId" placeholder="Enter ID">
-
     <select id="clearance">
       <option value="0">LV 0</option>
       <option value="1">LV 1</option>
@@ -55,51 +55,44 @@
       <option value="4">LV 4</option>
       <option value="5">LV 5</option>
     </select>
-
     <button type="button" id="searchBtn">SEARCH DATABASE</button>
   </div>
 
+  <!-- TABS -->
   <div id="tabs">
     <button type="button" data-tab="personnel">PERSONNEL</button>
     <button type="button" data-tab="ability">ABILITY</button>
-    <button type="button" data-tab="artifact">███</button>
+    <button type="button" data-tab="artifact">OBJECT</button>
     <button type="button" data-tab="record">RECORD</button>
   </div>
 
+  <!-- RESULT -->
   <div id="result"></div>
 
   <!-- STAFF PANEL -->
-<div id="staffPanel">
+  <div id="staffPanel">
 
-  <div class="panelHeader" onclick="toggleStaffPanel()">
-    PERSONNEL DATABASE ▼
+    <div id="staffListToggle">PERSONNEL DATABASE ▼</div>
+
+    <!-- CATEGORY -->
+    <div id="categoryTabs">
+      <button type="button" onclick="setCategory('personal')">PERSONAL</button>
+      <button type="button" onclick="setCategory('object')">OBJECT</button>
+    </div>
+
+    <div id="staffList"></div>
   </div>
 
-  <div id="categoryTabs">
-    <button type="button" onclick="setCategory('personal')">PERSONAL</button>
-    <button type="button" onclick="setCategory('object')">OBJECT</button>
-  </div>
-
-  <div id="staffList"></div>
-</div>
-
-<!-- CONTROLS -->
-<div class="bottom-controls">
-  <button id="staffListToggleBtn">TOGGLE PERSONNEL LIST</button>
-  <button class="emergency-btn" id="emergencyBtn">
-    REPORT EMERGENCY
-  </button>
-</div>
-
+  <!-- CONTROLS -->
   <div class="bottom-controls">
-  <button id="staffListToggle">PERSONNEL LIST</button>
-  <button class="emergency-btn" id="emergencyBtn">
-    REPORT EMERGENCY
-  </button>
-</div>
+    <button type="button" id="staffListToggleBtn">TOGGLE LIST</button>
+    <button type="button" class="emergency-btn" id="emergencyBtn">
+      REPORT EMERGENCY
+    </button>
+  </div>
+
 </div>
 
 <script src="script.js" defer></script>
-
 </body>
 </html>

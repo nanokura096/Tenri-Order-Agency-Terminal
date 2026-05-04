@@ -146,7 +146,8 @@ button{
   transition:0.15s;
 }
 
-button:active,.staffEntry:active{
+button:active,
+.staffEntry:active{
   transform:scale(.98);
 }
 
@@ -179,7 +180,7 @@ button:active,.staffEntry:active{
 }
 
 /* =========================
-   STAFF LIST (重要修正)
+   CONTROLS
 ========================= */
 .bottom-controls{
   margin-top:25px;
@@ -188,17 +189,66 @@ button:active,.staffEntry:active{
   text-align:center;
 }
 
-/* トグルボタン */
-#staffListToggle{
-  margin-bottom:10px;
-}
-
-/* 一覧 */
-#staffList{
+/* =========================
+   STAFF PANEL
+========================= */
+#staffPanel{
   display:none;
-  margin-top:10px;
+  margin-top:20px;
+  border:1px solid var(--green);
+  padding:10px;
 }
 
+#staffPanel.open{
+  display:block;
+}
+
+/* =========================
+   TOGGLE BUTTON
+========================= */
+#staffListToggle{
+  padding:12px;
+  text-align:center;
+  cursor:pointer;
+  border:1px solid var(--green);
+  margin-bottom:10px;
+  background:rgba(0,0,0,0.6);
+  transition:0.2s;
+}
+
+#staffListToggle:hover{
+  background:rgba(0,255,65,0.1);
+}
+
+/* =========================
+   CATEGORY TABS
+========================= */
+#categoryTabs button{
+  margin:3px;
+  padding:8px;
+  border:1px solid var(--green);
+  background:#000;
+  color:var(--green);
+}
+
+/* =========================
+   STAFF LIST (SLIDE)
+========================= */
+#staffList{
+  max-height:0;
+  overflow:hidden;
+  opacity:0;
+  transition:0.4s ease;
+}
+
+#staffPanel.open #staffList{
+  max-height:400px;
+  opacity:1;
+}
+
+/* =========================
+   STAFF ENTRY
+========================= */
 .staffEntry{
   border:1px solid var(--green);
   padding:10px;
@@ -207,7 +257,30 @@ button:active,.staffEntry:active{
 }
 
 .staffEntry:hover{
-  background:rgba(0,255,65,0.1);
+  background:rgba(0,255,65,0.12);
+}
+
+/* =========================
+   STATUS COLORS
+========================= */
+.status-ACTIVE{
+  color:#00FF41;
+}
+
+.status-MISSING{
+  color:#ffcc00;
+}
+
+.status-DECEASED{
+  color:#ff3131;
+  text-decoration:line-through;
+  opacity:0.8;
+}
+
+.status-TERMINATED{
+  color:#666;
+  text-decoration:line-through;
+  opacity:0.5;
 }
 
 /* =========================
@@ -254,73 +327,4 @@ button:active,.staffEntry:active{
   #tabs button{
     min-width:100px;
   }
-}
-
-/* =========================
-   SLIDE PANEL
-========================= */
-#staffPanel{
-  margin-top:20px;
-  border-top:1px dashed var(--green);
-}
-
-/* 開閉ボタン */
-#staffListToggle{
-  padding:12px;
-  text-align:center;
-  cursor:pointer;
-  border:1px solid var(--green);
-  margin-bottom:10px;
-  background:rgba(0,0,0,0.6);
-  transition:0.2s;
-}
-
-#staffListToggle:hover{
-  background:rgba(0,255,65,0.1);
-}
-
-/* ドア本体（アニメ） */
-#staffList{
-  max-height:0;
-  overflow:hidden;
-  transition:max-height 0.4s ease, opacity 0.3s ease;
-  opacity:0;
-}
-
-/* 開いた状態 */
-#staffPanel.open #staffList{
-  max-height:400px;
-  opacity:1;
-}
-
-/* 中身 */
-.staffEntry{
-  border:1px solid var(--green);
-  padding:10px;
-  margin-top:6px;
-  cursor:pointer;
-}
-
-.staffEntry:hover{
-  background:rgba(0,255,65,0.12);
-}
-
-.status-ACTIVE{
-  color:#00FF41;
-}
-
-.status-MISSING{
-  color:#ffcc00;
-}
-
-.status-DECEASED{
-  color:#ff3131;
-  text-decoration:line-through;
-  opacity:0.8;
-}
-
-.status-TERMINATED{
-  color:#666;
-  text-decoration:line-through;
-  opacity:0.5;
 }
