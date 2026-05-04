@@ -70,9 +70,12 @@ body{
   align-items:center;
   flex-direction:column;
   background:rgba(255,0,0,0.8);
-  pointer-events:none;
+  pointer-events:auto;
 }
 
+#emergencyOverlay.show{
+  display:flex;
+}
 /* ACTIVE STATE FIX */
 #amnesticOverlay.active,
 #emergencyOverlay.active{
@@ -187,6 +190,7 @@ button:active,.staffEntry:active{
   border-top:1px double var(--green);
   padding-top:20px;
 }
+
 
 .emergency-btn{
   border-color:red;
