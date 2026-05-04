@@ -367,9 +367,6 @@ function startAltReality() {
   log.innerText = "";
   buttons.innerHTML = "";
 
-  beep(120, 500, 0.08);
-  setTimeout(() => beep(120, 500, 0.08), 650);
-
   const lines = [
     "[SYSTEM] EMERGENCY OVERRIDE INITIATED",
     "[SYSTEM] TERMINAL LINK COMPROMISED",
