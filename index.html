@@ -68,13 +68,35 @@
 
   <div id="result"></div>
 
+  <!-- STAFF PANEL -->
+<div id="staffPanel">
+
+  <div class="panelHeader" onclick="toggleStaffPanel()">
+    PERSONNEL DATABASE ▼
+  </div>
+
+  <div id="categoryTabs">
+    <button type="button" onclick="setCategory('personal')">PERSONAL</button>
+    <button type="button" onclick="setCategory('object')">OBJECT</button>
+  </div>
+
   <div id="staffList"></div>
+</div>
+
+<!-- CONTROLS -->
+<div class="bottom-controls">
+  <button id="staffListToggleBtn">TOGGLE PERSONNEL LIST</button>
+  <button class="emergency-btn" id="emergencyBtn">
+    REPORT EMERGENCY
+  </button>
+</div>
 
   <div class="bottom-controls">
-    <button type="button" class="emergency-btn" id="emergencyBtn">
-      REPORT EMERGENCY SITUATION
-    </button>
-  </div>
+  <button id="staffListToggle">PERSONNEL LIST</button>
+  <button class="emergency-btn" id="emergencyBtn">
+    REPORT EMERGENCY
+  </button>
+</div>
 </div>
 
 <script src="script.js" defer></script>

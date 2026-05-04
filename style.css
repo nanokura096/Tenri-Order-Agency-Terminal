@@ -2,19 +2,23 @@
   --green:#00FF41;
   --bg:#000;
   --red:#ff3131;
+  --orange:#ff8c00;
 }
 
+/* =========================
+   BASE
+========================= */
 *{
   box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
 }
 
 body{
+  margin:0;
+  padding:15px;
   background:var(--bg);
   color:var(--green);
   font-family:Courier New, monospace;
-  margin:0;
-  padding:15px;
   overflow-x:hidden;
 }
 
@@ -29,7 +33,9 @@ body{
   inset:0;
 }
 
-/* LOGIN */
+/* =========================
+   LOGIN
+========================= */
 #loginScreen{
   z-index:9999;
   display:flex;
@@ -38,7 +44,16 @@ body{
   flex-direction:column;
 }
 
-/* BOOT */
+.loginBox{
+  border:1px solid var(--green);
+  padding:25px;
+  width:min(340px,90vw);
+  text-align:center;
+}
+
+/* =========================
+   BOOT
+========================= */
 #bootScreen{
   z-index:9000;
   display:none;
@@ -49,7 +64,15 @@ body{
   overflow-y:auto;
 }
 
-/* AMNESTIC */
+#bootScreen div{
+  margin-bottom:10px;
+  border-left:2px solid var(--green);
+  padding-left:8px;
+}
+
+/* =========================
+   AMNESTIC
+========================= */
 #amnesticOverlay{
   z-index:10000;
   display:none;
@@ -59,52 +82,54 @@ body{
   background:#600;
   color:#fff;
   text-align:center;
-  pointer-events:none;
 }
 
-/* EMERGENCY */
+/* =========================
+   EMERGENCY
+========================= */
 #emergencyOverlay{
   z-index:20000;
   display:none;
   justify-content:center;
   align-items:center;
   flex-direction:column;
-  background:rgba(255,0,0,0.8);
-  pointer-events:auto;
-}
-
-#emergencyOverlay.show{
-  display:flex;
-}
-/* ACTIVE STATE FIX */
-#amnesticOverlay.active,
-#emergencyOverlay.active{
+  background:rgba(255,0,0,0.85);
   pointer-events:auto;
 }
 
 #emergencyContent{
   background:#000;
-  padding:25px;
-  border:2px solid red;
-  width:85%;
-}
-
-/* MAIN */
-#mainTerminal{
-  display:none;
-  position:relative;
-  z-index:5;
-}
-
-/* LOGIN BOX */
-.loginBox{
-  border:1px solid var(--green);
-  padding:25px;
-  width:min(320px,90vw);
+  padding:20px;
+  border:2px solid var(--red);
+  width:min(500px,90vw);
   text-align:center;
 }
 
-/* INPUT */
+/* =========================
+   MAIN
+========================= */
+#mainTerminal{
+  display:none;
+}
+
+/* LOGO */
+#logo{
+  font-size:20px;
+  border-bottom:1px solid var(--green);
+  padding-bottom:10px;
+  margin-bottom:15px;
+}
+
+/* STATUS */
+#statusbar{
+  font-size:12px;
+  margin-bottom:15px;
+  opacity:0.8;
+}
+
+/* =========================
+   INPUT AREA
+========================= */
 input,select,button{
   width:100%;
   margin:6px 0;
@@ -114,38 +139,25 @@ input,select,button{
   border:1px solid var(--green);
   font-family:inherit;
   font-size:16px;
-  touch-action:manipulation;
+}
+
+button{
+  cursor:pointer;
+  transition:0.15s;
 }
 
 button:active,.staffEntry:active{
   transform:scale(.98);
 }
 
-/* BOOT LOG */
-#bootScreen div{
-  margin-bottom:10px;
-  border-left:2px solid var(--green);
-  padding-left:8px;
-}
-
-/* TERMINAL */
-#logo{
-  font-size:20px;
-  border-bottom:1px solid var(--green);
-  padding-bottom:10px;
-  margin-bottom:15px;
-}
-
-#statusbar{
-  font-size:12px;
-  margin-bottom:15px;
-}
-
+/* =========================
+   TABS
+========================= */
 #tabs{
   display:none;
   gap:5px;
   flex-wrap:wrap;
-  margin-bottom:10px;
+  margin:10px 0;
 }
 
 #tabs button{
@@ -153,6 +165,9 @@ button:active,.staffEntry:active{
   min-width:80px;
 }
 
+/* =========================
+   RESULT
+========================= */
 #result{
   border:1px solid var(--green);
   min-height:220px;
@@ -163,41 +178,49 @@ button:active,.staffEntry:active{
   background:rgba(0,20,0,.4);
 }
 
-/* STAFF LIST */
-#staffListTitle{
-  margin-top:20px;
-  text-align:center;
-  border-top:1px dashed var(--green);
+/* =========================
+   STAFF LIST (重要修正)
+========================= */
+.bottom-controls{
+  margin-top:25px;
   padding-top:15px;
-  cursor:pointer;
+  border-top:1px double var(--green);
+  text-align:center;
 }
 
+/* トグルボタン */
+#staffListToggle{
+  margin-bottom:10px;
+}
+
+/* 一覧 */
 #staffList{
   display:none;
+  margin-top:10px;
 }
 
 .staffEntry{
   border:1px solid var(--green);
   padding:10px;
-  margin-top:8px;
+  margin-top:6px;
   cursor:pointer;
 }
 
-/* CONTROLS */
-.bottom-controls{
-  margin-top:30px;
-  text-align:center;
-  border-top:1px double var(--green);
-  padding-top:20px;
+.staffEntry:hover{
+  background:rgba(0,255,65,0.1);
 }
 
-
+/* =========================
+   EMERGENCY BUTTON
+========================= */
 .emergency-btn{
-  border-color:red;
-  color:red;
+  border-color:var(--red);
+  color:var(--red);
 }
 
-/* ANIMATION */
+/* =========================
+   EFFECTS
+========================= */
 .blink{
   animation:blink 1s infinite;
 }
@@ -207,5 +230,97 @@ button:active,.staffEntry:active{
 }
 
 .warning{
-  font-size:80px;
+  font-size:60px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width:600px){
+  body{
+    font-size:17px;
+    padding:10px;
+  }
+
+  #logo{
+    font-size:18px;
+  }
+
+  input,select,button{
+    font-size:17px;
+    padding:14px;
+  }
+
+  #tabs button{
+    min-width:100px;
+  }
+}
+
+/* =========================
+   SLIDE PANEL
+========================= */
+#staffPanel{
+  margin-top:20px;
+  border-top:1px dashed var(--green);
+}
+
+/* 開閉ボタン */
+#staffListToggle{
+  padding:12px;
+  text-align:center;
+  cursor:pointer;
+  border:1px solid var(--green);
+  margin-bottom:10px;
+  background:rgba(0,0,0,0.6);
+  transition:0.2s;
+}
+
+#staffListToggle:hover{
+  background:rgba(0,255,65,0.1);
+}
+
+/* ドア本体（アニメ） */
+#staffList{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height 0.4s ease, opacity 0.3s ease;
+  opacity:0;
+}
+
+/* 開いた状態 */
+#staffPanel.open #staffList{
+  max-height:400px;
+  opacity:1;
+}
+
+/* 中身 */
+.staffEntry{
+  border:1px solid var(--green);
+  padding:10px;
+  margin-top:6px;
+  cursor:pointer;
+}
+
+.staffEntry:hover{
+  background:rgba(0,255,65,0.12);
+}
+
+.status-ACTIVE{
+  color:#00FF41;
+}
+
+.status-MISSING{
+  color:#ffcc00;
+}
+
+.status-DECEASED{
+  color:#ff3131;
+  text-decoration:line-through;
+  opacity:0.8;
+}
+
+.status-TERMINATED{
+  color:#666;
+  text-decoration:line-through;
+  opacity:0.5;
 }
