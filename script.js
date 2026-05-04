@@ -131,7 +131,8 @@ function login(){
   const err = document.getElementById("loginError");
 
   if(u==="admin" && p==="226227"){
-    document.querySelector(".loginBox").innerHTML = `<div class="blink">AUTHENTICATING...</div>`;
+    document.querySelector(".loginBox").innerHTML =
+    `<div class="blink">AUTHENTICATING...</div>`;
     beep(900,100);
     setTimeout(()=>{
       showScreen("boot");
@@ -186,6 +187,7 @@ function startBoot(){
 
 function finishBoot(){
   showScreen("main");
+  document.getElementById("clearance").value = "1";
   updateClock();
   if(clockLoop) clearInterval(clockLoop);
   clockLoop = setInterval(updateClock,1000);
@@ -532,5 +534,117 @@ function startAmnesticProtocol(){
     setTimeout(print,650);
   }
 
+  print();
+}
+
+/* =========================
+   AGENT DISPATCH
+========================= */
+function dispatchAgent(){
+  initAudio();
+  showScreen("agent");
+  const log = document.getElementById("agentLog");
+  log.innerText = "";
+
+  const intro = [
+    "[SECURITY ALERT]",
+    "UNAUTHORIZED LOGIN ATTEMPTS : 3",
+    "IDENTITY CONFIRMATION FAILED",
+    "CURRENT TERMINAL FLAGGED",
+    "",
+    "DISPATCHING FIELD AGENT..."
+  ];
+
+  let i = 0;
+  function print(){
+    if(i >= intro.length){
+      startCountdown();
+      return;
+    }
+    log.innerText += intro[i] + "\n";
+    beep(130+i*10,35);
+    i++;
+    setTimeout(print,500);
+  }
+
+  function startCountdown(){
+    let time = 12;
+    const timer = setInterval(()=>{
+      log.innerText = intro.join("\n") +
+      `\n\nAGENT ETA : 00:00:${String(time).padStart(2,"0")}\n[ DO NOT LEAVE YOUR POSITION ]`;
+      beep(180,20,0.02);
+      time--;
+      if(time < 0){
+        clearInterval(timer);
+        location.reload();
+      }
+    },1000);
+  }
+  print();
+}
+
+/* =========================
+   CLEARANCE AUTH
+========================= */
+function requestClearanceAuth(){
+  initAudio();
+  const select = document.getElementById("clearance");
+  const targetLevel = select.value;
+
+  if(targetLevel === "0" || targetLevel === "1") return;
+
+  const code = prompt(`LEVEL ${targetLevel} AUTHENTICATION REQUIRED\nENTER PASSPHRASE:`);
+
+  if(code && code.trim() === clearanceCodes[targetLevel]){
+    beep(900,80);
+    document.getElementById("result").innerText =
+    `CLEARANCE LEVEL ${targetLevel} VERIFIED`;
+    return;
+  }
+
+  clearanceAttempts++;
+  beep(120,250);
+  select.value = "1";
+
+  if(clearanceAttempts >= MAX_CLEARANCE_ATTEMPTS){
+    startAmnesticProtocol();
+  }else{
+    document.getElementById("result").innerText =
+    `CLEARANCE AUTH FAILED (${clearanceAttempts}/${MAX_CLEARANCE_ATTEMPTS})`;
+  }
+}
+
+/* =========================
+   AMNESTIC PROTOCOL
+========================= */
+function startAmnesticProtocol(){
+  initAudio();
+  showScreen("amnestic");
+  const overlay = document.getElementById("amnesticOverlay");
+  overlay.innerHTML = "";
+
+  const lines = [
+    "[COGNITIVE SECURITY BREACH]",
+    "UNAUTHORIZED CLEARANCE ESCALATION DETECTED",
+    "MEMETIC TRACE CONFIRMED",
+    "",
+    "INITIATING CLASS-A AMNESTIC RESPONSE...",
+    "PURGING SHORT TERM MEMORY...",
+    "NEURAL INTERFERENCE DEPLOYED..."
+  ];
+
+  let i = 0;
+  function print(){
+    if(i >= lines.length){
+      setTimeout(()=>location.reload(),3000);
+      return;
+    }
+    const div = document.createElement("div");
+    div.innerText = lines[i];
+    overlay.appendChild(div);
+    beep(100+i*15,40,0.03);
+    i++;
+    setTimeout(print,650);
+  }
   print();
 }

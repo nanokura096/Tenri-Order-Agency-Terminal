@@ -282,3 +282,80 @@ button:active{
   input,select,button{font-size:14px;padding:12px;}
   #result{font-size:13px;}
 }
+
+/* =========================
+   AGENT DISPATCH SCREEN
+========================= */
+#agentDispatch{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:black;
+  color:#ff2a2a;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  font-family:monospace;
+  z-index:9999;
+  text-align:left;
+  padding:20px;
+  box-sizing:border-box;
+}
+
+#agentLog{
+  width:90%;
+  max-width:700px;
+  min-height:300px;
+  border:1px solid #ff2a2a;
+  padding:20px;
+  white-space:pre-line;
+  box-shadow:0 0 20px #ff2a2a;
+  animation:flicker 0.08s infinite alternate;
+}
+
+/* =========================
+   AMNESTIC OVERLAY
+========================= */
+#amnesticOverlay{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:black;
+  color:#00ff88;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  font-family:monospace;
+  z-index:9999;
+  text-align:center;
+  gap:10px;
+  padding:20px;
+  box-sizing:border-box;
+  text-shadow:0 0 8px #00ff88;
+}
+
+#amnesticOverlay div{
+  animation:flicker 0.09s infinite alternate;
+}
+
+/* =========================
+   CATEGORY ACTIVE
+========================= */
+.activeCat{
+  background:#00ff88 !important;
+  color:black !important;
+}
+
+/* =========================
+   GLITCH FLICKER
+========================= */
+@keyframes flicker{
+  from{opacity:0.82;}
+  to{opacity:1;}
+}
