@@ -3,6 +3,7 @@
   --bg:#000;
   --red:#ff3131;
 }
+
 *{
   box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
@@ -28,6 +29,7 @@ body{
   inset:0;
 }
 
+/* LOGIN */
 #loginScreen{
   z-index:9999;
   display:flex;
@@ -36,11 +38,18 @@ body{
   flex-direction:column;
 }
 
+/* BOOT */
 #bootScreen{
   z-index:9000;
   display:none;
+  padding:20px;
+  font-size:14px;
+  line-height:1.6;
+  white-space:pre-wrap;
+  overflow-y:auto;
 }
 
+/* AMNESTIC */
 #amnesticOverlay{
   z-index:10000;
   display:none;
@@ -50,9 +59,9 @@ body{
   background:#600;
   color:#fff;
   text-align:center;
-  pointer-events:none;
 }
 
+/* EMERGENCY */
 #emergencyOverlay{
   z-index:20000;
   display:none;
@@ -60,13 +69,6 @@ body{
   align-items:center;
   flex-direction:column;
   background:rgba(255,0,0,0.8);
-  pointer-events:none;
-}
-
-/* 表示時だけ触れる */
-#amnesticOverlay.active,
-#emergencyOverlay.active{
-  pointer-events:auto;
 }
 
 #emergencyContent{
@@ -76,6 +78,7 @@ body{
   width:85%;
 }
 
+/* MAIN */
 #mainTerminal{
   display:none;
   position:relative;
@@ -85,16 +88,11 @@ body{
 /* =========================
    LOGIN
 ========================= */
-#loginBox{
+.loginBox{
   border:1px solid var(--green);
   padding:25px;
   width:min(320px,90vw);
   text-align:center;
-}
-
-#loginTitle span{
-  font-size:12px;
-  opacity:.8;
 }
 
 /* =========================
@@ -112,21 +110,9 @@ input,select,button{
   touch-action:manipulation;
 }
 
-button:active,.staffEntry:active{
-  transform:scale(.98);
-}
-
 /* =========================
-   BOOT
+   BOOT LOG
 ========================= */
-#bootScreen{
-  padding:20px;
-  font-size:14px;
-  line-height:1.6;
-  white-space:pre-wrap;
-  overflow-y:auto;
-}
-
 #bootScreen div{
   margin-bottom:10px;
   border-left:2px solid var(--green);
@@ -170,14 +156,7 @@ button:active,.staffEntry:active{
   background:rgba(0,20,0,.4);
 }
 
-#staffListTitle{
-  margin-top:20px;
-  text-align:center;
-  border-top:1px dashed var(--green);
-  padding-top:15px;
-  cursor:pointer;
-}
-
+/* STAFF LIST */
 #staffList{
   display:none;
 }
@@ -188,6 +167,7 @@ button:active,.staffEntry:active{
   margin-top:8px;
 }
 
+/* CONTROLS */
 .bottom-controls{
   margin-top:30px;
   text-align:center;
@@ -200,6 +180,7 @@ button:active,.staffEntry:active{
   color:red;
 }
 
+/* ANIMATION */
 .blink{
   animation:blink 1s infinite;
 }

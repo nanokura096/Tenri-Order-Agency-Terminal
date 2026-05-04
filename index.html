@@ -4,45 +4,49 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tenri Order Agency TOA-226</title>
+
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
+<!-- LOGIN SCREEN -->
 <div id="loginScreen">
-  <div id="loginBox">
-    <div id="loginTitle">
-      AUTHENTICATION REQUIRED<br>
-      <span>Tenri Order Agency Authentication System</span>
-    </div>
+  <div class="loginBox">
     <input type="text" id="username" placeholder="[USER ID]" autocomplete="off">
     <input type="password" id="password" placeholder="[PASS KEY]" autocomplete="off">
-    <button id="loginBtn">ACCESS</button>
+    <button type="button" id="loginBtn">ACCESS</button>
     <div id="loginError"></div>
   </div>
 </div>
 
-<div id="bootScreen"></div>
+<!-- BOOT SCREEN -->
+<div id="bootScreen" style="display:none;"></div>
 
-<div id="amnesticOverlay">
+<!-- AMNESTIC OVERLAY -->
+<div id="amnesticOverlay" style="display:none;">
   <h1>[CRITICAL ERROR]</h1>
   <p>UNAUTHORIZED ACCESS DETECTED.</p>
   <div class="blink warning">⚠</div>
   <p>INITIATING CLASS-A AMNESTICS...</p>
 </div>
 
-<div id="emergencyOverlay">
+<!-- EMERGENCY OVERLAY -->
+<div id="emergencyOverlay" style="display:none;">
   <div id="emergencyContent">
     <div id="emergencyMsg"></div>
     <div id="emergencyChoices"></div>
   </div>
 </div>
 
-<div id="mainTerminal">
+<!-- MAIN TERMINAL -->
+<div id="mainTerminal" style="display:none;">
   <div id="logo">Tenri Order Agency Terminal TOA-226</div>
   <div id="statusbar"></div>
 
   <div class="inputArea">
     <input type="text" id="staffId" placeholder="Enter ID">
+
     <select id="clearance">
       <option value="0">LV 0</option>
       <option value="1">LV 1</option>
@@ -51,26 +55,29 @@
       <option value="4">LV 4</option>
       <option value="5">LV 5</option>
     </select>
-    <button id="searchBtn">SEARCH DATABASE</button>
+
+    <button type="button" id="searchBtn">SEARCH DATABASE</button>
   </div>
 
   <div id="tabs">
-    <button data-tab="personnel">PERSONNEL</button>
-    <button data-tab="ability">ABILITY</button>
-    <button data-tab="artifact">███</button>
-    <button data-tab="record">RECORD</button>
+    <button type="button" data-tab="personnel">PERSONNEL</button>
+    <button type="button" data-tab="ability">ABILITY</button>
+    <button type="button" data-tab="artifact">███</button>
+    <button type="button" data-tab="record">RECORD</button>
   </div>
 
   <div id="result"></div>
 
-  <div id="staffListTitle">▼ Show All Staff List</div>
   <div id="staffList"></div>
 
   <div class="bottom-controls">
-    <button class="emergency-btn" id="emergencyBtn">REPORT EMERGENCY SITUATION</button>
+    <button type="button" class="emergency-btn" id="emergencyBtn">
+      REPORT EMERGENCY SITUATION
+    </button>
   </div>
 </div>
 
-<script src="script.js"></script>
+<script src="script.js" defer></script>
+
 </body>
 </html>

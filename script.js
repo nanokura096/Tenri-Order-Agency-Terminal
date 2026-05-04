@@ -33,6 +33,7 @@ const files = [
 let currentFile = null;
 let loginAttempts = 0;
 const MAX_ATTEMPTS = 3;
+
 let audioCtx = null;
 let emergencyInterval = null;
 let clockTimer = null;
@@ -51,7 +52,6 @@ function initAudio(){
 
 function beep(freq,dur,vol=0.05){
   if(!audioCtx) return;
-
   try{
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -63,7 +63,10 @@ function beep(freq,dur,vol=0.05){
     osc.type = "square";
 
     gain.gain.setValueAtTime(vol,audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime + dur/1000);
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      audioCtx.currentTime + dur/1000
+    );
 
     osc.start();
     osc.stop(audioCtx.currentTime + dur/1000);
@@ -88,8 +91,10 @@ function login(){
   if(u === "admin" && p === "226227"){
     loginAttempts = 0;
 
-    const box = document.getElementById("loginBox");
-    if(box) box.innerHTML = `<div class="blink">AUTHENTICATING...</div>`;
+    const box = document.querySelector(".loginBox");
+    if(box){
+      box.innerHTML = `<div class="blink">AUTHENTICATING...</div>`;
+    }
 
     beep(900,120,0.08);
 
@@ -110,6 +115,9 @@ function login(){
   }
 }
 
+/* =========================
+   AMNESTIC
+========================= */
 function initiateAmnestic(){
   const ov = document.getElementById("amnesticOverlay");
   if(!ov) return;
@@ -154,6 +162,7 @@ function startLoadingSequence(){
       div.innerText = lines[i];
       boot.appendChild(div);
       div.scrollIntoView({behavior:"smooth",block:"end"});
+
       beep(500 + i*120,40,0.03);
       i++;
       setTimeout(add,700);
@@ -175,35 +184,12 @@ function finishBoot(){
   clockTimer = setInterval(updateClock,1000);
 
   loadStaffList();
-  setupClearanceListener();
+  setupTabs();
 }
 
 /* =========================
-   TERMINAL ENGINE
+   CLOCK
 ========================= */
-function setupClearanceListener(){
-  const select = document.getElementById("clearance");
-  if(!select) return;
-
-  select.onchange = function(e){
-    const res = document.getElementById("result");
-    beep(1200,50,0.05);
-
-    if(res){
-      res.innerHTML = `<div class="blink" style="text-align:center;margin-top:50px;">[ AUTHENTICATING LEVEL ${e.target.value}... ]</div>`;
-    }
-
-    setTimeout(()=>{
-      const idField = document.getElementById("staffId");
-      if(idField && idField.value.trim()){
-        searchFile();
-      }else{
-        if(res) res.innerText = "READY";
-      }
-    },800);
-  };
-}
-
 function updateClock(){
   const status = document.getElementById("statusbar");
   if(!status) return;
@@ -212,6 +198,9 @@ function updateClock(){
   status.innerText = "SYSTEM ONLINE / USER: admin / " + now.toLocaleString();
 }
 
+/* =========================
+   SEARCH
+========================= */
 function searchFile(){
   initAudio();
 
@@ -229,7 +218,10 @@ function searchFile(){
   }
 
   const cl = parseInt(clearField.value,10);
-  const found = files.find(f=>f.id===id);
+
+  const found = (typeof files !== "undefined")
+    ? files.find(f=>f.id===id)
+    : null;
 
   if(!found || cl < parseInt(found.clearance,10)){
     r.innerText = "ACCESS DENIED";
@@ -238,8 +230,22 @@ function searchFile(){
   }
 
   currentFile = found;
-  document.getElementById("tabs").style.display = "flex";
+
+  const tabs = document.getElementById("tabs");
+  if(tabs) tabs.style.display = "flex";
+
   showTab("personnel");
+}
+
+/* =========================
+   TABS
+========================= */
+function setupTabs(){
+  document.querySelectorAll("#tabs button").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      showTab(btn.dataset.tab);
+    });
+  });
 }
 
 function showTab(tab){
@@ -251,7 +257,6 @@ function showTab(tab){
   if(!r) return;
 
   r.innerHTML = "";
-  r.scrollTop = 0;
 
   let txt = "";
 
@@ -262,28 +267,24 @@ function showTab(tab){
 DIVISION: ${currentFile.division}
 RANK: ${currentFile.rank}
 STATUS: ${currentFile.status}
-
 ${currentFile.profile}`;
       break;
 
     case "ability":
       txt =
 `[ABILITY DATA]
-
 ${currentFile.ability}`;
       break;
 
     case "artifact":
       txt =
 `WEAPON: ${currentFile.weapon}
-
 ${currentFile.Description || "NO DATA"}`;
       break;
 
     case "record":
       txt =
 `RECORD: ${currentFile.record}
-
 NOTE: ${currentFile.note}`;
       break;
   }
@@ -291,9 +292,12 @@ NOTE: ${currentFile.note}`;
   r.innerText = txt;
 }
 
+/* =========================
+   STAFF LIST
+========================= */
 function loadStaffList(){
   const list = document.getElementById("staffList");
-  if(!list) return;
+  if(!list || typeof files === "undefined") return;
 
   list.innerHTML = "";
 
@@ -303,20 +307,13 @@ function loadStaffList(){
     div.innerText = `ID: ${f.id} / NAME: ${f.name}`;
 
     div.addEventListener("click",()=>{
-      document.getElementById("staffId").value = f.id;
+      const idField = document.getElementById("staffId");
+      if(idField) idField.value = f.id;
       searchFile();
     });
 
     list.appendChild(div);
   });
-}
-
-function toggleStaffList(){
-  const list = document.getElementById("staffList");
-  if(!list) return;
-
-  list.style.display = list.style.display === "block" ? "none" : "block";
-  beep(1000,50,0.04);
 }
 
 /* =========================
@@ -332,23 +329,21 @@ function triggerEmergency(){
   if(!ov || !msg || !choices) return;
 
   ov.style.display = "flex";
-  ov.style.pointerEvents = "auto";
-  ov.style.background = "rgba(100,0,0,0.9)";
 
   emergencyInterval = setInterval(()=>{
     beep(100,800,0.2);
   },1000);
 
-  msg.innerHTML = `[ ALERT ]<br><br>緊急事態を検知。<br>エージェントが向かっています。<br>待機してください。`;
-  choices.innerHTML = "";
+  msg.innerHTML =
+`[ ALERT ]<br><br>緊急事態を検知。<br>エージェントが向かっています。<br>待機してください。`;
 
   setTimeout(()=>{
-    ov.style.background = "black";
-    msg.innerHTML = `SYSTEM_OVERRIDE_COMPLETE...<br><br>緊急事態は解決しましたか？`;
+    msg.innerHTML =
+`SYSTEM_OVERRIDE_COMPLETE...<br><br>緊急事態は解決しましたか？`;
 
     choices.innerHTML = `
-      <button type="button" id="yesBtn">はい</button>
-      <button type="button" id="noBtn">いいえ</button>
+      <button id="yesBtn">はい</button>
+      <button id="noBtn">いいえ</button>
     `;
 
     document.getElementById("yesBtn").addEventListener("click",resolveEmergency);
@@ -393,20 +388,11 @@ function resolveEmergency(){
    EVENT BIND
 ========================= */
 document.addEventListener("DOMContentLoaded",()=>{
+  document.getElementById("loginBtn")?.addEventListener("click",login);
+  document.getElementById("searchBtn")?.addEventListener("click",searchFile);
+  document.getElementById("emergencyBtn")?.addEventListener("click",triggerEmergency);
 
-  document.getElementById("loginBtn").addEventListener("click",login);
-  document.getElementById("searchBtn").addEventListener("click",searchFile);
-  document.getElementById("staffListTitle").addEventListener("click",toggleStaffList);
-  document.getElementById("emergencyBtn").addEventListener("click",triggerEmergency);
-
-  document.getElementById("password").addEventListener("keydown",(e)=>{
+  document.getElementById("password")?.addEventListener("keydown",(e)=>{
     if(e.key === "Enter") login();
   });
-
-  document.querySelectorAll("#tabs button").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      showTab(btn.dataset.tab);
-    });
-  });
-
 });
