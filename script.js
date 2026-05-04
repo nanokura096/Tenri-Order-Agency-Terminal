@@ -45,15 +45,15 @@ function setCategory(cat) {
   currentCategory = cat;
 
   const panel = document.getElementById("staffPanel");
-  const list = document.getElementById("staffList");
 
-  // ★パネルを強制的に開く
+  // ★必ず開く
   if (panel) panel.classList.add("open");
 
-  // ★リスト再描画
+  // ★リスト更新
   loadStaffList();
 
-  // ★アニメ用リセット（確実に見えるように）
+  // ★アニメ確実化
+  const list = document.getElementById("staffList");
   if (list) {
     list.style.maxHeight = "0";
     list.style.opacity = "0";
