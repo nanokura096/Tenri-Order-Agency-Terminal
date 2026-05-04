@@ -85,22 +85,22 @@
     <div id="agentLog"></div>
   </div>
 
-  <!-- CLEARANCE AUTH -->
-  <div id="clearanceAuth" style="display:none;">
-    <div id="authBox">
-      <div id="authTitle">[ CLEARANCE AUTHORIZATION REQUIRED ]</div>
-      <div id="authLevelText">LEVEL ? ACCESS REQUEST</div>
-      <input type="password" id="authInput" placeholder="ENTER PASSPHRASE" autocomplete="off">
-      <button id="authSubmitBtn">AUTHORIZE</button>
-      <div id="authError"></div>
-    </div>
-  </div>
 
   <!-- EMERGENCY CONSOLE -->
   <div id="emergencyConsole" style="display:none;">
     <div id="consoleLog"></div>
     <div id="consoleButtons"></div>
   </div>
+
+  <div id="clearanceAuth" style="display:none;">
+  <div id="authBox">
+    <div id="authTitle">CLEARANCE AUTHENTICATION</div>
+    <div id="authLevelText"></div>
+    <input type="password" id="authInput" placeholder="ENTER PASSPHRASE">
+    <button id="authBtn">VERIFY</button>
+    <div id="authError"></div>
+  </div>
+</div>
 
   <script src="script.js" defer></script>
 </body>

@@ -359,3 +359,102 @@ button:active{
   from{opacity:0.82;}
   to{opacity:1;}
 }
+
+/* =========================
+   AGENT DISPATCH SCREEN
+========================= */
+#agentDispatch{
+  position:fixed !important;
+  top:0 !important;
+  left:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  background:#000 !important;
+  color:#ff2a2a !important;
+  display:none;
+  justify-content:center !important;
+  align-items:center !important;
+  flex-direction:column !important;
+  font-family:monospace !important;
+  z-index:99999 !important;
+  text-align:left !important;
+  padding:20px !important;
+  box-sizing:border-box !important;
+}
+
+#agentLog{
+  width:90% !important;
+  max-width:700px !important;
+  min-height:300px !important;
+  border:1px solid #ff2a2a !important;
+  padding:20px !important;
+  white-space:pre-line !important;
+  box-shadow:0 0 20px #ff2a2a !important;
+  animation:flicker 0.08s infinite alternate;
+}
+
+/* =========================
+   AMNESTIC OVERLAY
+========================= */
+#amnesticOverlay{
+  position:fixed !important;
+  top:0 !important;
+  left:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  background:#000 !important;
+  color:#00ff88 !important;
+  display:none;
+  justify-content:center !important;
+  align-items:center !important;
+  flex-direction:column !important;
+  font-family:monospace !important;
+  z-index:99999 !important;
+  text-align:center !important;
+  gap:12px !important;
+  padding:20px !important;
+  box-sizing:border-box !important;
+  text-shadow:0 0 8px #00ff88 !important;
+}
+
+#amnesticOverlay div{
+  animation:flicker 0.09s infinite alternate;
+}
+
+.activeCat{
+  background:#00ff88 !important;
+  color:#000 !important;
+}
+
+@keyframes flicker{
+  from{opacity:0.78;}
+  to{opacity:1;}
+}
+
+#clearanceAuth{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.96);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:1000002;
+}
+#authBox{
+  width:min(380px,92vw);
+  border:1px solid #00ff41;
+  padding:20px;
+  text-align:center;
+  box-shadow:0 0 20px #00ff41;
+}
+#authTitle{
+  font-size:18px;
+  margin-bottom:12px;
+}
+#authLevelText{
+  margin-bottom:12px;
+}
+#authError{
+  margin-top:8px;
+  color:#ff3131;
+}

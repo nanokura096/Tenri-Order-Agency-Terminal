@@ -56,7 +56,7 @@ const clearanceCodes = {
    SCREEN CONTROL
 ========================= */
 function showScreen(mode){
-  ["startupScreen","loginScreen","bootScreen","mainTerminal","emergencyConsole","agentDispatch","amnesticOverlay"].forEach(id=>{
+  ["startupScreen","loginScreen","bootScreen","mainTerminal","emergencyConsole","agentDispatch","amnesticOverlay","clearanceAuth"].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.style.display = "none";
   });
@@ -68,6 +68,7 @@ function showScreen(mode){
   if(mode==="emergency") document.getElementById("emergencyConsole").style.display="flex";
   if(mode==="agent") document.getElementById("agentDispatch").style.display="flex";
   if(mode==="amnestic") document.getElementById("amnesticOverlay").style.display="flex";
+  if(mode==="auth") document.getElementById("clearanceAuth").style.display="flex";
 }
 
 /* =========================
@@ -117,6 +118,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   document.getElementById("emergencyBtn")?.addEventListener("click",startAltReality);
   document.getElementById("dataToggleBtn")?.addEventListener("click",toggleDataPanel);
   document.getElementById("clearance")?.addEventListener("change",requestClearanceAuth);
+  document.getElementById("authBtn")?.addEventListener("click",verifyClearanceCode);
 
   setupTabs();
 });
@@ -456,41 +458,30 @@ function dispatchAgent(){
   printIntro();
 }
 
-/* =========================
-   CLEARANCE AUTH
-========================= */
 function requestClearanceAuth(){
   initAudio();
 
   const select = document.getElementById("clearance");
   const targetLevel = select.value;
 
+  pendingClearanceLevel = targetLevel;
+
+  // LV0 / LV1 は認証不要（そのまま通す）
   if(targetLevel === "0" || targetLevel === "1"){
-    pendingClearanceLevel = "1";
     return;
   }
 
-  const code = prompt(`LEVEL ${targetLevel} AUTHENTICATION REQUIRED\nENTER PASSPHRASE:`);
+  const auth = document.getElementById("clearanceAuth");
+  auth.style.display = "flex";
 
-  if(code && code.trim() === clearanceCodes[targetLevel]){
-    beep(900,80);
-    pendingClearanceLevel = targetLevel;
-    document.getElementById("result").innerText =
-      `CLEARANCE LEVEL ${targetLevel} VERIFIED`;
-    return;
-  }
+  document.getElementById("authLevelText").innerText =
+    `LEVEL ${targetLevel} AUTHORIZATION REQUIRED`;
 
-  clearanceAttempts++;
-  beep(120,250);
-  select.value = "1";
-  pendingClearanceLevel = "1";
+  const input = document.getElementById("authInput");
+  input.value = "";
+  input.focus(); // ←これめっちゃ大事
 
-  if(clearanceAttempts >= MAX_CLEARANCE_ATTEMPTS){
-    startAmnesticProtocol();
-  }else{
-    document.getElementById("result").innerText =
-      `CLEARANCE AUTH FAILED (${clearanceAttempts}/${MAX_CLEARANCE_ATTEMPTS})`;
-  }
+  document.getElementById("authError").innerText = "";
 }
 
 /* =========================
@@ -647,4 +638,32 @@ function startAmnesticProtocol(){
     setTimeout(print,650);
   }
   print();
+}
+
+function verifyClearanceCode(){
+  initAudio();
+  const input = document.getElementById("authInput").value.trim();
+  const correct = clearanceCodes[pendingClearanceLevel];
+
+  if(input === correct){
+    beep(900,80);
+    showScreen("main");
+    document.getElementById("result").innerText =
+      `CLEARANCE LEVEL ${pendingClearanceLevel} VERIFIED`;
+    document.getElementById("authInput").value = "";
+    document.getElementById("authError").innerText = "";
+    return;
+  }
+
+  clearanceAttempts++;
+  beep(120,250);
+  document.getElementById("authError").innerText =
+    `AUTH FAILED (${clearanceAttempts}/${MAX_CLEARANCE_ATTEMPTS})`;
+  document.getElementById("authInput").value = "";
+  document.getElementById("clearance").value = "1";
+
+  if(clearanceAttempts >= MAX_CLEARANCE_ATTEMPTS){
+    showScreen("main");
+    startAmnesticProtocol();
+  }
 }
