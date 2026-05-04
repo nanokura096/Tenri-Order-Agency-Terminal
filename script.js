@@ -3,14 +3,28 @@
 ========================= */
 const database = {
   personnel: [
-    { id: 'AP-000000', category: 'personnel', name: '鳴瀬 可楚', status: 'ACTIVE', clearance: '3', ability: '因報', record: '[アクセス拒否]' },
-    { id: 'AP-838383', category: 'personnel', name: '天城 ユウラ', status: 'MISSING', clearance: '3', ability: '確率固定化', record: '交通事故後に失踪。' },
-    { id: 'AP-383838', category: 'personnel', name: '雨宮 志乃', status: 'NEUTRALIZED', clearance: '2', ability: '未来演算', record: '現在監視下。' }
+    { 
+      id: `AP-000000`, 
+      category: `personnel`, 
+      name: `鳴瀬 可楚`, 
+      status: `ACTIVE`, 
+      clearance: `3`, 
+      ability: `因報
+強大な力を利用して戦闘を行うが、彼女自身には限界がない。
+翠色の結晶を飛ばすことが可能。`, // バッククォートならそのまま改行OK
+      record: `[アクセス拒否]` 
+    },
   ],
   objects: [
-    { id: 'OBJ-001', category: 'object', name: '天理楔', status: 'CONTAINED', clearance: '3', description: '突き刺した対象の結果を生まない。' },
-    { id: 'OBJ-002', category: 'object', name: '黒玻璃片', status: 'SEALED', clearance: '2', description: '短期記憶を反転混濁させる。' },
-    { id: 'OBJ-003', category: 'object', name: '不確定な砂時計', status: 'CONTAINED', clearance: '2', description: '時間の流れを不安定にさせる。' }
+    { 
+      id: `OBJ-001`, 
+      category: `object`, 
+      name: `天理楔`, 
+      status: `CONTAINED`, 
+      clearance: `3`, 
+      description: `突き刺した対象の結果を生まない。
+天逆鉾のような形をしている。` 
+    }
   ]
 };
 
