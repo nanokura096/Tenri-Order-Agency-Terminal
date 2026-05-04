@@ -39,46 +39,34 @@ let audioCtx = null;
 let currentCategory = "personnel";
 
 /* =========================
-   CATEGORY
-========================= */
-function setCategory(cat) {
-  currentCategory = cat;
-  loadStaffList();
-}
-
-/* =========================
    AUDIO
 ========================= */
 function initAudio() {
-  try {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === "suspended") audioCtx.resume();
-  } catch {}
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === "suspended") audioCtx.resume();
 }
 
 function beep(freq, dur, vol = 0.05) {
   if (!audioCtx) return;
-  try {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
 
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
 
-    osc.frequency.value = freq;
-    osc.type = "square";
+  osc.frequency.value = freq;
+  osc.type = "square";
 
-    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(
-      0.0001,
-      audioCtx.currentTime + dur / 1000
-    );
+  gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(
+    0.001,
+    audioCtx.currentTime + dur / 1000
+  );
 
-    osc.start();
-    osc.stop(audioCtx.currentTime + dur / 1000);
-  } catch {}
+  osc.start();
+  osc.stop(audioCtx.currentTime + dur / 1000);
 }
 
 /* =========================
@@ -106,18 +94,18 @@ function login() {
 
   } else {
     loginAttempts++;
-    beep(180, 400, 0.15);
+    beep(180, 300, 0.15);
 
     if (loginAttempts >= MAX_ATTEMPTS) {
       location.reload();
-    } else if (err) {
-      err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
+    } else {
+      if (err) err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
     }
   }
 }
 
 /* =========================
-   BOOT
+   BOOT SEQUENCE
 ========================= */
 function startBoot() {
   const boot = document.getElementById("bootScreen");
@@ -155,7 +143,7 @@ function startBoot() {
     beep(300 + i * 40, 40, 0.03);
 
     i++;
-    setTimeout(add, 500);
+    setTimeout(add, 450);
   }
 
   add();
@@ -173,7 +161,7 @@ function finishBoot() {
   setupToggle();
 
   const panel = document.getElementById("staffPanel");
-  if (panel) panel.style.display = "block";
+  if (panel) panel.classList.add("open");
 }
 
 /* =========================
@@ -212,12 +200,11 @@ function searchFile() {
 
   if (cl < parseInt(found.clearance || "0")) {
     r.innerText = "ACCESS DENIED";
-    beep(200, 500, 0.2);
+    beep(200, 400, 0.2);
     return;
   }
 
   currentFile = found;
-
   document.getElementById("tabs").style.display = "flex";
   showTab("personnel");
 }
@@ -227,7 +214,7 @@ function searchFile() {
 ========================= */
 function setupTabs() {
   document.querySelectorAll("#tabs button").forEach(btn => {
-    btn.addEventListener("click", () => showTab(btn.dataset.tab));
+    btn.onclick = () => showTab(btn.dataset.tab);
   });
 }
 
@@ -235,7 +222,6 @@ function showTab(tab) {
   if (!currentFile) return;
 
   const r = document.getElementById("result");
-
   let txt = "";
 
   switch (tab) {
@@ -244,15 +230,12 @@ function showTab(tab) {
 CATEGORY: ${currentFile.category}
 STATUS: ${currentFile.status || "UNKNOWN"}`;
       break;
-
     case "ability":
       txt = currentFile.ability || "NO DATA";
       break;
-
     case "artifact":
       txt = currentFile.Description || currentFile.description || "NO DATA";
       break;
-
     case "record":
       txt = currentFile.record || "NO DATA";
       break;
@@ -292,6 +275,18 @@ function loadStaffList() {
 }
 
 /* =========================
+   CATEGORY
+========================= */
+function setCategory(cat) {
+  currentCategory = cat;
+
+  const panel = document.getElementById("staffPanel");
+  if (panel) panel.classList.add("open");
+
+  loadStaffList();
+}
+
+/* =========================
    TOGGLE
 ========================= */
 function setupToggle() {
@@ -300,10 +295,10 @@ function setupToggle() {
 
   if (!toggle || !panel) return;
 
-  toggle.addEventListener("click", () => {
+  toggle.onclick = () => {
     panel.classList.toggle("open");
     beep(800, 50, 0.05);
-  });
+  };
 }
 
 /* =========================
@@ -329,10 +324,7 @@ function startAltReality() {
   let i = 0;
 
   function type() {
-    if (i >= lines.length) {
-      showChoices();
-      return;
-    }
+    if (i >= lines.length) return showChoices();
 
     const div = document.createElement("div");
     div.innerText = lines[i];
@@ -341,7 +333,7 @@ function startAltReality() {
     beep(200 + i * 40, 50, 0.05);
 
     i++;
-    setTimeout(type, 600);
+    setTimeout(type, 500);
   }
 
   function showChoices() {
@@ -371,7 +363,7 @@ function startAltReality() {
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("loginBtn")?.addEventListener("click", login);
   document.getElementById("searchBtn")?.addEventListener("click", searchFile);
-  document.getElementById("emergencyBtn")?.addEventListener("click", startAltReality);
+  document.getElementById("emergencyBtn")?.addEventListener("click", () => location.reload());
 
   setupTabs();
   setupToggle();
