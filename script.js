@@ -322,7 +322,9 @@ function showTab(tab){
       txt = `
 NAME: ${currentFile.name}
 CATEGORY: ${currentFile.category}
-STATUS: ${currentFile.status}
+STATUS: <span class="status ${getStatusClass(currentFile.status)}">
+${currentFile.status || "UNKNOWN"}
+</span>
       `;
       break;
 
@@ -339,7 +341,7 @@ STATUS: ${currentFile.status}
       break;
   }
 
-  r.innerHTML = txt; // ←ここ重要（innerHTMLにする）
+  r.innerHTML = txt;
   beep(1000,15);
 }
 
@@ -703,12 +705,16 @@ function verifyClearanceCode(){
   }
 }
 
-function getStateClass(state){
-  switch(state){
-    case "ACTIVE": return "state-ACTIVE";
-    case "TERMINATED": return "state-TERMINATED";
-    case "MISSING": return "state-MISSING";
-    default: return "";
+function getStatusClass(status){
+  switch((status || "").toUpperCase()){
+    case "ACTIVE":
+      return "status-active";
+    case "TERMINATED":
+      return "status-terminated";
+    case "MISSING":
+      return "status-missing";
+    default:
+      return "status-default";
   }
 }
 
@@ -721,8 +727,4 @@ function setState(id, newState){
 
   target.status = newState;
   loadDataList();
-}
-
-function getStateClass(status){
-  return "state-" + status;
 }
