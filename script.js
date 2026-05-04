@@ -1,3 +1,5 @@
+"use strict";
+
 /* =========================
    DATABASE
 ========================= */
@@ -43,61 +45,48 @@ let currentCategory = "personnel";
 ========================= */
 function setCategory(cat) {
   currentCategory = cat;
-
   const panel = document.getElementById("staffPanel");
-
-  // ★必ず開く
   if (panel) panel.classList.add("open");
 
-  // ★リスト更新
-  loadStaffList();
-
-  // ★アニメ確実化
   const list = document.getElementById("staffList");
   if (list) {
-    list.style.maxHeight = "0";
-    list.style.opacity = "0";
-
-    setTimeout(() => {
-      list.style.maxHeight = "400px";
-      list.style.opacity = "1";
-    }, 10);
+    list.innerHTML = "LOADING ARCHIVE...";
+    list.style.maxHeight = "400px";
+    list.style.opacity = "1";
   }
+
+  setTimeout(loadStaffList, 300);
 }
 
 /* =========================
    AUDIO
 ========================= */
 function initAudio() {
-  try {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === "suspended") audioCtx.resume();
-  } catch {}
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === "suspended") audioCtx.resume();
 }
 
 function beep(freq, dur, vol = 0.05) {
   if (!audioCtx) return;
-  try {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
 
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
 
-    osc.frequency.value = freq;
-    osc.type = "square";
+  osc.frequency.value = freq;
+  osc.type = "square";
 
-    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(
-      0.0001,
-      audioCtx.currentTime + dur / 1000
-    );
+  gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(
+    0.0001,
+    audioCtx.currentTime + dur / 1000
+  );
 
-    osc.start();
-    osc.stop(audioCtx.currentTime + dur / 1000);
-  } catch {}
+  osc.start();
+  osc.stop(audioCtx.currentTime + dur / 1000);
 }
 
 /* =========================
@@ -112,6 +101,7 @@ function login() {
 
   if (u === "admin" && p === "226227") {
     loginAttempts = 0;
+
     document.querySelector(".loginBox").innerHTML =
       `<div class="blink">AUTHENTICATING...</div>`;
 
@@ -126,8 +116,7 @@ function login() {
     beep(180, 400, 0.15);
 
     if (loginAttempts >= MAX_ATTEMPTS) {
-      alert("ACCESS DENIED - LOCKDOWN");
-      location.reload();
+      startAltReality();
     } else if (err) {
       err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
     }
@@ -143,17 +132,22 @@ function startBoot() {
   boot.innerHTML = "";
 
   const lines = [
-    "> INITIALIZING SYSTEM...",
-    "> LOADING DATABASE...",
-    "> CHECKING CLEARANCE...",
-    "> ACCESS GRANTED"
+    "> ACCESS GRANTED",
+    "> INITIALIZING SYSTEM CORE...",
+    "> LOADING SECURITY MODULES...",
+    "> VERIFYING CLEARANCE...",
+    "> CONNECTING DATABASE...",
+    "> SYNC PERSONNEL ARCHIVE...",
+    "> SYNC OBJECT ARCHIVE...",
+    "> FINALIZING...",
+    "> WELCOME, OPERATOR"
   ];
 
   let i = 0;
 
   function add() {
     if (i >= lines.length) {
-      setTimeout(finishBoot, 600);
+      setTimeout(finishBoot, 800);
       return;
     }
 
@@ -161,9 +155,14 @@ function startBoot() {
     div.innerText = lines[i];
     boot.appendChild(div);
 
-    beep(400 + i * 80, 40, 0.03);
+    beep(300 + i * 50, 40, 0.03);
+
     i++;
-    setTimeout(add, 450);
+
+    let delay = 500;
+    if (i === 5) delay = 1200;
+
+    setTimeout(add, delay);
   }
 
   add();
@@ -176,13 +175,12 @@ function finishBoot() {
   updateClock();
   setInterval(updateClock, 1000);
 
-  loadStaffList();
-
   const panel = document.getElementById("staffPanel");
   if (panel) panel.style.display = "block";
 
-  setupToggle();
   setupTabs();
+  setupToggle();
+  loadStaffList();
 }
 
 /* =========================
@@ -244,13 +242,11 @@ function showTab(tab) {
   if (!currentFile) return;
 
   const r = document.getElementById("result");
-
   let txt = "";
 
   switch (tab) {
     case "personnel":
-      txt =
-`NAME: ${currentFile.name}
+      txt = `NAME: ${currentFile.name}
 CATEGORY: ${currentFile.category}
 STATUS: ${currentFile.status || "UNKNOWN"}`;
       break;
@@ -303,7 +299,7 @@ function loadStaffList() {
 }
 
 /* =========================
-   TOGGLE（完全修正版）
+   TOGGLE
 ========================= */
 function setupToggle() {
   const toggle = document.getElementById("staffListToggle");
@@ -314,12 +310,64 @@ function setupToggle() {
   toggle.addEventListener("click", () => {
     panel.classList.toggle("open");
     beep(800, 50, 0.05);
-
-    // 開いた瞬間に確実に更新
-    if (panel.classList.contains("open")) {
-      loadStaffList();
-    }
+    loadStaffList();
   });
+}
+
+/* =========================
+   ALT REALITY
+========================= */
+function startAltReality() {
+  const ov = document.getElementById("altRealityOverlay");
+  const text = document.getElementById("altText");
+  const choices = document.getElementById("altChoices");
+
+  ov.style.display = "flex";
+  text.innerHTML = "";
+  choices.innerHTML = "";
+
+  const lines = [
+    "Agent is in coming...",
+    "> Alternative Reality System Is Starting",
+    "> Alternative Reality System Is Already To Start",
+    "",
+    "EXECUTE PROCESS?"
+  ];
+
+  let i = 0;
+
+  function type() {
+    if (i >= lines.length) return showChoices();
+
+    const d = document.createElement("div");
+    d.innerText = lines[i];
+    text.appendChild(d);
+
+    beep(200 + i * 50, 60, 0.05);
+
+    i++;
+    setTimeout(type, 600);
+  }
+
+  function showChoices() {
+    const yes = document.createElement("button");
+    yes.innerText = "Yes";
+
+    const no = document.createElement("button");
+    no.innerText = "No";
+
+    yes.onclick = () => location.reload();
+
+    no.onclick = () => {
+      choices.innerHTML = "<div>Yes / Yes</div>";
+      setTimeout(() => location.reload(), 1500);
+    };
+
+    choices.appendChild(yes);
+    choices.appendChild(no);
+  }
+
+  type();
 }
 
 /* =========================
@@ -328,7 +376,5 @@ function setupToggle() {
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("loginBtn")?.addEventListener("click", login);
   document.getElementById("searchBtn")?.addEventListener("click", searchFile);
-  document.getElementById("emergencyBtn")?.addEventListener("click", () => {
-    location.reload();
-  });
+  document.getElementById("emergencyBtn")?.addEventListener("click", startAltReality);
 });
