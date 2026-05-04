@@ -23,7 +23,46 @@ const database = {
     },
 
 {
-  id: "AP-000001",
+  id: "AP-838383",
+  category: "personnel",
+  name: "天城 ユウラ",
+  sex: "FEMALE",
+  age: "19",
+  division: "観測局 第3解析班",
+  rank: "Field Analyst",
+
+  ability: `■確率固定化（Probability Lock）
+
+周囲で発生する「結果が揺らぐ現象」を1つだけ選び、
+その結果を“確定状態”に固定する能力。
+
+例：
+・弾丸が当たるか外れるか → 当たるに固定
+・扉が開くか閉じるか → 開くに固定
+・生存か死亡か → 条件を満たせば生存に固定
+
+ただし一度固定した結果は変更できず、
+世界の因果に“歪みの帳尻合わせ”が発生する。
+
+そのため使用後、周囲で別の重大事故が必ず発生する。`,
+
+  status: "ACTIVE",
+  clearance: "3",
+
+  Description: `能力発動時、対象周囲の環境に軽度の“静止感”が発生する。
+時計の針・風の流れ・音の遅延などが一瞬だけズレる。`,
+
+  record: `初期記録：
+訓練中、対象が「命中」を選択した際、
+遠隔訓練室のターゲット全てが同時に命中扱いとなる現象を確認。
+
+同時刻、施設外で原因不明の交通事故が発生。
+
+現在、使用回数は1日1回に制限。`
+},
+
+{
+  id: "AP-383838",
   category: "personnel",
   name: "雨宮 志乃",
   sex: "FEMALE",
@@ -67,10 +106,10 @@ let audioCtx = null;
 let clockLoop = null;
 
 const clearanceCodes = {
-  "2": "Nothing",
+  "2": "",
   "3": "true",
-  "4": "bit",
-  "5": "fake"
+  "4": "fake",
+  "5": "null"
 };
 
 /* =========================
@@ -274,14 +313,20 @@ function setupTabs(){
 
 function showTab(tab){
   if(!currentFile) return;
+
   const r = document.getElementById("result");
+  const stateClass = getStateClass(currentFile.status);
+
   let txt = "";
 
   switch(tab){
     case "personnel":
-      txt = `NAME: ${currentFile.name}
+      txt = `
+ID: ${currentFile.id}
+NAME: ${currentFile.name}
 CATEGORY: ${currentFile.category}
-STATUS: ${currentFile.status || "UNKNOWN"}`;
+STATUS: <span class="${stateClass}">${currentFile.status}</span>
+`;
       break;
 
     case "ability":
@@ -297,8 +342,8 @@ STATUS: ${currentFile.status || "UNKNOWN"}`;
       break;
   }
 
-  r.innerText = txt;
-  beep(1000,15);
+  r.innerHTML = txt;
+  beep(1000, 15);
 }
 
 /* =========================
@@ -660,3 +705,24 @@ function verifyClearanceCode(){
     startAmnesticProtocol();
   }
 }
+
+function getStateClass(state){
+  switch(state){
+    case "ACTIVE": return "state-ACTIVE";
+    case "TERMINATED": return "state-TERMINATED";
+    case "MISSING": return "state-MISSING";
+    default: return "";
+  }
+}
+
+function setState(id, newState){
+  const target =
+    database.personnel.find(x => x.id === id) ||
+    database.objects.find(x => x.id === id);
+
+  if(!target) return;
+
+  target.status = newState;
+  loadDataList();
+}
+

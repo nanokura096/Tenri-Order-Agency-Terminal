@@ -1,9 +1,20 @@
 :root{
-  --green:#00FF41;
   --bg:#000;
+
+  /* 基本カラー */
+  --green:#00FF41;
   --red:#ff3131;
+  --orange:#ffb300;
+
+  /* 状態カラー */
+  --state-active:var(--green);
+  --state-terminated:var(--red);
+  --state-missing:var(--orange);
 }
 
+/* =========================
+   RESET
+========================= */
 *{
   box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
@@ -91,7 +102,7 @@ body{
 }
 
 /* =========================
-   MAIN
+   MAIN TERMINAL
 ========================= */
 #mainTerminal{
   padding:10px;
@@ -267,9 +278,11 @@ button:active{
 }
 
 /* =========================
-   CLEARANCE AUTH (CLEAN)
+   CLEARANCE AUTH
 ========================= */
 #clearanceAuth{
+  position:fixed;
+  inset:0;
   justify-content:center;
   align-items:center;
   background:#000;
@@ -327,6 +340,24 @@ button:active{
 
 @keyframes blink{
   50%{opacity:0;}
+}
+
+/* =========================
+   STATE COLORS
+========================= */
+.state-ACTIVE{
+  color:var(--state-active);
+}
+
+.state-TERMINATED{
+  color:var(--state-terminated);
+  opacity:0.7;
+  text-shadow:0 0 5px var(--red);
+}
+
+.state-MISSING{
+  color:var(--state-missing);
+  animation:blink 1s infinite;
 }
 
 /* =========================
