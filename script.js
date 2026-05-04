@@ -47,23 +47,17 @@ let clockLoop = null;
    SCREEN CONTROL
 ========================= */
 function showScreen(mode){
-  const ids = [
-    "startupScreen",
-    "loginScreen",
-    "bootScreen",
-    "mainTerminal",
-    "emergencyConsole"
-  ];
-  ids.forEach(id=>{
+  ["startupScreen","loginScreen","bootScreen","mainTerminal","emergencyConsole","agentDispatch"].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.style.display = "none";
   });
 
-  if(mode === "startup") document.getElementById("startupScreen").style.display = "flex";
-  if(mode === "login") document.getElementById("loginScreen").style.display = "flex";
-  if(mode === "boot") document.getElementById("bootScreen").style.display = "block";
-  if(mode === "main") document.getElementById("mainTerminal").style.display = "block";
-  if(mode === "emergency") document.getElementById("emergencyConsole").style.display = "flex";
+  if(mode==="startup") document.getElementById("startupScreen").style.display="flex";
+  if(mode==="login") document.getElementById("loginScreen").style.display="flex";
+  if(mode==="boot") document.getElementById("bootScreen").style.display="block";
+  if(mode==="main") document.getElementById("mainTerminal").style.display="block";
+  if(mode==="emergency") document.getElementById("emergencyConsole").style.display="flex";
+  if(mode==="agent") document.getElementById("agentDispatch").style.display="flex";
 }
 
 /* =========================
@@ -74,8 +68,7 @@ function initAudio(){
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
 }
-
-function beep(freq,dur,vol=0.05){
+function beep(freq,dur,vol=0.03){
   if(!audioCtx) return;
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -93,7 +86,6 @@ function beep(freq,dur,vol=0.05){
    STARTUP
 ========================= */
 document.addEventListener("DOMContentLoaded",()=>{
-
   showScreen("startup");
 
   const text = document.querySelector(".startupText");
@@ -115,7 +107,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   document.getElementById("loginBtn")?.addEventListener("click",login);
   document.getElementById("searchBtn")?.addEventListener("click",searchFile);
   document.getElementById("emergencyBtn")?.addEventListener("click",startAltReality);
-  document.getElementById("staffToggleBtn")?.addEventListener("click",toggleStaffPanel);
+  document.getElementById("dataToggleBtn")?.addEventListener("click",toggleDataPanel);
 
   setupTabs();
 });
@@ -130,9 +122,10 @@ function login(){
   const p = document.getElementById("password").value.trim();
   const err = document.getElementById("loginError");
 
-  if(u === "admin" && p === "226227"){
-    document.querySelector(".loginBox").innerHTML = `<div class="blink">AUTHENTICATING...</div>`;
-    beep(900,100,0.08);
+  if(u==="admin" && p==="226227"){
+    document.querySelector(".loginBox").innerHTML =
+      `<div class="blink">AUTHENTICATING...</div>`;
+    beep(900,100);
 
     setTimeout(()=>{
       showScreen("boot");
@@ -141,10 +134,10 @@ function login(){
 
   }else{
     loginAttempts++;
-    beep(180,250,0.08);
+    beep(150,200);
 
     if(loginAttempts >= MAX_ATTEMPTS){
-      location.reload();
+      dispatchAgent();
     }else{
       err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
     }
@@ -182,8 +175,8 @@ function startBoot(){
     const div = document.createElement("div");
     div.innerText = lines[i];
     boot.appendChild(div);
+    beep(260+i*25,20);
 
-    beep(280 + i*30,30,0.03);
     i++;
     setTimeout(addLine,450);
   }
@@ -193,14 +186,12 @@ function startBoot(){
 
 function finishBoot(){
   showScreen("main");
-
   updateClock();
+
   if(clockLoop) clearInterval(clockLoop);
   clockLoop = setInterval(updateClock,1000);
 
-  loadStaffList();
-
-  document.getElementById("staffPanel").classList.remove("open");
+  loadDataList();
 }
 
 /* =========================
@@ -232,13 +223,13 @@ function searchFile(){
 
   if(!found){
     r.innerText = "NOT FOUND";
-    beep(150,200,0.05);
+    beep(150,200);
     return;
   }
 
   if(cl < parseInt(found.clearance)){
     r.innerText = "ACCESS DENIED";
-    beep(150,300,0.05);
+    beep(120,250);
     return;
   }
 
@@ -248,7 +239,7 @@ function searchFile(){
 }
 
 /* =========================
-   TABS
+   TAB SYSTEM
 ========================= */
 function setupTabs(){
   document.querySelectorAll("#tabs button").forEach(btn=>{
@@ -283,45 +274,44 @@ STATUS: ${currentFile.status || "UNKNOWN"}`;
   }
 
   r.innerText = txt;
-  beep(1000,20,0.03);
+  beep(1000,15);
 }
 
 /* =========================
-   STAFF PANEL
+   DATA PANEL
 ========================= */
-function toggleStaffPanel(){
-  const panel = document.getElementById("staffPanel");
+function toggleDataPanel(){
+  const panel = document.getElementById("dataPanel");
   panel.classList.toggle("open");
 
   if(panel.classList.contains("open")){
-    loadStaffList();
+    loadDataList();
   }
 }
 
 function setCategory(cat){
   currentCategory = cat;
-  loadStaffList();
+  loadDataList();
 
   document.querySelectorAll("#categoryTabs button").forEach(btn=>{
     btn.classList.remove("activeCat");
   });
 
-  if(cat === "personnel"){
+  if(cat==="personnel"){
     document.querySelectorAll("#categoryTabs button")[0].classList.add("activeCat");
   }else{
     document.querySelectorAll("#categoryTabs button")[1].classList.add("activeCat");
   }
 }
 
-function loadStaffList(){
-  const list = document.getElementById("staffList");
+function loadDataList(){
+  const list = document.getElementById("dataList");
   if(!list) return;
 
   list.innerHTML = "";
-
   const data = database[currentCategory];
 
-  if(!data || data.length === 0){
+  if(!data || data.length===0){
     list.innerHTML = "<div class='staffEntry'>NO DATA</div>";
     return;
   }
@@ -337,7 +327,7 @@ function loadStaffList(){
     div.onclick = ()=>{
       document.getElementById("staffId").value = f.id;
       searchFile();
-      document.getElementById("staffPanel").classList.remove("open");
+      document.getElementById("dataPanel").classList.remove("open");
     };
 
     list.appendChild(div);
@@ -377,7 +367,8 @@ function startAltReality(){
 
     log.innerText += lines[i] + "\n";
     log.scrollTop = log.scrollHeight;
-    beep(220 + i*25,25,0.025);
+    beep(220+i*20,20);
+
     i++;
     setTimeout(printLine,450);
   }
@@ -404,4 +395,45 @@ function startAltReality(){
   }
 
   printLine();
+}
+
+/* =========================
+   AGENT DISPATCH
+========================= */
+function dispatchAgent(){
+  initAudio();
+  showScreen("agent");
+
+  const log = document.getElementById("agentLog");
+  log.innerText = "";
+
+  const lines = [
+    "[SECURITY ALERT]",
+    "UNAUTHORIZED LOGIN ATTEMPTS : 3",
+    "IDENTITY CONFIRMATION FAILED",
+    "CURRENT TERMINAL FLAGGED",
+    "",
+    "DISPATCHING FIELD AGENT...",
+    "REQUESTING NEAREST RESPONSE UNIT...",
+    "AGENT ETA : 00:00:12",
+    "",
+    "[ YOU CAN NOT LEAVE YOUR POSITION ]"
+  ];
+
+  let i = 0;
+
+  function print(){
+    if(i >= lines.length){
+      setTimeout(()=>location.reload(),3000);
+      return;
+    }
+
+    log.innerText += lines[i] + "\n";
+    beep(120+i*10,35);
+
+    i++;
+    setTimeout(print,600);
+  }
+
+  print();
 }
