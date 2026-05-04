@@ -5,91 +5,34 @@ const database = {
   personnel: [
     {
       id: "AP-000000",
-      category: "personnel",
       name: "鳴瀬 可楚",
-      sex: "FEMALE",
-      age: "██",
-      division: "鳴響",
-      rank: "Leader",
-      ability: `因報
-強大な力を利用して戦闘を行うが彼女自身には限界がないため危険な状態に陥っても活動を続ける可能性がある。
-また、翠色の結晶を飛ばすことが可能で、任意のタイミングで爆破可能。
-だが、観測者が増えるごとに威力が弱まる。`,
-      status: "ACTIVE",
-      clearance: "3",
-      Description: `全長██cmの鉾。
-天逆鉾のような形をしているが、柄は取り外し可能。`,
-      record: "[アクセス拒否]"
+      // ... 略
+      status: "ACTIVE", // 職員はACTIVEを維持（またはCONTAINEDへ変更も可）
+      clearance: "3"
     },
-
-{
-  id: "AP-838383",
-  category: "personnel",
-  name: "天城 ユウラ",
-  sex: "FEMALE",
-  age: "19",
-  division: "観測局 第3解析班",
-  rank: "Field Analyst",
-
-  ability: `■確率固定化（Probability Lock）
-
-周囲で発生する「結果が揺らぐ現象」を1つだけ選び、
-その結果を“確定状態”に固定する能力。
-
-例：
-・弾丸が当たるか外れるか → 当たるに固定
-・扉が開くか閉じるか → 開くに固定
-・生存か死亡か → 条件を満たせば生存に固定
-
-ただし一度固定した結果は変更できず、
-世界の因果に“歪みの帳尻合わせ”が発生する。
-
-そのため使用後、周囲で別の重大事故が必ず発生する。`,
-
-  status: "MISSING",
-  clearance: "3",
-
-  Description: `能力発動時、対象周囲の環境に軽度の“静止感”が発生する。
-時計の針・風の流れ・音の遅延などが一瞬だけズレる。`,
-
-  record: `初期記録：
-訓練中、対象が「命中」を選択した際、
-遠隔訓練室のターゲット全てが同時に命中扱いとなる現象を確認。
-
-同時刻、施設外で原因不明の交通事故が発生。
-
-現在、使用回数は1日1回に制限。`
-},
-
-{
-  id: "AP-383838",
-  category: "personnel",
-  name: "雨宮 志乃",
-  sex: "FEMALE",
-  age: "19",
-  division: "情報解析部",
-  rank: "Analyst",
-  ability: `未来演算
-短時間先の情報分岐を観測可能。
-観測回数が増えるほど精神疲労が蓄積する。`,
-  status: "TERMINATED",
-  clearance: "2",
-  Description: `黒色端末を常時携帯。
-演算補助用の特殊レンズを使用。`,
-  record: `TOA-214情報漏洩事件にて初確認。
-現在監視付きで運用中。`
-},
-
-
+    {
+      id: "AP-838383",
+      name: "天城 ユウラ",
+      // ... 略
+      status: "MISSING", // 行方不明
+      clearance: "3"
+    },
+    {
+      id: "AP-383838",
+      name: "雨宮 志乃",
+      // ... 略
+      status: "NEUTRALIZED", // TERMINATEDからNEUTRALIZEDへ変更
+      clearance: "2"
+    }
   ],
   objects: [
     {
       id: "OBJ-001",
-      category: "object",
       name: "天理楔",
-      description: "異常武装オブジェクト。",
+      // ... 略
+      status: "CONTAINED", // 収容中
       clearance: "3"
-    },
+    }
   ]
 };
 
@@ -369,6 +312,9 @@ function setCategory(cat){
   }
 }
 
+/* =========================
+   DATA PANEL (UPDATED)
+========================= */
 function loadDataList(){
   const list = document.getElementById("dataList");
   if(!list) return;
@@ -384,13 +330,23 @@ function loadDataList(){
   data.forEach(f=>{
     const div = document.createElement("div");
     div.className = "staffEntry";
+    
+    // ステータスに応じたCSSクラスを取得
+    const sClass = getStatusClass(f.status);
+
+    // リスト表示の構築：右上にステータスドットを配置
     div.innerHTML = `
-      <div>ID : ${f.id}</div>
-      <div>NAME : ${f.name}</div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:12px; opacity:0.8;">ID : ${f.id}</div>
+        <div class="${sClass}" style="font-size:10px;">● ${f.status || ""}</div>
+      </div>
+      <div style="margin-top:4px; font-weight:bold;">NAME : ${f.name}</div>
     `;
+
     div.onclick = ()=>{
       document.getElementById("staffId").value = f.id;
       searchFile();
+      // モバイル等での利便性を考え、選択後にパネルを閉じる
       document.getElementById("dataPanel").classList.remove("open");
     };
     list.appendChild(div);
@@ -705,16 +661,22 @@ function verifyClearanceCode(){
   }
 }
 
-function getStatusClass(status){
-  switch((status || "").toUpperCase()){
-    case "ACTIVE":
-      return "status-active";
-    case "TERMINATED":
-      return "status-terminated";
-    case "MISSING":
-      return "status-missing";
+/* 関数名を getStatusClass に統一する場合 */
+function getStatusClass(status) {
+  switch(status) {
+    case "ACTIVE":    // 職員の正常状態
+    case "CONTAINED": // オブジェクトの正常状態
+      return "state-ACTIVE";
+
+    case "TERMINATED":  // 職員の排除状態
+    case "NEUTRALIZED": // オブジェクトの無力化状態
+      return "state-TERMINATED";
+
+    case "MISSING": // 共通：行方不明・ロスト
+      return "state-MISSING";
+
     default:
-      return "status-default";
+      return "";
   }
 }
 

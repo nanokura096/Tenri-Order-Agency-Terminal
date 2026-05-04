@@ -349,10 +349,12 @@ button:active{
   color:var(--state-active);
 }
 
-.state-TERMINATED{
-  color:var(--state-terminated);
-  opacity:0.7;
-  text-shadow:0 0 5px var(--red);
+.state-TERMINATED {
+  color: var(--state-terminated);
+  opacity: 0.8;
+  text-shadow: 0 0 8px var(--red);
+  /* 無力化済みを示すため、少しノイズが混じったような見せ方 */
+  letter-spacing: 1px;
 }
 
 .state-MISSING{
@@ -367,4 +369,21 @@ button:active{
   #logo{font-size:15px;}
   input,select,button{font-size:14px;padding:12px;}
   #result{font-size:13px;}
+}
+
+/* 追加するとより「システム」らしくなるスタイル */
+.status {
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.state-ACTIVE {
+  background: rgba(0, 255, 65, 0.1); /* ほんのり背景色 */
+}
+
+.state-TERMINATED {
+  background: rgba(255, 49, 49, 0.1);
+  text-decoration: line-through; /* 抹消済みなら打ち消し線もあり */
 }
