@@ -117,14 +117,13 @@ document.addEventListener("DOMContentLoaded",()=>{
 ========================= */
 function login(){
   initAudio();
-
   const u = document.getElementById("username").value.trim();
   const p = document.getElementById("password").value.trim();
   const err = document.getElementById("loginError");
 
   if(u==="admin" && p==="226227"){
     document.querySelector(".loginBox").innerHTML =
-      `<div class="blink">AUTHENTICATING...</div>`;
+    `<div class="blink">AUTHENTICATING...</div>`;
     beep(900,100);
 
     setTimeout(()=>{
@@ -428,32 +427,34 @@ function dispatchAgent(){
     log.innerText += introLines[i] + "\n";
     beep(120+i*10,35);
     i++;
-    setTimeout(printIntro,600);
+    setTimeout(printIntro,500);
   }
 
   function startCountdown(){
     let time = 12;
 
+    const etaLine = document.createElement("div");
+    const warnLine = document.createElement("div");
+
+    etaLine.style.marginTop = "10px";
+    warnLine.style.marginTop = "10px";
+
+    log.appendChild(document.createTextNode("\n"));
+    log.appendChild(etaLine);
+    log.appendChild(warnLine);
+
+    warnLine.innerText = "[ DO NOT LEAVE YOUR POSITION ]";
+
     const timer = setInterval(()=>{
-      log.innerText =
-`[SECURITY ALERT]
-UNAUTHORIZED LOGIN ATTEMPTS : 3
-IDENTITY CONFIRMATION FAILED
-CURRENT TERMINAL FLAGGED
-
-DISPATCHING FIELD AGENT...
-REQUESTING NEAREST RESPONSE UNIT...
-AGENT ETA : 00:00:${String(time).padStart(2,"0")}
-
-[ DO NOT LEAVE YOUR POSITION ]`;
-
-      beep(180,25,0.02);
+      etaLine.innerText = `AGENT ETA : 00:00:${String(time).padStart(2,"0")}`;
+      beep(180,20,0.02);
       time--;
 
       if(time < 0){
         clearInterval(timer);
-        log.innerText += "\n\nCONNECTION TERMINATED";
-        beep(80,300,0.05);
+        etaLine.innerText = "AGENT ETA : 00:00:00";
+        warnLine.innerText = "[ CONNECTION TERMINATED ]";
+        beep(70,300,0.05);
 
         setTimeout(()=>location.reload(),1500);
       }
