@@ -219,22 +219,45 @@ function setupTabs(){
   });
 }
 
-function showTab(tab){
-  if(!currentFile) return;
-  const r = document.getElementById('result');
-  if(!r) return;
-  
-  let txt = '';
+/* =========================
+   SHOW TAB (全置換・最適化版)
+   ' を ` に置換し、ABILITYとOBJECTの表示内容を分離しました
+========================= */
+function showTab(tab) {
+  if (!currentFile) return;
+  const r = document.getElementById(`result`);
+  if (!r) return;
+
+  let txt = ``;
   const sClass = getStatusClass(currentFile.status);
 
-  switch(tab){
-    case 'personnel':
-      txt = `NAME: ${currentFile.name}<br>STATUS: <span class="status ${sClass}">${currentFile.status}</span>`;
+  switch (tab) {
+    case `personnel`:
+      // 基本情報の表示
+      txt = `NAME: ${currentFile.name}<br>
+             STATUS: <span class="status ${sClass}">${currentFile.status}</span>`;
       break;
-    case 'ability': txt = (currentFile.ability || currentFile.description || 'NO DATA').replace(/\n/g, '<br>'); break;
-    case 'artifact': txt = (currentFile.description || 'NO DATA').replace(/\n/g, '<br>'); break;
-    case 'record': txt = (currentFile.record || 'NO DATA').replace(/\n/g, '<br>'); break;
+
+    case `ability`:
+      // 【異常能力】タブ：abilityプロパティを優先的に表示
+      const abilityInfo = currentFile.ability || `特筆すべき異常能力は確認されていません。`;
+      txt = `【特異能力 / 異常性】<br>${abilityInfo.replace(/\n/g, `<br>`)}`;
+      break;
+
+    case `artifact`:
+      // 【OBJECT】タブ：description（外見や概要）を表示
+      // 以前はここでもabilityを参照していたため、内容が被っていました
+      const descInfo = currentFile.description || currentFile.Description || `詳細な物理記述データなし。`;
+      txt = `【物品概要 / 外見説明】<br>${descInfo.replace(/\n/g, `<br>`)}`;
+      break;
+
+    case `record`:
+      // 【RECORD】タブ：過去の経緯や事故報告を表示
+      const recordInfo = currentFile.record || `機密事項、または記録なし。`;
+      txt = `【収容・事件記録】<br>${recordInfo.replace(/\n/g, `<br>`)}`;
+      break;
   }
+
   r.innerHTML = txt;
   beep(800, 20);
 }
