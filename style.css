@@ -153,24 +153,23 @@ button:active,
   background:rgba(0,20,0,.4);
 }
 
-/* STAFF */
 #staffPanel{
-  display:none;
+  display:block;
   margin-top:20px;
   border:1px solid var(--green);
   padding:10px;
 }
 
-#staffPanel.open{
-  display:block;
+#staffList{
+  max-height:0;
+  overflow:hidden;
+  opacity:0;
+  transition:0.4s ease;
 }
 
-#staffListToggle{
-  padding:12px;
-  text-align:center;
-  cursor:pointer;
-  border:1px solid var(--green);
-  margin-bottom:10px;
+#staffPanel.open #staffList{
+  max-height:400px;
+  opacity:1;
 }
 
 #categoryTabs button{

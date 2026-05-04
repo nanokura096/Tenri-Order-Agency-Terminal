@@ -1,3 +1,7 @@
+
+/* =========================
+   DATABASE
+========================= */
 const database = {
   personnel: [
     {
@@ -30,6 +34,9 @@ const database = {
   ]
 };
 
+/* =========================
+   CLEARANCE
+========================= */
 const clearancePasswords = {
   1: "ACCESS",
   2: "TENRI",
@@ -38,8 +45,10 @@ const clearancePasswords = {
   5: "SOVEREIGN"
 };
 
+/* =========================
+   STATE
+========================= */
 let currentFile = null;
-let currentCategory = "personnel";
 let loginAttempts = 0;
 const MAX_ATTEMPTS = 3;
 
@@ -47,19 +56,32 @@ let audioCtx = null;
 let emergencyInterval = null;
 let clockTimer = null;
 
-/* AUDIO */
-function initAudio(){
-  try{
-    if(!audioCtx){
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if(audioCtx.state === "suspended") audioCtx.resume();
-  }catch(e){}
+/* ★重要：カテゴリ */
+let currentCategory = "personnel";
+
+/* =========================
+   CATEGORY
+========================= */
+function setCategory(cat) {
+  currentCategory = cat;
+  loadStaffList();
 }
 
-function beep(freq,dur,vol=0.05){
-  if(!audioCtx) return;
-  try{
+/* =========================
+   AUDIO
+========================= */
+function initAudio() {
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  } catch {}
+}
+
+function beep(freq, dur, vol = 0.05) {
+  if (!audioCtx) return;
+  try {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
@@ -69,50 +91,56 @@ function beep(freq,dur,vol=0.05){
     osc.frequency.value = freq;
     osc.type = "square";
 
-    gain.gain.setValueAtTime(vol,audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime + dur/1000);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      audioCtx.currentTime + dur / 1000
+    );
 
     osc.start();
-    osc.stop(audioCtx.currentTime + dur/1000);
-  }catch(e){}
+    osc.stop(audioCtx.currentTime + dur / 1000);
+  } catch {}
 }
 
-/* LOGIN */
-function login(){
+/* =========================
+   LOGIN
+========================= */
+function login() {
   initAudio();
 
   const u = document.getElementById("username")?.value.trim();
   const p = document.getElementById("password")?.value.trim();
   const err = document.getElementById("loginError");
 
-  if(u === "admin" && p === "226227"){
+  if (u === "admin" && p === "226227") {
     loginAttempts = 0;
+
     document.querySelector(".loginBox").innerHTML =
       `<div class="blink">AUTHENTICATING...</div>`;
 
-    beep(900,120,0.08);
+    beep(900, 120, 0.08);
 
-    setTimeout(()=>{
+    setTimeout(() => {
       document.getElementById("loginScreen").style.display = "none";
       startBoot();
-    },1000);
+    }, 1000);
 
-  }else{
+  } else {
     loginAttempts++;
-    beep(180,400,0.15);
+    beep(180, 400, 0.15);
 
-    if(loginAttempts >= MAX_ATTEMPTS){
+    if (loginAttempts >= MAX_ATTEMPTS) {
       triggerAmnestic();
-    }else{
-      if(err){
-        err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
-      }
+    } else if (err) {
+      err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
     }
   }
 }
 
-/* BOOT */
-function startBoot(){
+/* =========================
+   BOOT
+========================= */
+function startBoot() {
   const boot = document.getElementById("bootScreen");
   boot.style.display = "block";
   boot.innerHTML = "";
@@ -126,94 +154,103 @@ function startBoot(){
 
   let i = 0;
 
-  const add = () => {
-    if(i >= lines.length){
-      setTimeout(finishBoot,700);
+  function add() {
+    if (i >= lines.length) {
+      setTimeout(finishBoot, 600);
       return;
     }
 
-    const d = document.createElement("div");
-    d.innerText = lines[i];
-    boot.appendChild(d);
+    const div = document.createElement("div");
+    div.innerText = lines[i];
+    boot.appendChild(div);
 
-    beep(400 + i*80,40,0.03);
+    beep(400 + i * 80, 40, 0.03);
     i++;
-    setTimeout(add,500);
-  };
+
+    setTimeout(add, 450);
+  }
 
   add();
 }
 
-function finishBoot(){
+function finishBoot() {
   document.getElementById("bootScreen").style.display = "none";
   document.getElementById("mainTerminal").style.display = "block";
 
   updateClock();
-  clockTimer = setInterval(updateClock,1000);
+  if (clockTimer) clearInterval(clockTimer);
+  clockTimer = setInterval(updateClock, 1000);
 
   loadStaffList();
   setupTabs();
 }
 
-/* CLOCK */
-function updateClock(){
+/* =========================
+   CLOCK
+========================= */
+function updateClock() {
   const s = document.getElementById("statusbar");
-  if(!s) return;
+  if (!s) return;
   s.innerText = "SYSTEM ONLINE / " + new Date().toLocaleString();
 }
 
-/* SEARCH */
-function findById(id){
-  return (
-    database.personnel.find(f=>f.id===id) ||
-    database.objects.find(f=>f.id===id)
-  );
-}
-
-function searchFile(){
+/* =========================
+   SEARCH
+========================= */
+function searchFile() {
   initAudio();
 
   const id = document.getElementById("staffId")?.value.trim();
-  const cl = Number(document.getElementById("clearance")?.value);
+  const cl = parseInt(document.getElementById("clearance")?.value || "0");
   const r = document.getElementById("result");
 
-  const found = findById(id);
-
-  if(!found){
-    r.innerText = "NOT FOUND";
+  if (!id) {
+    r.innerText = "READY";
     return;
   }
 
-  const required = Number(found.clearance ?? 3);
+  const found =
+    database.personnel.find(f => f.id === id) ||
+    database.objects.find(f => f.id === id);
 
-  if(cl < required){
-    const pass = prompt(`CLEARANCE LV${required} AUTH REQUIRED`);
-    if(pass !== clearancePasswords[required]){
-      r.innerText = "AUTH FAILED";
-      beep(200,400,0.2);
-      return;
-    }
+  if (!found) {
+    r.innerText = "NOT FOUND";
+    beep(200, 300, 0.2);
+    return;
+  }
+
+  const req = parseInt(found.clearance || "0");
+
+  if (cl < req) {
+    r.innerText = "ACCESS DENIED";
+    beep(200, 500, 0.2);
+    return;
   }
 
   currentFile = found;
-  document.getElementById("tabs").style.display = "flex";
+
+  const tabs = document.getElementById("tabs");
+  if (tabs) tabs.style.display = "flex";
+
   showTab("personnel");
 }
 
-/* TABS */
-function setupTabs(){
-  document.querySelectorAll("#tabs button").forEach(btn=>{
-    btn.onclick = ()=>showTab(btn.dataset.tab);
+/* =========================
+   TABS
+========================= */
+function setupTabs() {
+  document.querySelectorAll("#tabs button").forEach(btn => {
+    btn.addEventListener("click", () => showTab(btn.dataset.tab));
   });
 }
 
-function showTab(tab){
-  if(!currentFile) return;
+function showTab(tab) {
+  if (!currentFile) return;
 
   const r = document.getElementById("result");
   let txt = "";
 
-  switch(tab){
+  switch (tab) {
     case "personnel":
       txt =
 `NAME: ${currentFile.name}
@@ -222,7 +259,7 @@ STATUS: ${currentFile.status || "UNKNOWN"}`;
       break;
 
     case "ability":
-      txt = `[DATA]\n${currentFile.ability || "NO DATA"}`;
+      txt = `[ABILITY]\n${currentFile.ability || "NO DATA"}`;
       break;
 
     case "artifact":
@@ -230,34 +267,36 @@ STATUS: ${currentFile.status || "UNKNOWN"}`;
       break;
 
     case "record":
-      txt = currentFile.record || "NO RECORD";
+      txt = currentFile.record || "NO DATA";
       break;
   }
 
   r.innerText = txt;
-  beep(1200,30);
+  beep(1200, 30);
 }
 
-/* LIST */
-function loadStaffList(){
+/* =========================
+   STAFF LIST
+========================= */
+function loadStaffList() {
   const list = document.getElementById("staffList");
-  if(!list) return;
+  if (!list) return;
 
   list.innerHTML = "";
 
-  const data = database[currentCategory];
+  const data = database[currentCategory] || [];
 
-  data.forEach(f=>{
+  data.forEach(f => {
     const div = document.createElement("div");
-    div.className = "staffEntry status-"+(f.status||"ACTIVE");
+    div.className = "staffEntry";
 
     div.innerHTML = `
       <div>ID: ${f.id}</div>
       <div>NAME: ${f.name}</div>
-      <div>CATEGORY: ${f.category}</div>
+      <div>STATUS: ${f.status || "ACTIVE"}</div>
     `;
 
-    div.onclick = ()=>{
+    div.onclick = () => {
       document.getElementById("staffId").value = f.id;
       searchFile();
     };
@@ -266,30 +305,45 @@ function loadStaffList(){
   });
 }
 
-/* AMNESTIC */
-function triggerAmnestic(){
-  const ov = document.getElementById("amnesticOverlay");
-  ov.style.display = "flex";
+/* =========================
+   TOGGLE（ここが正解）
+========================= */
+function setupToggle() {
+  const toggle = document.getElementById("staffListToggle");
+  const panel = document.getElementById("staffPanel");
 
-  emergencyInterval = setInterval(()=>{
-    beep(100,500,0.2);
-  },800);
+  if (!toggle || !panel) return;
 
-  setTimeout(()=>location.reload(),6000);
+  toggle.addEventListener("click", () => {
+    panel.classList.toggle("open");
+    beep(800, 50, 0.05);
+  });
 }
 
+/* =========================
+   AMNESTIC
+========================= */
+function triggerAmnestic() {
+  const ov = document.getElementById("amnesticOverlay");
+  if (!ov) return;
+
+  ov.style.display = "flex";
+
+  emergencyInterval = setInterval(() => {
+    beep(100, 400, 0.2);
+  }, 700);
+
+  setTimeout(() => location.reload(), 6000);
+}
+
+/* =========================
+   INIT
+========================= */
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("loginBtn")?.addEventListener("click", login);
   document.getElementById("searchBtn")?.addEventListener("click", searchFile);
   document.getElementById("emergencyBtn")?.addEventListener("click", triggerAmnestic);
 
-  const toggle = document.getElementById("staffListToggle");
-  const panel = document.getElementById("staffPanel");
-
-  if (toggle && panel) {
-    toggle.addEventListener("click", () => {
-      panel.classList.toggle("open");
-      console.log("toggle:", panel.classList.contains("open"));
-    });
-  }
+  setupTabs();
+  setupToggle();
 });
