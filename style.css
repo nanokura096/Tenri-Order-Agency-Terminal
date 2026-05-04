@@ -387,3 +387,50 @@ button:active{
   background: rgba(255, 49, 49, 0.1);
   text-decoration: line-through; /* 抹消済みなら打ち消し線もあり */
 }
+
+/* =========================
+   EMERGENCY BUTTON (RED UPDATE)
+========================= */
+.bottom-controls {
+  margin-top: 20px;
+  border-top: 1px solid rgba(255, 49, 49, 0.3);
+  padding-top: 10px;
+}
+
+.emergency-btn {
+  /* 緑のデフォルトスタイルを上書き */
+  color: var(--red) !important;
+  border: 1px solid var(--red) !important;
+  background: rgba(40, 0, 0, 0.6) !important;
+  
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px var(--red);
+  box-shadow: 0 0 10px rgba(255, 49, 49, 0.2), inset 0 0 5px rgba(255, 49, 49, 0.2);
+  
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.emergency-btn:hover {
+  background: var(--red) !important;
+  color: #000 !important;
+  box-shadow: 0 0 20px var(--red);
+  text-shadow: none;
+}
+
+.emergency-btn:active {
+  transform: scale(0.95);
+  filter: brightness(1.5);
+}
+
+/* 警告としての鼓動アニメーション（任意） */
+@keyframes pulse-red {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+.emergency-btn {
+  animation: pulse-red 2s infinite ease-in-out;
+}
