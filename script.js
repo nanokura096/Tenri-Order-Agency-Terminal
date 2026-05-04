@@ -370,11 +370,71 @@ function startAltReality() {
   type();
 }
 
-/* =========================
-   INIT
-========================= */
 document.addEventListener("DOMContentLoaded", () => {
+
   document.getElementById("loginBtn")?.addEventListener("click", login);
   document.getElementById("searchBtn")?.addEventListener("click", searchFile);
   document.getElementById("emergencyBtn")?.addEventListener("click", startAltReality);
+
+  setupTabs();
+  setupToggle();
+
+  // =========================
+  // STARTUP SCREEN FIX版
+  // =========================
+  const startup = document.getElementById("startupScreen");
+  const loginScreen = document.getElementById("loginScreen");
+  const text = document.getElementById("startupText");
+
+  if (!startup || !loginScreen || !text) {
+    console.warn("startup UI missing");
+    return;
+  }
+
+  loginScreen.style.display = "none";
+  startup.style.display = "flex";
+
+  const dots = ["", ".", "..", "...", "...."];
+  let i = 0;
+
+  const interval = setInterval(() => {
+    text.innerHTML = `
+      TENRI NETWORK<br><br>
+      LOADING${dots[i]}
+    `;
+    i = (i + 1) % dots.length;
+  }, 400);
+
+  setTimeout(() => {
+    clearInterval(interval);
+    startup.style.display = "none";
+    loginScreen.style.display = "flex";
+  }, 5000);
+
+  // 起動音
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  const audioCtx = new AudioCtx();
+
+  function bootBeep() {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.frequency.value = 600;
+    osc.type = "square";
+
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.12);
+  }
+
+  const beepInterval = setInterval(bootBeep, 500);
+
+  setTimeout(() => {
+    clearInterval(beepInterval);
+  }, 5000);
 });
