@@ -341,3 +341,160 @@ button:active,
   font-family:monospace;
   font-size:20px;
 }
+
+/* =========================
+   SMARTPHONE OPTIMIZATION
+========================= */
+body{
+  font-size:16px;
+  padding:10px;
+}
+
+#mainTerminal{
+  width:100%;
+}
+
+#logo{
+  font-size:18px;
+  line-height:1.4;
+  word-break:break-word;
+}
+
+#statusbar{
+  font-size:12px;
+  margin-bottom:12px;
+}
+
+input,select,button{
+  width:100%;
+  font-size:16px;
+  padding:14px;
+  margin:6px 0;
+  border-radius:0;
+}
+
+#tabs{
+  display:none;
+  flex-wrap:wrap;
+  gap:5px;
+}
+
+#tabs button{
+  flex:1 1 45%;
+}
+
+#result{
+  min-height:180px;
+  max-height:35vh;
+  font-size:14px;
+  overflow-y:auto;
+}
+
+#staffPanel{
+  margin-top:15px;
+}
+
+#categoryTabs{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+}
+
+#categoryTabs button{
+  flex:1 1 45%;
+}
+
+#staffList{
+  max-height:220px;
+  overflow-y:auto;
+}
+
+.staffEntry{
+  padding:12px;
+  font-size:14px;
+}
+
+.bottom-controls{
+  margin-top:15px;
+}
+
+.emergency-btn{
+  font-size:16px;
+  padding:14px;
+}
+
+/* =========================
+   EMERGENCY CONSOLE MOBILE
+========================= */
+#emergencyConsole{
+  position:fixed;
+  inset:0;
+  background:#000;
+  color:#00FF41;
+  display:none;
+  flex-direction:column;
+  padding:12px;
+  z-index:99999;
+  font-family:Courier New, monospace;
+}
+
+#consoleLog{
+  flex:1;
+  border:1px solid #00FF41;
+  padding:10px;
+  overflow-y:auto;
+  white-space:pre-wrap;
+  font-size:13px;
+  line-height:1.5;
+  margin-bottom:12px;
+}
+
+#consoleButtons{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+#consoleButtons button{
+  width:100%;
+  padding:14px;
+  font-size:15px;
+  border:1px solid #00FF41;
+  background:#000;
+  color:#00FF41;
+}
+
+/* STARTUP */
+#startupScreen{
+  font-size:18px;
+  text-align:center;
+  padding:20px;
+}
+
+/* LOGIN */
+.loginBox{
+  width:92vw;
+  max-width:350px;
+}
+
+/* BOOT SCREEN */
+#bootScreen{
+  font-size:13px;
+  padding:15px;
+}
+
+/* 小さいスマホ用 */
+@media (max-width:400px){
+  #logo{
+    font-size:15px;
+  }
+
+  input,select,button{
+    font-size:14px;
+    padding:12px;
+  }
+
+  #consoleLog{
+    font-size:12px;
+  }
+}

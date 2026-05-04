@@ -354,13 +354,21 @@ function setupToggle() {
    ALT REALITY
 ========================= */
 function startAltReality() {
+  initAudio();
+
+  const main = document.getElementById("mainTerminal");
   const consoleScreen = document.getElementById("emergencyConsole");
   const log = document.getElementById("consoleLog");
   const buttons = document.getElementById("consoleButtons");
 
+  main.style.display = "none";
   consoleScreen.style.display = "flex";
+
   log.innerText = "";
   buttons.innerHTML = "";
+
+  beep(120, 500, 0.08);
+  setTimeout(() => beep(120, 500, 0.08), 650);
 
   const lines = [
     "[SYSTEM] EMERGENCY OVERRIDE INITIATED",
@@ -382,9 +390,10 @@ function startAltReality() {
 
     log.innerText += lines[i] + "\n";
     log.scrollTop = log.scrollHeight;
-    beep(250 + i * 40, 40, 0.05);
-    i++;
 
+    beep(220 + i * 35, 60, 0.04);
+
+    i++;
     setTimeout(printLine, 500);
   }
 
@@ -396,13 +405,15 @@ function startAltReality() {
     abortBtn.innerText = "ABORT";
 
     execBtn.onclick = () => {
+      beep(900, 120, 0.08);
       log.innerText += "\n[SYSTEM] CONTAINMENT EXECUTED";
-      setTimeout(() => location.reload(), 1200);
+      setTimeout(() => location.reload(), 1500);
     };
 
     abortBtn.onclick = () => {
+      beep(150, 600, 0.08);
       log.innerText += "\n[SYSTEM] OVERRIDE FAILED";
-      setTimeout(() => location.reload(), 1200);
+      setTimeout(() => location.reload(), 1500);
     };
 
     buttons.appendChild(execBtn);
@@ -410,17 +421,4 @@ function startAltReality() {
   }
 
   printLine();
-}function printLine() {
-  if (i >= lines.length) {
-    showButtons();
-    return;
-  }
-
-  log.innerText += lines[i] + "\n";
-  log.scrollTop = log.scrollHeight;
-
-  beep(220 + i * 35, 60, 0.04);
-
-  i++;
-  setTimeout(printLine, 500);
 }
