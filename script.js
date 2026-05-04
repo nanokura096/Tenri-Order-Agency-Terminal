@@ -1,4 +1,3 @@
-
 /* =========================
    DATABASE
 ========================= */
@@ -56,7 +55,6 @@ let audioCtx = null;
 let emergencyInterval = null;
 let clockTimer = null;
 
-/* ★重要：カテゴリ */
 let currentCategory = "personnel";
 
 /* =========================
@@ -178,11 +176,18 @@ function finishBoot() {
   document.getElementById("mainTerminal").style.display = "block";
 
   updateClock();
+
   if (clockTimer) clearInterval(clockTimer);
   clockTimer = setInterval(updateClock, 1000);
 
   loadStaffList();
   setupTabs();
+
+  // 🔥重要：ここで必ず表示
+  const panel = document.getElementById("staffPanel");
+  if (panel) panel.style.display = "block";
+
+  setupToggle();
 }
 
 /* =========================
@@ -248,6 +253,7 @@ function showTab(tab) {
   if (!currentFile) return;
 
   const r = document.getElementById("result");
+
   let txt = "";
 
   switch (tab) {
@@ -306,7 +312,7 @@ function loadStaffList() {
 }
 
 /* =========================
-   TOGGLE（ここが正解）
+   TOGGLE
 ========================= */
 function setupToggle() {
   const toggle = document.getElementById("staffListToggle");
@@ -343,7 +349,4 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("loginBtn")?.addEventListener("click", login);
   document.getElementById("searchBtn")?.addEventListener("click", searchFile);
   document.getElementById("emergencyBtn")?.addEventListener("click", triggerAmnestic);
-
-  setupTabs();
-  setupToggle();
 });
