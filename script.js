@@ -20,7 +20,28 @@ const database = {
       Description: `全長██cmの鉾。
 天逆鉾のような形をしているが、柄は取り外し可能。`,
       record: "[アクセス拒否]"
-    }
+    },
+
+{
+  id: "AP-000001",
+  category: "personnel",
+  name: "雨宮 志乃",
+  sex: "FEMALE",
+  age: "19",
+  division: "情報解析部",
+  rank: "Analyst",
+  ability: `未来演算
+短時間先の情報分岐を観測可能。
+観測回数が増えるほど精神疲労が蓄積する。`,
+  status: "ACTIVE",
+  clearance: "2",
+  Description: `黒色端末を常時携帯。
+演算補助用の特殊レンズを使用。`,
+  record: `TOA-214情報漏洩事件にて初確認。
+現在監視付きで運用中。`
+},
+
+
   ],
   objects: [
     {
@@ -46,10 +67,10 @@ let audioCtx = null;
 let clockLoop = null;
 
 const clearanceCodes = {
-  "2": "失敗",
-  "3": "無縁",
-  "4": "崩壊",
-  "5": "偽物"
+  "2": "Nothing",
+  "3": "true",
+  "4": "bit",
+  "5": "fake"
 };
 
 /* =========================
