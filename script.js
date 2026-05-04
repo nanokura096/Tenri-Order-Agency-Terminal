@@ -9,27 +9,17 @@ const files = [
     age:"██",
     division:"鳴響",
     rank:"Leader",
-    ability:`因報
-強大な力を利用して戦闘を行うが彼女自身には限界がないため危険な状態に陥っても活動を続ける可能性がある。
-また、翠色の結晶を飛ばすことが可能で、任意のタイミングで爆破可能。
-だが、観測者が増えるごとに威力が弱まる。`,
+    ability:`因報\n強大な力を利用して戦闘を行うが彼女自身には限界がないため危険な状態に陥っても活動を続ける可能性がある。\nまた、翠色の結晶を飛ばすことが可能で、任意のタイミングで爆破可能。\nだが、観測者が増えるごとに威力が弱まる。`,
     status:"ACTIVE",
     clearance:"3",
     profile:"対象は鳴響隊長である。",
     weapon:"天理楔",
-    Description:`全長██cmの鉾。
-天逆鉾のような形をしているが、柄([アクセス拒否])は取り外しが可。
-代わりに、元の柄の1/3の長さの柄([アクセス拒否])を取り付けることも可能。
-その柄は鳴響チーム所属隊員αの体とリンクしており、能力を鉾で発動することもできる。
-また、攻撃された人間の行動を「拒否」することが可能。`,
+    Description:`全長██cmの鉾。\n天逆鉾のような形をしているが、柄([アクセス拒否])は取り外しが可。\nその柄は鳴響チーム所属隊員αの体とリンクしており、能力を鉾で発動することもできる。\nまた、攻撃された人間の行動を「拒否」することが可能。`,
     record:"[アクセス拒否]",
-    note:"精神状態は安定しているが、いつも問題を持ってくる。"
+ note:"精神状態は安定しているが、いつも問題を持ってくる。"
   }
-];
 
-/* =========================
-   GLOBAL
-========================= */
+
 let currentFile = null;
 let loginAttempts = 0;
 const MAX_ATTEMPTS = 3;
@@ -38,9 +28,7 @@ let audioCtx = null;
 let emergencyInterval = null;
 let clockTimer = null;
 
-/* =========================
-   AUDIO
-========================= */
+
 function initAudio(){
   try{
     if(!audioCtx){
@@ -73,9 +61,7 @@ function beep(freq,dur,vol=0.05){
   }catch(e){}
 }
 
-/* =========================
-   LOGIN
-========================= */
+
 function login(){
   initAudio();
 
@@ -115,9 +101,7 @@ function login(){
   }
 }
 
-/* =========================
-   AMNESTIC
-========================= */
+
 function initiateAmnestic(){
   const ov = document.getElementById("amnesticOverlay");
   if(!ov) return;
@@ -135,9 +119,7 @@ function initiateAmnestic(){
   },8000);
 }
 
-/* =========================
-   BOOT
-========================= */
+
 function startLoadingSequence(){
   const boot = document.getElementById("bootScreen");
   if(!boot) return;
@@ -187,10 +169,7 @@ function finishBoot(){
   setupTabs();
 }
 
-/* =========================
-   CLOCK
-========================= */
-function updateClock(){
+
   const status = document.getElementById("statusbar");
   if(!status) return;
 
@@ -198,9 +177,7 @@ function updateClock(){
   status.innerText = "SYSTEM ONLINE / USER: admin / " + now.toLocaleString();
 }
 
-/* =========================
-   SEARCH
-========================= */
+
 function searchFile(){
   initAudio();
 
@@ -237,9 +214,7 @@ function searchFile(){
   showTab("personnel");
 }
 
-/* =========================
-   TABS
-========================= */
+
 function setupTabs(){
   document.querySelectorAll("#tabs button").forEach(btn=>{
     btn.addEventListener("click",()=>{
@@ -292,9 +267,7 @@ NOTE: ${currentFile.note}`;
   r.innerText = txt;
 }
 
-/* =========================
-   STAFF LIST
-========================= */
+
 function loadStaffList(){
   const list = document.getElementById("staffList");
   if(!list || typeof files === "undefined") return;
@@ -316,9 +289,7 @@ function loadStaffList(){
   });
 }
 
-/* =========================
-   EMERGENCY
-========================= */
+
 function triggerEmergency(){
   initAudio();
 
@@ -384,9 +355,6 @@ function resolveEmergency(){
   beep(1800,100,0.1);
 }
 
-/* =========================
-   EVENT BIND
-========================= */
 document.addEventListener("DOMContentLoaded",()=>{
   document.getElementById("loginBtn")?.addEventListener("click",login);
   document.getElementById("searchBtn")?.addEventListener("click",searchFile);
@@ -396,3 +364,4 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(e.key === "Enter") login();
   });
 });
+

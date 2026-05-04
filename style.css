@@ -59,6 +59,7 @@ body{
   background:#600;
   color:#fff;
   text-align:center;
+  pointer-events:none;
 }
 
 /* EMERGENCY */
@@ -69,6 +70,13 @@ body{
   align-items:center;
   flex-direction:column;
   background:rgba(255,0,0,0.8);
+  pointer-events:none;
+}
+
+/* ACTIVE STATE FIX */
+#amnesticOverlay.active,
+#emergencyOverlay.active{
+  pointer-events:auto;
 }
 
 #emergencyContent{
@@ -85,9 +93,7 @@ body{
   z-index:5;
 }
 
-/* =========================
-   LOGIN
-========================= */
+/* LOGIN BOX */
 .loginBox{
   border:1px solid var(--green);
   padding:25px;
@@ -95,9 +101,7 @@ body{
   text-align:center;
 }
 
-/* =========================
-   INPUT
-========================= */
+/* INPUT */
 input,select,button{
   width:100%;
   margin:6px 0;
@@ -110,18 +114,18 @@ input,select,button{
   touch-action:manipulation;
 }
 
-/* =========================
-   BOOT LOG
-========================= */
+button:active,.staffEntry:active{
+  transform:scale(.98);
+}
+
+/* BOOT LOG */
 #bootScreen div{
   margin-bottom:10px;
   border-left:2px solid var(--green);
   padding-left:8px;
 }
 
-/* =========================
-   TERMINAL
-========================= */
+/* TERMINAL */
 #logo{
   font-size:20px;
   border-bottom:1px solid var(--green);
@@ -157,6 +161,14 @@ input,select,button{
 }
 
 /* STAFF LIST */
+#staffListTitle{
+  margin-top:20px;
+  text-align:center;
+  border-top:1px dashed var(--green);
+  padding-top:15px;
+  cursor:pointer;
+}
+
 #staffList{
   display:none;
 }
@@ -165,6 +177,7 @@ input,select,button{
   border:1px solid var(--green);
   padding:10px;
   margin-top:8px;
+  cursor:pointer;
 }
 
 /* CONTROLS */
