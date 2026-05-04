@@ -3,10 +3,12 @@
   --bg:#000;
   --red:#ff3131;
 }
+
 *{
   box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
 }
+
 body{
   margin:0;
   padding:10px;
@@ -16,6 +18,7 @@ body{
   overflow-x:hidden;
   font-size:16px;
 }
+
 /* =========================
    SCREEN BASE
 ========================= */
@@ -29,7 +32,9 @@ body{
 #clearanceAuth{
   position:fixed;
   inset:0;
+  display:none;
 }
+
 /* =========================
    STARTUP
 ========================= */
@@ -40,11 +45,13 @@ body{
   background:#000;
   z-index:99999;
 }
+
 .startupText{
   text-align:center;
   font-size:20px;
   letter-spacing:2px;
 }
+
 /* =========================
    LOGIN
 ========================= */
@@ -54,39 +61,43 @@ body{
   align-items:center;
   z-index:99998;
 }
+
 .loginBox{
   width:min(350px,92vw);
   border:1px solid var(--green);
   padding:20px;
   text-align:center;
 }
+
 #loginError{
   margin-top:8px;
   color:var(--red);
 }
+
 /* =========================
    BOOT
 ========================= */
 #bootScreen{
-  display:none;
   padding:15px;
   overflow-y:auto;
   font-size:14px;
   z-index:99997;
 }
+
 #bootScreen div{
   border-left:2px solid var(--green);
   padding-left:8px;
   margin-bottom:10px;
 }
+
 /* =========================
    MAIN
 ========================= */
 #mainTerminal{
-  display:none;
   padding:10px;
   overflow-y:auto;
 }
+
 #logo{
   font-size:18px;
   border-bottom:1px solid var(--green);
@@ -94,10 +105,12 @@ body{
   margin-bottom:12px;
   word-break:break-word;
 }
+
 #statusbar{
   font-size:12px;
   margin-bottom:12px;
 }
+
 input,select,button{
   width:100%;
   background:#000;
@@ -108,18 +121,28 @@ input,select,button{
   font-family:inherit;
   font-size:16px;
 }
+
 button:active{
   transform:scale(.98);
 }
+
+/* =========================
+   TABS
+========================= */
 #tabs{
   display:none;
   flex-wrap:wrap;
   gap:5px;
   margin:10px 0;
 }
+
 #tabs button{
   flex:1 1 45%;
 }
+
+/* =========================
+   RESULT
+========================= */
 #result{
   border:1px solid var(--green);
   background:rgba(0,30,0,.4);
@@ -130,6 +153,7 @@ button:active{
   white-space:pre-wrap;
   font-size:14px;
 }
+
 /* =========================
    DATA PANEL
 ========================= */
@@ -138,40 +162,45 @@ button:active{
   border:1px solid var(--green);
   padding:10px;
 }
+
 #categoryTabs{
   display:flex;
   gap:5px;
   margin-top:8px;
 }
+
 #categoryTabs button{
   flex:1;
 }
+
 .activeCat{
-  background:#003b10;
+  background:#00ff88 !important;
+  color:#000 !important;
 }
+
 #dataList{
   max-height:0;
   overflow:hidden;
   opacity:0;
   transition:.35s;
 }
+
 #dataPanel.open #dataList{
   max-height:240px;
   opacity:1;
   margin-top:8px;
   overflow-y:auto;
 }
+
 .staffEntry{
   border:1px solid var(--green);
   padding:10px;
   margin-top:5px;
   cursor:pointer;
 }
-.staffEntry:active{
-  background:rgba(0,255,65,.15);
-}
+
 /* =========================
-   EMERGENCY
+   EMERGENCY CONSOLE
 ========================= */
 #emergencyConsole{
   display:none;
@@ -181,6 +210,7 @@ button:active{
   padding:12px;
   z-index:999999;
 }
+
 #consoleLog{
   flex:1;
   border:1px solid var(--green);
@@ -189,12 +219,14 @@ button:active{
   overflow-y:auto;
   font-size:13px;
 }
+
 #consoleButtons{
   display:flex;
   flex-direction:column;
   gap:8px;
   margin-top:10px;
 }
+
 /* =========================
    AGENT DISPATCH
 ========================= */
@@ -207,6 +239,7 @@ button:active{
   padding:20px;
   z-index:1000000;
 }
+
 #agentLog{
   width:100%;
   max-width:500px;
@@ -216,6 +249,7 @@ button:active{
   line-height:1.6;
   font-size:14px;
 }
+
 /* =========================
    AMNESTIC OVERLAY
 ========================= */
@@ -231,270 +265,39 @@ button:active{
   padding:20px;
   line-height:1.7;
 }
+
 /* =========================
-   CLEARANCE AUTH
+   CLEARANCE AUTH (CLEAN)
 ========================= */
 #clearanceAuth{
-  display:none;
   justify-content:center;
   align-items:center;
-  background:rgba(0,0,0,.95);
+  background:#000;
   z-index:1000002;
 }
+
 #authBox{
   width:min(380px,92vw);
   border:1px solid var(--green);
   padding:20px;
   text-align:center;
+  box-shadow:0 0 20px var(--green);
 }
-#authTitle{
-  margin-bottom:12px;
-}
+
+#authTitle,
 #authLevelText{
   margin-bottom:12px;
   color:var(--green);
-}
-#authError{
-  margin-top:8px;
-  color:var(--red);
-}
-/* =========================
-   BUTTON COLORS
-========================= */
-.emergency-btn{
-  border-color:var(--red);
-  color:var(--red);
-}
-/* =========================
-   EFFECT
-========================= */
-.blink{
-  animation:blink 1s infinite;
-}
-@keyframes blink{
-  50%{opacity:0;}
-}
-/* =========================
-   SMALL MOBILE
-========================= */
-@media(max-width:400px){
-  #logo{font-size:15px;}
-  input,select,button{font-size:14px;padding:12px;}
-  #result{font-size:13px;}
-}
-
-/* =========================
-   AGENT DISPATCH SCREEN
-========================= */
-#agentDispatch{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:black;
-  color:#ff2a2a;
-  display:none;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  font-family:monospace;
-  z-index:9999;
-  text-align:left;
-  padding:20px;
-  box-sizing:border-box;
-}
-
-#agentLog{
-  width:90%;
-  max-width:700px;
-  min-height:300px;
-  border:1px solid #ff2a2a;
-  padding:20px;
-  white-space:pre-line;
-  box-shadow:0 0 20px #ff2a2a;
-  animation:flicker 0.08s infinite alternate;
-}
-
-/* =========================
-   AMNESTIC OVERLAY
-========================= */
-#amnesticOverlay{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:black;
-  color:#00ff88;
-  display:none;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
-  font-family:monospace;
-  z-index:9999;
-  text-align:center;
-  gap:10px;
-  padding:20px;
-  box-sizing:border-box;
-  text-shadow:0 0 8px #00ff88;
-}
-
-#amnesticOverlay div{
-  animation:flicker 0.09s infinite alternate;
-}
-
-/* =========================
-   CATEGORY ACTIVE
-========================= */
-.activeCat{
-  background:#00ff88 !important;
-  color:black !important;
-}
-
-/* =========================
-   GLITCH FLICKER
-========================= */
-@keyframes flicker{
-  from{opacity:0.82;}
-  to{opacity:1;}
-}
-
-/* =========================
-   AGENT DISPATCH SCREEN
-========================= */
-#agentDispatch{
-  position:fixed !important;
-  top:0 !important;
-  left:0 !important;
-  width:100vw !important;
-  height:100vh !important;
-  background:#000 !important;
-  color:#ff2a2a !important;
-  display:none;
-  justify-content:center !important;
-  align-items:center !important;
-  flex-direction:column !important;
-  font-family:monospace !important;
-  z-index:99999 !important;
-  text-align:left !important;
-  padding:20px !important;
-  box-sizing:border-box !important;
-}
-
-#agentLog{
-  width:90% !important;
-  max-width:700px !important;
-  min-height:300px !important;
-  border:1px solid #ff2a2a !important;
-  padding:20px !important;
-  white-space:pre-line !important;
-  box-shadow:0 0 20px #ff2a2a !important;
-  animation:flicker 0.08s infinite alternate;
-}
-
-/* =========================
-   AMNESTIC OVERLAY
-========================= */
-#amnesticOverlay{
-  position:fixed !important;
-  top:0 !important;
-  left:0 !important;
-  width:100vw !important;
-  height:100vh !important;
-  background:#000 !important;
-  color:#00ff88 !important;
-  display:none;
-  justify-content:center !important;
-  align-items:center !important;
-  flex-direction:column !important;
-  font-family:monospace !important;
-  z-index:99999 !important;
-  text-align:center !important;
-  gap:12px !important;
-  padding:20px !important;
-  box-sizing:border-box !important;
-  text-shadow:0 0 8px #00ff88 !important;
-}
-
-#amnesticOverlay div{
-  animation:flicker 0.09s infinite alternate;
-}
-
-.activeCat{
-  background:#00ff88 !important;
-  color:#000 !important;
-}
-
-@keyframes flicker{
-  from{opacity:0.78;}
-  to{opacity:1;}
-}
-
-#clearanceAuth{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.96);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:1000002;
-}
-#authBox{
-  width:min(380px,92vw);
-  border:1px solid #00ff41;
-  padding:20px;
-  text-align:center;
-  box-shadow:0 0 20px #00ff41;
-}
-#authTitle{
-  font-size:18px;
-  margin-bottom:12px;
-}
-#authLevelText{
-  margin-bottom:12px;
-}
-#authError{
-  margin-top:8px;
-  color:#ff3131;
-}
-
-#clearanceAuth{
-  position:fixed;
-  inset:0;
-  display:none;
-  justify-content:center;
-  align-items:center;
-  background:#000;
-  z-index:999999;
-}
-
-#authBox{
-  width:min(380px,92vw);
-  border:1px solid #00FF41;
-  padding:20px;
-  text-align:center;
-  box-shadow:0 0 20px #00FF41;
-}
-
-#authTitle{
-  margin-bottom:12px;
-  color:#00FF41;
-  letter-spacing:1px;
-}
-
-#authLevelText{
-  margin-bottom:12px;
-  color:#00FF41;
 }
 
 #authInput{
   width:100%;
   background:#000;
-  color:#00FF41;
-  border:1px solid #00FF41;
+  color:var(--green);
+  border:1px solid var(--green);
   padding:12px;
   margin-top:10px;
+  outline:none;
 }
 
 .authButtons{
@@ -506,11 +309,31 @@ button:active{
 .authButtons button{
   flex:1;
   background:#000;
-  color:#00FF41;
-  border:1px solid #00FF41;
+  color:var(--green);
+  border:1px solid var(--green);
 }
 
 #authError{
   margin-top:10px;
-  color:#ff3131;
+  color:var(--red);
+}
+
+/* =========================
+   EFFECTS
+========================= */
+.blink{
+  animation:blink 1s infinite;
+}
+
+@keyframes blink{
+  50%{opacity:0;}
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media(max-width:400px){
+  #logo{font-size:15px;}
+  input,select,button{font-size:14px;padding:12px;}
+  #result{font-size:13px;}
 }
