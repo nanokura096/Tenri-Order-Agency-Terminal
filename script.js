@@ -5,34 +5,62 @@ const database = {
   personnel: [
     {
       id: "AP-000000",
+      category: "personnel",
       name: "鳴瀬 可楚",
-      // ... 略
-      status: "ACTIVE", // 職員はACTIVEを維持（またはCONTAINEDへ変更も可）
-      clearance: "3"
+      sex: "FEMALE",
+      age: "██",
+      division: "鳴響",
+      rank: "Leader",
+      ability: `因報
+強大な力を利用して戦闘を行うが彼女自身には限界がないため危険な状態に陥っても活動を続ける可能性がある。
+また、翠色の結晶を飛ばすことが可能で、任意のタイミングで爆破可能。
+だが、観測者が増えるごとに威力が弱まる。`,
+      status: "ACTIVE",
+      clearance: "3",
+      Description: `全長██cmの鉾。
+天逆鉾のような形をしているが、柄は取り外し可能。`,
+      record: "[アクセス拒否]"
     },
     {
       id: "AP-838383",
+      category: "personnel",
       name: "天城 ユウラ",
-      // ... 略
-      status: "MISSING", // 行方不明
-      clearance: "3"
+      sex: "FEMALE",
+      age: "19",
+      division: "観測局 第3解析班",
+      rank: "Field Analyst",
+      ability: `■確率固定化（Probability Lock）
+周囲で発生する「結果が揺らぐ現象」を1つだけ選び、その結果を“確定状態”に固定する能力。`,
+      status: "MISSING",
+      clearance: "3",
+      Description: `能力発動時、対象周囲の環境に軽度の“静止感”が発生する。`,
+      record: `初期記録：施設外で原因不明の交通事故が発生。現在、使用回数は1日1回に制限。`
     },
     {
       id: "AP-383838",
+      category: "personnel",
       name: "雨宮 志乃",
-      // ... 略
-      status: "NEUTRALIZED", // TERMINATEDからNEUTRALIZEDへ変更
-      clearance: "2"
+      sex: "FEMALE",
+      age: "19",
+      division: "情報解析部",
+      rank: "Analyst",
+      ability: `未来演算
+短時間先の情報分岐を観測可能。`,
+      status: "NEUTRALIZED",
+      clearance: "2",
+      Description: `黒色端末を常時携帯。演算補助用の特殊レンズを使用。`,
+      record: `TOA-214情報漏洩事件にて初確認。現在監視付きで運用中。`
     }
   ],
   objects: [
     {
       id: "OBJ-001",
+      category: "object",
       name: "天理楔",
-      // ... 略
-      status: "CONTAINED", // 収容中
+      description: "異常武装オブジェクト。",
+      status: "CONTAINED",
       clearance: "3"
-    }
+    },
   ]
 };
 
@@ -101,21 +129,17 @@ function beep(freq,dur,vol=0.03){
 ========================= */
 document.addEventListener("DOMContentLoaded",()=>{
   showScreen("startup");
-
   const text = document.querySelector(".startupText");
   const dots = ["",".","..","..."];
   let i = 0;
-
   const loading = setInterval(()=>{
     if(text) text.innerHTML = `TENRI NETWORK<br><br>LOADING${dots[i]}`;
     i = (i+1)%dots.length;
   },400);
-
   setTimeout(()=>{
     clearInterval(loading);
     showScreen("login");
   },5000);
-
   document.getElementById("loginBtn")?.addEventListener("click",login);
   document.getElementById("searchBtn")?.addEventListener("click",searchFile);
   document.getElementById("emergencyBtn")?.addEventListener("click",startAltReality);
@@ -123,9 +147,9 @@ document.addEventListener("DOMContentLoaded",()=>{
   document.getElementById("clearance")?.addEventListener("change",requestClearanceAuth);
   document.getElementById("authBtn")?.addEventListener("click",verifyClearanceCode);
   document.getElementById("authCancelBtn")?.addEventListener("click",()=>{
-  document.getElementById("clearanceAuth").style.display = "none";
-  document.getElementById("clearance").value = "1";});
-
+    document.getElementById("clearanceAuth").style.display = "none";
+    document.getElementById("clearance").value = "1";
+  });
   setupTabs();
 });
 
@@ -137,10 +161,8 @@ function login(){
   const u = document.getElementById("username").value.trim();
   const p = document.getElementById("password").value.trim();
   const err = document.getElementById("loginError");
-
   if(u==="admin" && p==="226227"){
-    document.querySelector(".loginBox").innerHTML =
-    `<div class="blink">AUTHENTICATING...</div>`;
+    document.querySelector(".loginBox").innerHTML = `<div class="blink">AUTHENTICATING...</div>`;
     beep(900,100);
     setTimeout(()=>{
       showScreen("boot");
@@ -149,11 +171,8 @@ function login(){
   }else{
     loginAttempts++;
     beep(150,200);
-    if(loginAttempts >= MAX_ATTEMPTS){
-      dispatchAgent();
-    }else{
-      err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
-    }
+    if(loginAttempts >= MAX_ATTEMPTS) dispatchAgent();
+    else err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
   }
 }
 
@@ -163,20 +182,11 @@ function login(){
 function startBoot(){
   const boot = document.getElementById("bootScreen");
   boot.innerHTML = "";
-
   const lines = [
-    "TENRI NETWORK CORE INITIALIZED",
-    "LOADING SECURITY MODULES...",
-    "CHECKING CLEARANCE LEVELS...",
-    "SYNCING PERSONNEL DATABASE...",
-    "SYNCING OBJECT DATABASE...",
-    "MOUNTING ARCHIVE NODES...",
-    "ESTABLISHING TERMINAL LINK...",
-    "FINALIZING BOOT SEQUENCE...",
-    "ACCESS GRANTED",
-    "WELCOME, OPERATOR"
+    "TENRI NETWORK CORE INITIALIZED", "LOADING SECURITY MODULES...", "CHECKING CLEARANCE LEVELS...",
+    "SYNCING PERSONNEL DATABASE...", "SYNCING OBJECT DATABASE...", "MOUNTING ARCHIVE NODES...",
+    "ESTABLISHING TERMINAL LINK...", "FINALIZING BOOT SEQUENCE...", "ACCESS GRANTED", "WELCOME, OPERATOR"
   ];
-
   let i = 0;
   function addLine(){
     if(i >= lines.length){
@@ -202,12 +212,8 @@ function finishBoot(){
   loadDataList();
 }
 
-/* =========================
-   CLOCK
-========================= */
 function updateClock(){
-  document.getElementById("statusbar").innerText =
-    "SYSTEM ONLINE / " + new Date().toLocaleString();
+  document.getElementById("statusbar").innerText = "SYSTEM ONLINE / " + new Date().toLocaleString();
 }
 
 /* =========================
@@ -218,28 +224,10 @@ function searchFile(){
   const id = document.getElementById("staffId").value.trim();
   const cl = parseInt(document.getElementById("clearance").value);
   const r = document.getElementById("result");
-
-  if(!id){
-    r.innerText = "READY";
-    return;
-  }
-
-  const found =
-    database.personnel.find(x=>x.id===id) ||
-    database.objects.find(x=>x.id===id);
-
-  if(!found){
-    r.innerText = "NOT FOUND";
-    beep(150,200);
-    return;
-  }
-
-  if(cl < parseInt(found.clearance)){
-    r.innerText = "ACCESS DENIED";
-    beep(120,250);
-    return;
-  }
-
+  if(!id){ r.innerText = "READY"; return; }
+  const found = database.personnel.find(x=>x.id===id) || database.objects.find(x=>x.id===id);
+  if(!found){ r.innerText = "NOT FOUND"; beep(150,200); return; }
+  if(cl < parseInt(found.clearance)){ r.innerText = "ACCESS DENIED"; beep(120,250); return; }
   currentFile = found;
   document.getElementById("tabs").style.display = "flex";
   showTab("personnel");
@@ -256,34 +244,17 @@ function setupTabs(){
 
 function showTab(tab){
   if(!currentFile) return;
-
   const r = document.getElementById("result");
   let txt = "";
-
   switch(tab){
     case "personnel":
-      txt = `
-NAME: ${currentFile.name}
-CATEGORY: ${currentFile.category}
-STATUS: <span class="status ${getStatusClass(currentFile.status)}">
-${currentFile.status || "UNKNOWN"}
-</span>
-      `;
+      const sClass = getStatusClass(currentFile.status);
+      txt = `NAME: ${currentFile.name}\nCATEGORY: ${currentFile.category.toUpperCase()}\nSTATUS: <span class="status ${sClass}">${currentFile.status || "UNKNOWN"}</span>`;
       break;
-
-    case "ability":
-      txt = currentFile.ability || "NO DATA";
-      break;
-
-    case "artifact":
-      txt = currentFile.Description || currentFile.description || "NO DATA";
-      break;
-
-    case "record":
-      txt = currentFile.record || "NO DATA";
-      break;
+    case "ability": txt = currentFile.ability || "NO DATA"; break;
+    case "artifact": txt = currentFile.Description || currentFile.description || "NO DATA"; break;
+    case "record": txt = currentFile.record || "NO DATA"; break;
   }
-
   r.innerHTML = txt;
   beep(1000,15);
 }
@@ -300,53 +271,34 @@ function toggleDataPanel(){
 function setCategory(cat){
   currentCategory = cat;
   loadDataList();
-
-  document.querySelectorAll("#categoryTabs button").forEach(btn=>{
-    btn.classList.remove("activeCat");
-  });
-
-  if(cat==="personnel"){
-    document.querySelectorAll("#categoryTabs button")[0].classList.add("activeCat");
-  }else{
-    document.querySelectorAll("#categoryTabs button")[1].classList.add("activeCat");
-  }
+  document.querySelectorAll("#categoryTabs button").forEach(btn=>btn.classList.remove("activeCat"));
+  if(cat==="personnel") document.querySelectorAll("#categoryTabs button")[0].classList.add("activeCat");
+  else document.querySelectorAll("#categoryTabs button")[1].classList.add("activeCat");
 }
 
-/* =========================
-   DATA PANEL (UPDATED)
-========================= */
 function loadDataList(){
   const list = document.getElementById("dataList");
   if(!list) return;
-
   list.innerHTML = "";
   const data = database[currentCategory];
-
   if(!data || data.length===0){
     list.innerHTML = "<div class='staffEntry'>NO DATA</div>";
     return;
   }
-
   data.forEach(f=>{
     const div = document.createElement("div");
     div.className = "staffEntry";
-    
-    // ステータスに応じたCSSクラスを取得
     const sClass = getStatusClass(f.status);
-
-    // リスト表示の構築：右上にステータスドットを配置
     div.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div style="font-size:12px; opacity:0.8;">ID : ${f.id}</div>
-        <div class="${sClass}" style="font-size:10px;">● ${f.status || ""}</div>
+        <div class="${sClass}" style="font-size:10px;">● ${f.status || "UNKNOWN"}</div>
       </div>
       <div style="margin-top:4px; font-weight:bold;">NAME : ${f.name}</div>
     `;
-
     div.onclick = ()=>{
       document.getElementById("staffId").value = f.id;
       searchFile();
-      // モバイル等での利便性を考え、選択後にパネルを閉じる
       document.getElementById("dataPanel").classList.remove("open");
     };
     list.appendChild(div);
@@ -359,59 +311,27 @@ function loadDataList(){
 function startAltReality(){
   initAudio();
   showScreen("emergency");
-
   const log = document.getElementById("consoleLog");
   const buttons = document.getElementById("consoleButtons");
-
-  log.innerText = "";
-  buttons.innerHTML = "";
-
-  const lines = [
-    "[SYSTEM] EMERGENCY OVERRIDE INITIATED",
-    "[SYSTEM] TERMINAL LINK COMPROMISED",
-    "[WARNING] UNKNOWN PROCESS DETECTED",
-    "[SYSTEM] ISOLATING CORE SYSTEMS...",
-    "[SYSTEM] ACCESS RESTRICTED ZONE ENTERED",
-    "",
-    "[ACTION REQUIRED]"
-  ];
-
+  log.innerText = ""; buttons.innerHTML = "";
+  const lines = ["[SYSTEM] EMERGENCY OVERRIDE INITIATED", "[SYSTEM] TERMINAL LINK COMPROMISED", "[WARNING] UNKNOWN PROCESS DETECTED", "[SYSTEM] ISOLATING CORE SYSTEMS...", "[SYSTEM] ACCESS RESTRICTED ZONE ENTERED", "", "[ACTION REQUIRED]"];
   let i = 0;
-
   function printLine(){
-    if(i >= lines.length){
-      showEmergencyButtons();
-      return;
-    }
-
+    if(i >= lines.length){ showEmergencyButtons(); return; }
     log.innerText += lines[i] + "\n";
     log.scrollTop = log.scrollHeight;
-    beep(220+i*20,20);
-    i++;
+    beep(220+i*20,20); i++;
     setTimeout(printLine,450);
   }
-
   function showEmergencyButtons(){
     const execBtn = document.createElement("button");
     const abortBtn = document.createElement("button");
-
     execBtn.innerText = "EXECUTE CONTAINMENT";
     abortBtn.innerText = "ABORT";
-
-    execBtn.onclick = ()=>{
-      log.innerText += "\n[SYSTEM] CONTAINMENT EXECUTED";
-      setTimeout(()=>location.reload(),1400);
-    };
-
-    abortBtn.onclick = ()=>{
-      log.innerText += "\n[SYSTEM] OVERRIDE FAILED";
-      setTimeout(()=>location.reload(),1400);
-    };
-
-    buttons.appendChild(execBtn);
-    buttons.appendChild(abortBtn);
+    execBtn.onclick = ()=>{ log.innerText += "\n[SYSTEM] CONTAINMENT EXECUTED"; setTimeout(()=>location.reload(),1400); };
+    abortBtn.onclick = ()=>{ log.innerText += "\n[SYSTEM] OVERRIDE FAILED"; setTimeout(()=>location.reload(),1400); };
+    buttons.appendChild(execBtn); buttons.appendChild(abortBtn);
   }
-
   printLine();
 }
 
@@ -421,173 +341,22 @@ function startAltReality(){
 function dispatchAgent(){
   initAudio();
   showScreen("agent");
-
   const log = document.getElementById("agentLog");
   log.innerText = "";
-
-  const introLines = [
-    "[SECURITY ALERT]",
-    "UNAUTHORIZED LOGIN ATTEMPTS : 3",
-    "IDENTITY CONFIRMATION FAILED",
-    "CURRENT TERMINAL FLAGGED",
-    "",
-    "DISPATCHING FIELD AGENT...",
-    "REQUESTING NEAREST RESPONSE UNIT..."
-  ];
-
-  let i = 0;
-
-  function printIntro(){
-    if(i >= introLines.length){
-      startCountdown();
-      return;
-    }
-
-    log.innerText += introLines[i] + "\n";
-    beep(120+i*10,35);
-    i++;
-    setTimeout(printIntro,500);
-  }
-
-  function startCountdown(){
-    let time = 12;
-
-    const etaLine = document.createElement("div");
-    const warnLine = document.createElement("div");
-
-    etaLine.style.marginTop = "10px";
-    warnLine.style.marginTop = "10px";
-
-    log.appendChild(document.createTextNode("\n"));
-    log.appendChild(etaLine);
-    log.appendChild(warnLine);
-
-    warnLine.innerText = "[ YOU CAN NOT LEAVE YOUR POSITION ]";
-
-    const timer = setInterval(()=>{
-      etaLine.innerText = `AGENT ETA : 00:00:${String(time).padStart(2,"0")}`;
-      beep(180,20,0.02);
-      time--;
-
-      if(time < 0){
-        clearInterval(timer);
-        etaLine.innerText = "AGENT ETA : 00:00:00";
-        warnLine.innerText = "[ CONNECTION TERMINATED ]";
-        beep(70,300,0.05);
-        setTimeout(()=>location.reload(),1500);
-      }
-    },1000);
-  }
-
-  printIntro();
-}
-
-function requestClearanceAuth(){
-  initAudio();
-
-  const select = document.getElementById("clearance");
-  pendingClearanceLevel = select.value;
-
-  if(pendingClearanceLevel === "0" || pendingClearanceLevel === "1"){
-    return;
-  }
-
-  const auth = document.getElementById("clearanceAuth");
-  auth.style.display = "flex";
-
-  document.getElementById("authLevelText").innerText =
-    `LEVEL ${pendingClearanceLevel} AUTHORIZATION REQUIRED`;
-
-  document.getElementById("authInput").value = "";
-  document.getElementById("authError").innerText = "";
-  document.getElementById("authInput").focus();
-}
-
-/* =========================
-   AMNESTIC PROTOCOL
-========================= */
-function startAmnesticProtocol(){
-  initAudio();
-
-  ["startupScreen","loginScreen","bootScreen","mainTerminal","emergencyConsole","agentDispatch"].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.style.display = "none";
-  });
-
-  const overlay = document.getElementById("amnesticOverlay");
-  overlay.style.display = "flex";
-  overlay.innerHTML = "";
-
-  const lines = [
-    "[COGNITIVE SECURITY BREACH]",
-    "UNAUTHORIZED CLEARANCE ESCALATION DETECTED",
-    "MEMETIC TRACE CONFIRMED",
-    "",
-    "INITIATING CLASS-A AMNESTIC RESPONSE...",
-    "PURGING SHORT TERM MEMORY...",
-    "NEURAL INTERFERENCE DEPLOYED..."
-  ];
-
-  let i = 0;
-
-  function print(){
-    if(i >= lines.length){
-      setTimeout(()=>location.reload(),3000);
-      return;
-    }
-
-    const div = document.createElement("div");
-    div.innerText = lines[i];
-    overlay.appendChild(div);
-    beep(100+i*15,40,0.03);
-    i++;
-    setTimeout(print,650);
-  }
-
-  print();
-}
-
-/* =========================
-   AGENT DISPATCH
-========================= */
-function dispatchAgent(){
-  initAudio();
-  showScreen("agent");
-  const log = document.getElementById("agentLog");
-  log.innerText = "";
-
-  const intro = [
-    "[SECURITY ALERT]",
-    "UNAUTHORIZED LOGIN ATTEMPTS : 3",
-    "IDENTITY CONFIRMATION FAILED",
-    "CURRENT TERMINAL FLAGGED",
-    "",
-    "DISPATCHING FIELD AGENT..."
-  ];
-
+  const intro = ["[SECURITY ALERT]", "UNAUTHORIZED LOGIN ATTEMPTS : 3", "IDENTITY CONFIRMATION FAILED", "CURRENT TERMINAL FLAGGED", "", "DISPATCHING FIELD AGENT..."];
   let i = 0;
   function print(){
-    if(i >= intro.length){
-      startCountdown();
-      return;
-    }
+    if(i >= intro.length){ startCountdown(); return; }
     log.innerText += intro[i] + "\n";
-    beep(130+i*10,35);
-    i++;
+    beep(130+i*10,35); i++;
     setTimeout(print,500);
   }
-
   function startCountdown(){
     let time = 12;
     const timer = setInterval(()=>{
-      log.innerText = intro.join("\n") +
-      `\n\nAGENT ETA : 00:00:${String(time).padStart(2,"0")}\n[ DO NOT LEAVE YOUR POSITION ]`;
-      beep(180,20,0.02);
-      time--;
-      if(time < 0){
-        clearInterval(timer);
-        location.reload();
-      }
+      log.innerText = intro.join("\n") + `\n\nAGENT ETA : 00:00:${String(time).padStart(2,"0")}\n[ DO NOT LEAVE YOUR POSITION ]`;
+      beep(180,20,0.02); time--;
+      if(time < 0){ clearInterval(timer); location.reload(); }
     },1000);
   }
   print();
@@ -601,28 +370,13 @@ function startAmnesticProtocol(){
   showScreen("amnestic");
   const overlay = document.getElementById("amnesticOverlay");
   overlay.innerHTML = "";
-
-  const lines = [
-    "[COGNITIVE SECURITY BREACH]",
-    "UNAUTHORIZED CLEARANCE ESCALATION DETECTED",
-    "MEMETIC TRACE CONFIRMED",
-    "",
-    "INITIATING CLASS-A AMNESTIC RESPONSE...",
-    "PURGING SHORT TERM MEMORY...",
-    "NEURAL INTERFERENCE DEPLOYED..."
-  ];
-
+  const lines = ["[COGNITIVE SECURITY BREACH]", "UNAUTHORIZED CLEARANCE ESCALATION DETECTED", "MEMETIC TRACE CONFIRMED", "", "INITIATING CLASS-A AMNESTIC RESPONSE...", "PURGING SHORT TERM MEMORY...", "NEURAL INTERFERENCE DEPLOYED..."];
   let i = 0;
   function print(){
-    if(i >= lines.length){
-      setTimeout(()=>location.reload(),3000);
-      return;
-    }
+    if(i >= lines.length){ setTimeout(()=>location.reload(),3000); return; }
     const div = document.createElement("div");
-    div.innerText = lines[i];
-    overlay.appendChild(div);
-    beep(100+i*15,40,0.03);
-    i++;
+    div.innerText = lines[i]; overlay.appendChild(div);
+    beep(100+i*15,40,0.03); i++;
     setTimeout(print,650);
   }
   print();
@@ -630,63 +384,46 @@ function startAmnesticProtocol(){
 
 function verifyClearanceCode(){
   initAudio();
-
   const input = document.getElementById("authInput").value.trim();
   const correct = clearanceCodes[pendingClearanceLevel];
-
   if(input === correct){
     beep(900,80);
-
     document.getElementById("clearanceAuth").style.display = "none";
-    document.getElementById("result").innerText =
-      `CLEARANCE LEVEL ${pendingClearanceLevel} VERIFIED`;
-
-    clearanceAttempts = 0;
-    return;
+    document.getElementById("result").innerText = `CLEARANCE LEVEL ${pendingClearanceLevel} VERIFIED`;
+    clearanceAttempts = 0; return;
   }
-
   clearanceAttempts++;
   beep(120,250);
-
-  document.getElementById("authError").innerText =
-    `AUTH FAILED (${clearanceAttempts}/${MAX_CLEARANCE_ATTEMPTS})`;
-
+  document.getElementById("authError").innerText = `AUTH FAILED (${clearanceAttempts}/${MAX_CLEARANCE_ATTEMPTS})`;
   document.getElementById("authInput").value = "";
-
   document.getElementById("clearance").value = "1";
-
   if(clearanceAttempts >= MAX_CLEARANCE_ATTEMPTS){
     document.getElementById("clearanceAuth").style.display = "none";
     startAmnesticProtocol();
   }
 }
 
-/* 関数名を getStatusClass に統一する場合 */
+/* =========================
+   STATUS LOGIC
+========================= */
 function getStatusClass(status) {
   switch(status) {
-    case "ACTIVE":    // 職員の正常状態
-    case "CONTAINED": // オブジェクトの正常状態
+    case "ACTIVE":
+    case "CONTAINED":
       return "state-ACTIVE";
-
-    case "TERMINATED":  // 職員の排除状態
-    case "NEUTRALIZED": // オブジェクトの無力化状態
+    case "TERMINATED":
+    case "NEUTRALIZED":
       return "state-TERMINATED";
-
-    case "MISSING": // 共通：行方不明・ロスト
+    case "MISSING":
       return "state-MISSING";
-
     default:
       return "";
   }
 }
 
 function setState(id, newState){
-  const target =
-    database.personnel.find(x => x.id === id) ||
-    database.objects.find(x => x.id === id);
-
+  const target = database.personnel.find(x => x.id === id) || database.objects.find(x => x.id === id);
   if(!target) return;
-
   target.status = newState;
   loadDataList();
 }
