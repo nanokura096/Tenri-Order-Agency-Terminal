@@ -16,16 +16,20 @@ const database = {
     },
   ],
   objects: [
-    { 
-      id: `OBJ-001`, 
-      category: `object`, 
-      name: `天理楔`, 
-      status: `CONTAINED`, 
-      clearance: `3`, 
-      description: `突き刺した対象の結果を生まない。
-天逆鉾のような形をしている。` 
-    }
-  ]
+  {
+    id: `OBJ-002`,
+    category: `object`,
+    name: `不確定な砂時計`,
+    description: `枠組みは未知の黒い金属製。中の砂は銀色に発光している。`,
+    ability: `反転させた際、周囲の「直近10秒間の出来事」をランダムに再抽選する。`,
+    // ここに収容方法を追加
+    procedure: `常に真空状態のコンテナ内に固定し、音波を遮断すること。
+活性化の兆候が見られた場合、直ちにサイト-226を封鎖せよ。`,
+    clearance: `2`,
+    status: `CONTAINED`
+  },
+],
+  
 };
 
 /* =========================
@@ -233,26 +237,26 @@ function showTab(tab) {
 
   switch (tab) {
     case `personnel`:
-      // 基本情報の表示
       txt = `NAME: ${currentFile.name}<br>
              STATUS: <span class="status ${sClass}">${currentFile.status}</span>`;
       break;
 
     case `ability`:
-      // 【異常能力】タブ：abilityプロパティを優先的に表示
       const abilityInfo = currentFile.ability || `特筆すべき異常能力は確認されていません。`;
       txt = `【特異能力 / 異常性】<br>${abilityInfo.replace(/\n/g, `<br>`)}`;
       break;
 
     case `artifact`:
-      // 【OBJECT】タブ：description（外見や概要）を表示
-      // 以前はここでもabilityを参照していたため、内容が被っていました
+      // OBJECTタブ：外見説明に加えて、収容方法（procedure）を表示するように拡張
       const descInfo = currentFile.description || currentFile.Description || `詳細な物理記述データなし。`;
-      txt = `【物品概要 / 外見説明】<br>${descInfo.replace(/\n/g, `<br>`)}`;
+      const procInfo = currentFile.procedure || `標準収容プロトコルを適用中。`;
+      
+      txt = `【物品概要 / 外見説明】<br>${descInfo.replace(/\n/g, `<br>`)}
+             <br><br>
+             【特別収容プロトコル】<br>${procInfo.replace(/\n/g, `<br>`)}`;
       break;
 
     case `record`:
-      // 【RECORD】タブ：過去の経緯や事故報告を表示
       const recordInfo = currentFile.record || `機密事項、または記録なし。`;
       txt = `【収容・事件記録】<br>${recordInfo.replace(/\n/g, `<br>`)}`;
       break;
