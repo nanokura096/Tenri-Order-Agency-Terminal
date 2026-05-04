@@ -33,7 +33,9 @@ const clearanceCodes = { "2": "late", "3": "true", "4": "fake", "5": "null" };
    SCREEN CONTROL
 ========================= */
 function showScreen(mode){
+  console.log("Switching to screen:", mode); // デバッグ用
   const screens = ['startupScreen','loginScreen','bootScreen','mainTerminal','emergencyConsole','agentDispatch','amnesticOverlay','clearanceAuth'];
+  
   screens.forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = 'none';
@@ -48,7 +50,9 @@ function showScreen(mode){
   const targetId = targetMap[mode];
   const targetEl = document.getElementById(targetId);
   if(targetEl) {
-    targetEl.style.display = (mode === 'startup' || mode === 'login' || mode === 'emergency' || mode === 'auth') ? 'flex' : 'block';
+    targetEl.style.display = (['startup', 'login', 'emergency', 'auth'].includes(mode)) ? 'flex' : 'block';
+  } else {
+    console.warn("Element not found:", targetId); // IDが見つからない場合の警告
   }
 }
 
@@ -71,24 +75,29 @@ function beep(freq,dur,vol=0.03){
    STARTUP & INITIALIZE
 ========================= */
 document.addEventListener('DOMContentLoaded',()=>{
+  console.log("System Initializing...");
   showScreen('startup');
-  const text = document.querySelector('.startupText');
+
+  // アニメーション対象を探す（IDでもClassでもOKにする）
+  const text = document.querySelector('.startupText') || document.getElementById('startupText');
   const dots = ['','.','..','...'];
   let dotIdx = 0;
 
-  // アニメーション
   const loadingInterval = setInterval(()=>{
-    if(text) text.innerHTML = "TENRI NETWORK<br><br>LOADING" + dots[dotIdx];
-    dotIdx = (dotIdx + 1) % dots.length;
+    if(text) {
+      text.innerHTML = "TENRI NETWORK<br><br>LOADING" + dots[dotIdx];
+      dotIdx = (dotIdx + 1) % dots.length;
+    }
   }, 400);
 
-  // ログイン画面へ遷移
+  // 3秒後にログイン画面へ（強制）
   setTimeout(()=>{
+    console.log("Startup complete. Transitioning to login...");
     clearInterval(loadingInterval);
     showScreen('login');
   }, 3000);
 
-  // イベントリスナー登録
+  // イベント登録
   document.getElementById('loginBtn')?.addEventListener('click', login);
   document.getElementById('searchBtn')?.addEventListener('click', searchFile);
   document.getElementById('emergencyBtn')?.addEventListener('click', () => showScreen('emergency'));
@@ -108,8 +117,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 ========================= */
 function login(){
   initAudio();
-  const u = document.getElementById('username').value.trim();
-  const p = document.getElementById('password').value.trim();
+  const u = document.getElementById('username')?.value.trim();
+  const p = document.getElementById('password')?.value.trim();
   const err = document.getElementById('loginError');
 
   if(u === 'admin' && p === '226227'){
@@ -133,7 +142,7 @@ function login(){
 ========================= */
 function startBoot(){
   const boot = document.getElementById('bootScreen');
-  if(!boot) return;
+  if(!boot) { finishBoot(); return; }
   boot.innerHTML = '';
   const lines = ['CORE INITIALIZED', 'LOADING MODULES...', 'SYNCING DATABASE...', 'ACCESS GRANTED'];
   let i = 0;
@@ -164,9 +173,11 @@ function updateClock(){
    SEARCH & TABS
 ========================= */
 function searchFile(){
-  const id = document.getElementById('staffId').value.trim();
-  const cl = parseInt(document.getElementById('clearance').value);
+  const inputEl = document.getElementById('staffId');
+  const id = inputEl?.value.trim();
+  const cl = parseInt(document.getElementById('clearance')?.value || "1");
   const r = document.getElementById('result');
+  
   if(!id) return;
 
   const found = database.personnel.find(x => x.id === id) || database.objects.find(x => x.id === id);
@@ -206,9 +217,9 @@ function showTab(tab){
     case 'personnel':
       txt = `NAME: ${currentFile.name}<br>STATUS: <span class="status ${sClass}">${currentFile.status}</span>`;
       break;
-    case 'ability': txt = currentFile.ability || 'NO DATA'; break;
-    case 'artifact': txt = currentFile.description || 'NO DATA'; break;
-    case 'record': txt = currentFile.record || 'NO DATA'; break;
+    case 'ability': txt = (currentFile.ability || currentFile.description || 'NO DATA').replace(/\n/g, '<br>'); break;
+    case 'artifact': txt = (currentFile.description || 'NO DATA').replace(/\n/g, '<br>'); break;
+    case 'record': txt = (currentFile.record || 'NO DATA').replace(/\n/g, '<br>'); break;
   }
   r.innerHTML = txt;
   beep(800, 20);
@@ -222,7 +233,6 @@ function toggleDataPanel(){
   if(panel) panel.classList.toggle('open');
 }
 
-// 修正点：HTMLのonclickから呼ばれるグローバル関数
 window.setCategory = function(cat){
   currentCategory = cat;
   loadDataList();
@@ -246,7 +256,8 @@ function loadDataList(){
       <div style="font-weight:bold;">${f.name}</div>
     `;
     div.onclick = () => {
-      document.getElementById('staffId').value = f.id;
+      const input = document.getElementById('staffId');
+      if(input) input.value = f.id;
       searchFile();
       toggleDataPanel();
     };
@@ -258,7 +269,7 @@ function loadDataList(){
    CLEARANCE AUTH
 ========================= */
 function requestClearanceAuth(){
-  const level = document.getElementById('clearance').value;
+  const level = document.getElementById('clearance')?.value;
   if(level === '0' || level === '1') return;
   pendingClearanceLevel = level;
   showScreen('auth');
@@ -267,7 +278,7 @@ function requestClearanceAuth(){
 }
 
 function verifyClearanceCode(){
-  const input = document.getElementById('authInput').value.trim();
+  const input = document.getElementById('authInput')?.value.trim();
   if(input === clearanceCodes[pendingClearanceLevel]){
     beep(1000, 100);
     showScreen('main');
@@ -295,7 +306,7 @@ function getStatusClass(s){
 function dispatchAgent(){
   showScreen('agent');
   const log = document.getElementById('agentLog');
-  if(!log) return;
+  if(!log) { setTimeout(() => location.reload(), 3000); return; }
   log.innerText = 'DISPATCHING FIELD AGENT...';
   setTimeout(() => location.reload(), 5000);
 }
