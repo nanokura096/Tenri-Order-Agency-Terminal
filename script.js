@@ -50,7 +50,7 @@ const database = {
       name: "天理楔",
       description: "異常武装オブジェクト。",
       clearance: "3"
-    }
+    },
   ]
 };
 
