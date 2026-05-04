@@ -173,14 +173,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   const text = document.querySelector('.startupText');
   const dots = ['','.','..','...'];
   let i = 0;
-  const loading = setInterval(()=>{
-    if(text) text.innerHTML = `TENRI NETWORK<br><br>LOADING${dots[i]}`;
+ const loading = setInterval(()=>{
+    // 複雑なことはせず、ただの文字にする
+    if(text) text.innerHTML = "TENRI NETWORK<br><br>LOADING...";
+    
+    // iの計算は残しておかないとエラーになる場合があるのでそのまま
     i = (i+1)%dots.length;
   },400);
-  setTimeout(()=>{
-    clearInterval(loading);
-    showScreen('login');
-  },5000);
   document.getElementById('loginBtn')?.addEventListener('click',login);
   document.getElementById('searchBtn')?.addEventListener('click',searchFile);
   document.getElementById('emergencyBtn')?.addEventListener('click',startAltReality);
