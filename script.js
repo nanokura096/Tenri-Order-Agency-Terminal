@@ -19,6 +19,7 @@ const files = [
  note:"精神状態は安定しているが、いつも問題を持ってくる。"
   }
 
+  ]
 
 let currentFile = null;
 let loginAttempts = 0;
@@ -169,12 +170,13 @@ function finishBoot(){
   setupTabs();
 }
 
-
+function updateClock(){
   const status = document.getElementById("statusbar");
   if(!status) return;
 
   const now = new Date();
-  status.innerText = "SYSTEM ONLINE / USER: admin / " + now.toLocaleString();
+  status.innerText =
+    "SYSTEM ONLINE / USER: admin / " + now.toLocaleString();
 }
 
 
