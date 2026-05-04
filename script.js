@@ -39,18 +39,35 @@ let audioCtx = null;
 let currentCategory = "personnel";
 
 /* =========================
+   SCREEN CONTROLLER
+========================= */
+function showScreen(mode) {
+  const startup = document.getElementById("startupScreen");
+  const login = document.getElementById("loginScreen");
+  const boot = document.getElementById("bootScreen");
+  const main = document.getElementById("mainTerminal");
+
+  [startup, login, boot, main].forEach(el => {
+    if (el) el.style.display = "none";
+  });
+
+  if (mode === "startup") startup.style.display = "flex";
+  if (mode === "login") login.style.display = "flex";
+  if (mode === "boot") boot.style.display = "block";
+  if (mode === "main") main.style.display = "block";
+}
+
+/* =========================
    AUDIO
 ========================= */
 function initAudio() {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
-  if (audioCtx.state === "suspended") audioCtx.resume();
 }
 
 function beep(freq, dur, vol = 0.05) {
   if (!audioCtx) return;
-
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
@@ -71,27 +88,7 @@ function beep(freq, dur, vol = 0.05) {
 }
 
 /* =========================
-   SCREEN CONTROLLER（重要）
-========================= */
-function showScreen(mode) {
-  const startup = document.getElementById("startupScreen");
-  const login = document.getElementById("loginScreen");
-  const boot = document.getElementById("bootScreen");
-  const main = document.getElementById("mainTerminal");
-
-  if (startup) startup.style.display = "none";
-  if (login) login.style.display = "none";
-  if (boot) boot.style.display = "none";
-  if (main) main.style.display = "none";
-
-  if (mode === "startup") startup.style.display = "flex";
-  if (mode === "login") login.style.display = "flex";
-  if (mode === "boot") boot.style.display = "block";
-  if (mode === "main") main.style.display = "block";
-}
-
-/* =========================
-   STARTUP SEQUENCE
+   STARTUP
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   showScreen("startup");
@@ -205,6 +202,7 @@ function startBoot() {
 function finishBoot() {
   updateClock();
   setInterval(updateClock, 1000);
+
   loadStaffList();
   setupTabs();
   setupToggle();
@@ -254,6 +252,7 @@ function searchFile() {
   }
 
   currentFile = found;
+
   document.getElementById("tabs").style.display = "flex";
   showTab("personnel");
 }
@@ -271,6 +270,7 @@ function showTab(tab) {
   if (!currentFile) return;
 
   const r = document.getElementById("result");
+
   let txt = "";
 
   switch (tab) {
@@ -311,7 +311,6 @@ function loadStaffList() {
   data.forEach(f => {
     const div = document.createElement("div");
     div.className = "staffEntry";
-
     div.innerHTML = `
       <div>ID: ${f.id}</div>
       <div>NAME: ${f.name}</div>
@@ -379,6 +378,7 @@ function startAltReality() {
     text.appendChild(div);
 
     beep(200 + i * 40, 50, 0.05);
+
     i++;
     setTimeout(type, 500);
   }
