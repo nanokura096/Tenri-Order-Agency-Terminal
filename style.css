@@ -3,12 +3,10 @@
   --bg:#000;
   --red:#ff3131;
 }
-
 *{
   box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
 }
-
 body{
   margin:0;
   padding:10px;
@@ -18,7 +16,6 @@ body{
   overflow-x:hidden;
   font-size:16px;
 }
-
 /* =========================
    SCREEN BASE
 ========================= */
@@ -27,11 +24,12 @@ body{
 #bootScreen,
 #mainTerminal,
 #emergencyConsole,
-#agentDispatch{
+#agentDispatch,
+#amnesticOverlay,
+#clearanceAuth{
   position:fixed;
   inset:0;
 }
-
 /* =========================
    STARTUP
 ========================= */
@@ -47,7 +45,6 @@ body{
   font-size:20px;
   letter-spacing:2px;
 }
-
 /* =========================
    LOGIN
 ========================= */
@@ -67,7 +64,6 @@ body{
   margin-top:8px;
   color:var(--red);
 }
-
 /* =========================
    BOOT
 ========================= */
@@ -83,7 +79,6 @@ body{
   padding-left:8px;
   margin-bottom:10px;
 }
-
 /* =========================
    MAIN
 ========================= */
@@ -103,7 +98,6 @@ body{
   font-size:12px;
   margin-bottom:12px;
 }
-
 input,select,button{
   width:100%;
   background:#000;
@@ -117,7 +111,6 @@ input,select,button{
 button:active{
   transform:scale(.98);
 }
-
 #tabs{
   display:none;
   flex-wrap:wrap;
@@ -127,7 +120,6 @@ button:active{
 #tabs button{
   flex:1 1 45%;
 }
-
 #result{
   border:1px solid var(--green);
   background:rgba(0,30,0,.4);
@@ -138,7 +130,6 @@ button:active{
   white-space:pre-wrap;
   font-size:14px;
 }
-
 /* =========================
    DATA PANEL
 ========================= */
@@ -179,7 +170,6 @@ button:active{
 .staffEntry:active{
   background:rgba(0,255,65,.15);
 }
-
 /* =========================
    EMERGENCY
 ========================= */
@@ -205,10 +195,6 @@ button:active{
   gap:8px;
   margin-top:10px;
 }
-#consoleButtons button{
-  border-color:var(--green);
-}
-
 /* =========================
    AGENT DISPATCH
 ========================= */
@@ -230,7 +216,48 @@ button:active{
   line-height:1.6;
   font-size:14px;
 }
-
+/* =========================
+   AMNESTIC OVERLAY
+========================= */
+#amnesticOverlay{
+  display:none;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  background:#000;
+  color:var(--red);
+  z-index:1000001;
+  text-align:center;
+  padding:20px;
+  line-height:1.7;
+}
+/* =========================
+   CLEARANCE AUTH
+========================= */
+#clearanceAuth{
+  display:none;
+  justify-content:center;
+  align-items:center;
+  background:rgba(0,0,0,.95);
+  z-index:1000002;
+}
+#authBox{
+  width:min(380px,92vw);
+  border:1px solid var(--green);
+  padding:20px;
+  text-align:center;
+}
+#authTitle{
+  margin-bottom:12px;
+}
+#authLevelText{
+  margin-bottom:12px;
+  color:var(--green);
+}
+#authError{
+  margin-top:8px;
+  color:var(--red);
+}
 /* =========================
    BUTTON COLORS
 ========================= */
@@ -238,7 +265,6 @@ button:active{
   border-color:var(--red);
   color:var(--red);
 }
-
 /* =========================
    EFFECT
 ========================= */
@@ -248,7 +274,6 @@ button:active{
 @keyframes blink{
   50%{opacity:0;}
 }
-
 /* =========================
    SMALL MOBILE
 ========================= */

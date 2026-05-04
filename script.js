@@ -40,14 +40,23 @@ let currentFile = null;
 let currentCategory = "personnel";
 let loginAttempts = 0;
 const MAX_ATTEMPTS = 3;
+let clearanceAttempts = 0;
+const MAX_CLEARANCE_ATTEMPTS = 3;
 let audioCtx = null;
 let clockLoop = null;
+
+const clearanceCodes = {
+  "2": "失敗",
+  "3": "無縁",
+  "4": "崩壊",
+  "5": "偽物"
+};
 
 /* =========================
    SCREEN CONTROL
 ========================= */
 function showScreen(mode){
-  ["startupScreen","loginScreen","bootScreen","mainTerminal","emergencyConsole","agentDispatch"].forEach(id=>{
+  ["startupScreen","loginScreen","bootScreen","mainTerminal","emergencyConsole","agentDispatch","amnesticOverlay"].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.style.display = "none";
   });
@@ -58,6 +67,7 @@ function showScreen(mode){
   if(mode==="main") document.getElementById("mainTerminal").style.display="block";
   if(mode==="emergency") document.getElementById("emergencyConsole").style.display="flex";
   if(mode==="agent") document.getElementById("agentDispatch").style.display="flex";
+  if(mode==="amnestic") document.getElementById("amnesticOverlay").style.display="flex";
 }
 
 /* =========================
@@ -93,9 +103,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   let i = 0;
 
   const loading = setInterval(()=>{
-    if(text){
-      text.innerHTML = `TENRI NETWORK<br><br>LOADING${dots[i]}`;
-    }
+    if(text) text.innerHTML = `TENRI NETWORK<br><br>LOADING${dots[i]}`;
     i = (i+1)%dots.length;
   },400);
 
@@ -108,6 +116,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   document.getElementById("searchBtn")?.addEventListener("click",searchFile);
   document.getElementById("emergencyBtn")?.addEventListener("click",startAltReality);
   document.getElementById("dataToggleBtn")?.addEventListener("click",toggleDataPanel);
+  document.getElementById("clearance")?.addEventListener("change",requestClearanceAuth);
 
   setupTabs();
 });
@@ -122,19 +131,15 @@ function login(){
   const err = document.getElementById("loginError");
 
   if(u==="admin" && p==="226227"){
-    document.querySelector(".loginBox").innerHTML =
-    `<div class="blink">AUTHENTICATING...</div>`;
+    document.querySelector(".loginBox").innerHTML = `<div class="blink">AUTHENTICATING...</div>`;
     beep(900,100);
-
     setTimeout(()=>{
       showScreen("boot");
       startBoot();
     },1000);
-
   }else{
     loginAttempts++;
     beep(150,200);
-
     if(loginAttempts >= MAX_ATTEMPTS){
       dispatchAgent();
     }else{
@@ -164,32 +169,26 @@ function startBoot(){
   ];
 
   let i = 0;
-
   function addLine(){
     if(i >= lines.length){
       setTimeout(finishBoot,700);
       return;
     }
-
     const div = document.createElement("div");
     div.innerText = lines[i];
     boot.appendChild(div);
     beep(260+i*25,20);
-
     i++;
     setTimeout(addLine,450);
   }
-
   addLine();
 }
 
 function finishBoot(){
   showScreen("main");
   updateClock();
-
   if(clockLoop) clearInterval(clockLoop);
   clockLoop = setInterval(updateClock,1000);
-
   loadDataList();
 }
 
@@ -206,7 +205,6 @@ function updateClock(){
 ========================= */
 function searchFile(){
   initAudio();
-
   const id = document.getElementById("staffId").value.trim();
   const cl = parseInt(document.getElementById("clearance").value);
   const r = document.getElementById("result");
@@ -248,7 +246,6 @@ function setupTabs(){
 
 function showTab(tab){
   if(!currentFile) return;
-
   const r = document.getElementById("result");
   let txt = "";
 
@@ -282,10 +279,7 @@ STATUS: ${currentFile.status || "UNKNOWN"}`;
 function toggleDataPanel(){
   const panel = document.getElementById("dataPanel");
   panel.classList.toggle("open");
-
-  if(panel.classList.contains("open")){
-    loadDataList();
-  }
+  if(panel.classList.contains("open")) loadDataList();
 }
 
 function setCategory(cat){
@@ -322,13 +316,11 @@ function loadDataList(){
       <div>ID : ${f.id}</div>
       <div>NAME : ${f.name}</div>
     `;
-
     div.onclick = ()=>{
       document.getElementById("staffId").value = f.id;
       searchFile();
       document.getElementById("dataPanel").classList.remove("open");
     };
-
     list.appendChild(div);
   });
 }
@@ -367,7 +359,6 @@ function startAltReality(){
     log.innerText += lines[i] + "\n";
     log.scrollTop = log.scrollHeight;
     beep(220+i*20,20);
-
     i++;
     setTimeout(printLine,450);
   }
@@ -443,7 +434,7 @@ function dispatchAgent(){
     log.appendChild(etaLine);
     log.appendChild(warnLine);
 
-    warnLine.innerText = "[ DO NOT LEAVE YOUR POSITION ]";
+    warnLine.innerText = "[ YOU CAN NOT LEAVE YOUR POSITION ]";
 
     const timer = setInterval(()=>{
       etaLine.innerText = `AGENT ETA : 00:00:${String(time).padStart(2,"0")}`;
@@ -455,11 +446,91 @@ function dispatchAgent(){
         etaLine.innerText = "AGENT ETA : 00:00:00";
         warnLine.innerText = "[ CONNECTION TERMINATED ]";
         beep(70,300,0.05);
-
         setTimeout(()=>location.reload(),1500);
       }
     },1000);
   }
 
   printIntro();
+}
+
+/* =========================
+   CLEARANCE AUTH
+========================= */
+function requestClearanceAuth(){
+  initAudio();
+
+  const select = document.getElementById("clearance");
+  const targetLevel = select.value;
+
+  if(targetLevel === "0" || targetLevel === "1"){
+    pendingClearanceLevel = "1";
+    return;
+  }
+
+  const code = prompt(`LEVEL ${targetLevel} AUTHENTICATION REQUIRED\nENTER PASSPHRASE:`);
+
+  if(code && code.trim() === clearanceCodes[targetLevel]){
+    beep(900,80);
+    pendingClearanceLevel = targetLevel;
+    document.getElementById("result").innerText =
+      `CLEARANCE LEVEL ${targetLevel} VERIFIED`;
+    return;
+  }
+
+  clearanceAttempts++;
+  beep(120,250);
+  select.value = "1";
+  pendingClearanceLevel = "1";
+
+  if(clearanceAttempts >= MAX_CLEARANCE_ATTEMPTS){
+    startAmnesticProtocol();
+  }else{
+    document.getElementById("result").innerText =
+      `CLEARANCE AUTH FAILED (${clearanceAttempts}/${MAX_CLEARANCE_ATTEMPTS})`;
+  }
+}
+
+/* =========================
+   AMNESTIC PROTOCOL
+========================= */
+function startAmnesticProtocol(){
+  initAudio();
+
+  ["startupScreen","loginScreen","bootScreen","mainTerminal","emergencyConsole","agentDispatch"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.style.display = "none";
+  });
+
+  const overlay = document.getElementById("amnesticOverlay");
+  overlay.style.display = "flex";
+  overlay.innerHTML = "";
+
+  const lines = [
+    "[COGNITIVE SECURITY BREACH]",
+    "UNAUTHORIZED CLEARANCE ESCALATION DETECTED",
+    "MEMETIC TRACE CONFIRMED",
+    "",
+    "INITIATING CLASS-A AMNESTIC RESPONSE...",
+    "PURGING SHORT TERM MEMORY...",
+    "NEURAL INTERFERENCE DEPLOYED..."
+  ];
+
+  let i = 0;
+
+  function print(){
+    if(i >= lines.length){
+      setTimeout(()=>location.reload(),3000);
+      return;
+    }
+
+    const div = document.createElement("div");
+    div.innerText = lines[i];
+    overlay.appendChild(div);
+    beep(100+i*15,40,0.03);
+    i++;
+    setTimeout(print,650);
+  }
+
+  print();
 }

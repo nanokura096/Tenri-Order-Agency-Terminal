@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tenri Order Agency TOA-226</title>
   <link rel="stylesheet" href="style.css">
-</div>
 </head>
 <body>
 
+  <!-- STARTUP -->
   <div id="startupScreen">
     <div class="startupText">
       TENRI NETWORK<br><br>
@@ -30,14 +30,9 @@
   <div id="bootScreen" style="display:none;"></div>
 
   <!-- AMNESTIC -->
-  <div id="amnesticOverlay" style="display:none;">
-    <h1>[CRITICAL ERROR]</h1>
-    <p>UNAUTHORIZED ACCESS DETECTED.</p>
-    <div class="blink warning">⚠</div>
-    <p>INITIATING CLASS-A AMNESTICS...</p>
-  </div>
+  <div id="amnesticOverlay" style="display:none;"></div>
 
-  <!-- MAIN -->
+  <!-- MAIN TERMINAL -->
   <div id="mainTerminal" style="display:none;">
     <div id="logo">Tenri Order Agency Terminal TOA-226</div>
     <div id="statusbar"></div>
@@ -47,9 +42,9 @@
       <input type="text" id="staffId" placeholder="Enter ID">
       <select id="clearance">
         <option value="0">LV 0</option>
-        <option value="1">LV 1</option>
+        <option value="1" selected>LV 1</option>
         <option value="2">LV 2</option>
-        <option value="3" selected>LV 3</option>
+        <option value="3">LV 3</option>
         <option value="4">LV 4</option>
         <option value="5">LV 5</option>
       </select>
@@ -70,12 +65,10 @@
     <!-- DATA PANEL -->
     <div id="dataPanel">
       <button id="dataToggleBtn">DATABASE LIST ▼</button>
-
       <div id="categoryTabs">
         <button onclick="setCategory('personnel')">PERSONNEL</button>
         <button onclick="setCategory('objects')">OBJECT</button>
       </div>
-
       <div id="dataList"></div>
     </div>
 
@@ -87,10 +80,20 @@
     </div>
   </div>
 
- 
   <!-- AGENT DISPATCH -->
   <div id="agentDispatch" style="display:none;">
     <div id="agentLog"></div>
+  </div>
+
+  <!-- CLEARANCE AUTH -->
+  <div id="clearanceAuth" style="display:none;">
+    <div id="authBox">
+      <div id="authTitle">[ CLEARANCE AUTHORIZATION REQUIRED ]</div>
+      <div id="authLevelText">LEVEL ? ACCESS REQUEST</div>
+      <input type="password" id="authInput" placeholder="ENTER PASSPHRASE" autocomplete="off">
+      <button id="authSubmitBtn">AUTHORIZE</button>
+      <div id="authError"></div>
+    </div>
   </div>
 
   <!-- EMERGENCY CONSOLE -->
