@@ -50,6 +50,7 @@ function initAudio() {
 
 function beep(freq, dur, vol = 0.05) {
   if (!audioCtx) return;
+
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
@@ -61,13 +62,63 @@ function beep(freq, dur, vol = 0.05) {
 
   gain.gain.setValueAtTime(vol, audioCtx.currentTime);
   gain.gain.exponentialRampToValueAtTime(
-    0.001,
+    0.0001,
     audioCtx.currentTime + dur / 1000
   );
 
   osc.start();
   osc.stop(audioCtx.currentTime + dur / 1000);
 }
+
+/* =========================
+   SCREEN CONTROLLER（重要）
+========================= */
+function showScreen(mode) {
+  const startup = document.getElementById("startupScreen");
+  const login = document.getElementById("loginScreen");
+  const boot = document.getElementById("bootScreen");
+  const main = document.getElementById("mainTerminal");
+
+  if (startup) startup.style.display = "none";
+  if (login) login.style.display = "none";
+  if (boot) boot.style.display = "none";
+  if (main) main.style.display = "none";
+
+  if (mode === "startup") startup.style.display = "flex";
+  if (mode === "login") login.style.display = "flex";
+  if (mode === "boot") boot.style.display = "block";
+  if (mode === "main") main.style.display = "block";
+}
+
+/* =========================
+   STARTUP SEQUENCE
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  showScreen("startup");
+
+  const text = document.querySelector(".startupText");
+  const dots = ["", ".", "..", "..."];
+  let i = 0;
+
+  const interval = setInterval(() => {
+    if (text) {
+      text.innerHTML = `TENRI NETWORK<br><br>LOADING${dots[i]}`;
+    }
+    i = (i + 1) % dots.length;
+  }, 400);
+
+  setTimeout(() => {
+    clearInterval(interval);
+    showScreen("login");
+  }, 5000);
+
+  document.getElementById("loginBtn")?.addEventListener("click", login);
+  document.getElementById("searchBtn")?.addEventListener("click", searchFile);
+  document.getElementById("emergencyBtn")?.addEventListener("click", startAltReality);
+
+  setupTabs();
+  setupToggle();
+});
 
 /* =========================
    LOGIN
@@ -88,7 +139,7 @@ function login() {
     beep(900, 120, 0.08);
 
     setTimeout(() => {
-      document.getElementById("loginScreen").style.display = "none";
+      showScreen("boot");
       startBoot();
     }, 1000);
 
@@ -98,21 +149,17 @@ function login() {
 
     if (loginAttempts >= MAX_ATTEMPTS) {
       location.reload();
-    } else {
-      if (err) err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
+    } else if (err) {
+      err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
     }
   }
 }
 
 /* =========================
-   BOOT SEQUENCE
+   BOOT
 ========================= */
 function startBoot() {
   const boot = document.getElementById("bootScreen");
-  const main = document.getElementById("mainTerminal");
-
-  boot.style.display = "block";
-  main.style.display = "none";
   boot.innerHTML = "";
 
   const lines = [
@@ -132,7 +179,10 @@ function startBoot() {
 
   function add() {
     if (i >= lines.length) {
-      setTimeout(finishBoot, 800);
+      setTimeout(() => {
+        showScreen("main");
+        finishBoot();
+      }, 800);
       return;
     }
 
@@ -143,19 +193,18 @@ function startBoot() {
     beep(300 + i * 40, 40, 0.03);
 
     i++;
-    setTimeout(add, 450);
+    setTimeout(add, 500);
   }
 
   add();
 }
 
+/* =========================
+   FINISH BOOT
+========================= */
 function finishBoot() {
-  document.getElementById("bootScreen").style.display = "none";
-  document.getElementById("mainTerminal").style.display = "block";
-
   updateClock();
   setInterval(updateClock, 1000);
-
   loadStaffList();
   setupTabs();
   setupToggle();
@@ -230,12 +279,15 @@ function showTab(tab) {
 CATEGORY: ${currentFile.category}
 STATUS: ${currentFile.status || "UNKNOWN"}`;
       break;
+
     case "ability":
       txt = currentFile.ability || "NO DATA";
       break;
+
     case "artifact":
       txt = currentFile.Description || currentFile.description || "NO DATA";
       break;
+
     case "record":
       txt = currentFile.record || "NO DATA";
       break;
@@ -279,10 +331,6 @@ function loadStaffList() {
 ========================= */
 function setCategory(cat) {
   currentCategory = cat;
-
-  const panel = document.getElementById("staffPanel");
-  if (panel) panel.classList.add("open");
-
   loadStaffList();
 }
 
@@ -331,20 +379,18 @@ function startAltReality() {
     text.appendChild(div);
 
     beep(200 + i * 40, 50, 0.05);
-
     i++;
     setTimeout(type, 500);
   }
 
   function showChoices() {
     const yes = document.createElement("button");
-    yes.innerText = "Yes";
-
     const no = document.createElement("button");
+
+    yes.innerText = "Yes";
     no.innerText = "No";
 
     yes.onclick = () => location.reload();
-
     no.onclick = () => {
       choices.innerHTML = "Yes / Yes";
       setTimeout(() => location.reload(), 1200);
@@ -356,15 +402,3 @@ function startAltReality() {
 
   type();
 }
-
-/* =========================
-   INIT
-========================= */
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("loginBtn")?.addEventListener("click", login);
-  document.getElementById("searchBtn")?.addEventListener("click", searchFile);
-  document.getElementById("emergencyBtn")?.addEventListener("click", () => location.reload());
-
-  setupTabs();
-  setupToggle();
-});
