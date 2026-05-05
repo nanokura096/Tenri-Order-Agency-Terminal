@@ -82,6 +82,7 @@ function playSound(name) {
 }
 
 let previousScreen = null;
+let loginAttempts = 0; // 失敗回数を記録する変数
 const wait = (ms) => new Promise(res => setTimeout(res, ms));
 
 /* =========================
@@ -130,52 +131,44 @@ async function typeLog(text, isDot = false) {
 
 
 async function startSequence() {
-  const consoleEl = document.getElementById('loginConsole');
-  if (!consoleEl) return;
-  consoleEl.innerHTML = '';
-
   await typeLog("Welcome to Tenri Network OS");
   await typeLog("Loading Kernel", true);
-  await wait(300);
   await typeLog("<br>Enter ID");
-
+  
   const idInput = document.createElement('input');
-  idInput.type = "text";
   idInput.className = "terminal-input";
-  consoleEl.appendChild(idInput);
-  setTimeout(() => idInput.focus(), 50);
+  document.getElementById('loginConsole').appendChild(idInput);
+  idInput.focus();
 
-  idInput.addEventListener('input', () => playSound('click'));
   idInput.addEventListener('keydown', async (e) => {
     if (e.key === 'Enter') {
       const val = idInput.value.trim();
-      if (!val) return;
       idInput.disabled = true;
-      if (val === "admin") {
-        await typeLog("<br>ID Verified.");
-        await wait(300);
+
+      if (val.length > 0) {
+        // 入力したIDを緑色で表示して「Verified（検証済み）」とする演出
+        await typeLog(`<br>ID: <span style="color:var(--green)">${val}</span> Verified.`);
+        // パスワード入力へ進む
         promptPassword();
       } else {
-        playSound('error');
-        await typeLog("<br><span style='color:var(--red)'>UNKNOWN ID. REBOOTING...</span>");
-        await wait(1500);
-        location.reload();
+        // 空欄だった場合だけやり直し
+        await typeLog("<br><span style='color:var(--red)'>ID REQUIRED.</span>");
+        await wait(600);
+        // 入力欄を出し直すために自分自身を呼ぶ
+        startSequence(); 
       }
     }
   });
 }
 
 async function promptPassword() {
-  const consoleEl = document.getElementById('loginConsole');
   await typeLog("<br>Enter PASSWORD");
-
   const passInput = document.createElement('input');
   passInput.type = "password";
   passInput.className = "terminal-input";
-  consoleEl.appendChild(passInput);
-  setTimeout(() => passInput.focus(), 50);
+  document.getElementById('loginConsole').appendChild(passInput);
+  passInput.focus();
 
-  passInput.addEventListener('input', () => playSound('click'));
   passInput.addEventListener('keydown', async (e) => {
     if (e.key === 'Enter') {
       const val = passInput.value.trim();
@@ -183,38 +176,33 @@ async function promptPassword() {
 
       if (val === "226227") {
         await typeLog("<br>Checking Credentials", true);
-        playSound('boot'); // ★ここに追加
+        if(typeof playSound === 'function') playSound('boot'); 
         await typeLog("<span style='color:var(--green);font-weight:bold;'>ACCESS GRANTED.</span>");
-        await typeLog("Welcome, Administrator.");
-        await wait(1000);
-
+        await wait(600);
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainTerminal').style.display = 'flex';
         initTerminal();
       } else {
-        loginAttempts++; // ミスをカウント
-        playSound('error');
+        // --- ここから失敗時の処理 ---
+        loginAttempts++; 
+        if(typeof playSound === 'function') playSound('error');
 
         if (loginAttempts >= 3) {
-          // ★ 3回ミス：記憶処理（アムネジア）演出
-          await typeLog("<br><span style='color:var(--red); font-weight:bold;'>[ CRITICAL ERROR ]</span>");
-          await typeLog("<span style='color:var(--red);'>UNAUTHORIZED ACCESS DETECTED.</span>");
-          await typeLog("<span style='color:var(--red);'>INITIATING AMNESTICS (LEVEL-A)</span>", true);
+          // 3回ミス：記憶処理演出
+          await typeLog("<br><span style='color:var(--red); font-weight:bold;'>[ SECURITY BREACH ]</span>");
+          await typeLog("<span style='color:var(--red);'>INITIATING AMNESTICS...</span>", true);
           
-          // 画面を真っ白にして「記憶を飛ばされた」感を出す
+          // 画面を真っ白にする演出
           document.body.style.backgroundColor = "white";
-          document.body.style.transition = "background-color 0.5s ease-in";
+          await wait(1500);
           
-          await wait(2000); 
-          
-          // 全てをリセットして最初に戻る
+          // ここで初めてリロード（すべてを忘却させる）
           location.reload(); 
         } else {
-          // 1〜2回目のミス
-          await typeLog(`<br><span style='color:var(--red)'>INVALID PASSWORD. (${loginAttempts}/3)</span>`);
-          await wait(1000);
-          // 再入力させるためにパスワード入力をやり直す
-          promptPassword(); 
+          // 1〜2回目：リロードせずに再挑戦
+          await typeLog(`<br><span style='color:var(--red)'>ACCESS DENIED. (${loginAttempts}/3)</span>`);
+          await wait(600);
+          promptPassword(); // ★自分をもう一度呼んで入力欄を出す
         }
       }
     }
