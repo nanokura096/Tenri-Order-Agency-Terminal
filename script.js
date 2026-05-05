@@ -68,12 +68,6 @@ const database = {
   ]
 };
 
-let previousScreen = null;
-const wait = (ms) => new Promise(res => setTimeout(res, ms));
-
-/* =========================
-   SOUND CONTROL
-========================= */
 const sfx = {
   boot: new Audio("boot.mp3"),
   click: new Audio("click.mp3"),
@@ -87,44 +81,40 @@ function playSound(name) {
   audio.play().catch(() => {});
 }
 
+let previousScreen = null;
+const wait = (ms) => new Promise(res => setTimeout(res, ms));
+
 /* =========================
    BOOT & LOGIN FLOW
 ========================= */
 async function bootSystem() {
-  // ブラウザの音声再生制限を解除するためのダミー再生
-  for (let key in sfx) {
-    sfx[key].play().then(() => {
-      sfx[key].pause();
-      sfx[key].currentTime = 0;
-    }).catch(() => {});
-  }
+  // ★ここを追加：全音声を一度「空再生」してブラウザの制限を解く
+  Object.values(sfx).forEach(a => {
+    a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
+  });
 
-  const bootScreen = document.getElementById('bootScreen');
-  if (bootScreen) bootScreen.style.display = 'none';
-  
-  const loginScreen = document.getElementById('loginScreen');
-  if (loginScreen) loginScreen.style.display = 'flex';
-
+  document.getElementById('bootScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
   await startSequence();
 }
 
 async function typeLog(text, isDot = false) {
   const consoleEl = document.getElementById('loginConsole');
   if (!consoleEl) return;
-
   const div = document.createElement('div');
   consoleEl.appendChild(div);
-
   const chars = text.match(/<[^>]+>|[^<]/g) || [];
-
   for (const char of chars) {
     div.innerHTML += char;
     consoleEl.scrollTop = consoleEl.scrollHeight;
-    if (!char.startsWith('<')) {
-      playSound('click');
-    }
-    await wait(20); // スピード重視の設定
+    
+    // ★ここを追加：タグ以外の文字が表示される瞬間に音を鳴らす
+    if (!char.startsWith('<')) playSound('click');
+    
+    await wait(15);
   }
+  // （以下、isDotの処理など続く）
+}
 
   if (isDot) {
     for (let i = 0; i < 3; i++) {
@@ -133,7 +123,7 @@ async function typeLog(text, isDot = false) {
       playSound('click');
     }
   }
-}
+
 
 async function startSequence() {
   const consoleEl = document.getElementById('loginConsole');
@@ -189,7 +179,7 @@ async function promptPassword() {
 
       if (val === "226227") {
         await typeLog("<br>Checking Credentials", true);
-        playSound('boot');
+        playSound('boot'); // ★ここに追加
         await typeLog("<span style='color:var(--green);font-weight:bold;'>ACCESS GRANTED.</span>");
         await typeLog("Welcome, Administrator.");
         await wait(1000);
