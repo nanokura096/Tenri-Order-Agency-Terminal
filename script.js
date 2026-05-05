@@ -406,8 +406,8 @@ async function confirmLogout() {
 window.addEventListener('DOMContentLoaded', () => {
   const bootBtn = document.getElementById('bootScreen');
   if (bootBtn) {
-    // ↓ ここに async を追加
-    bootBtn.addEventListener('click', async () => {
+    // ↓ ここに async を追加！
+    bootBtn.addEventListener('click', async () => { 
       await bootSystem(); 
     }, { once: true });
   }
