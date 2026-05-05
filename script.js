@@ -13,7 +13,7 @@ const database = {
       ability: '因報',
       status: 'ACTIVE',
       secret: true,
-      record: '機密：因果律崩壊リスク。対象は因果律へ直接干渉可能。'
+      secretRecord: '因果律干渉により収容理論無効。単独行動時は監視班を配置。'
     },
     {
       id: 'AP-838383',
@@ -24,8 +24,8 @@ const database = {
       rank: 'Analyst',
       ability: '情報分解',
       status: 'MISSING',
-      secret: false,
-      record: '最終確認：SITE-256下層区域。'
+      secret: true,
+      secretRecord: '失踪前にSITE-256機密層への不正アクセス履歴あり。'
     },
     {
       id: 'AP-424242',
@@ -36,8 +36,7 @@ const database = {
       rank: 'Guard',
       ability: '身体強化',
       status: 'ACTIVE',
-      secret: false,
-      record: '警備班所属。'
+      secret: false
     }
   ],
 
@@ -47,21 +46,25 @@ const database = {
       name: '黒箱',
       class: 'Keter',
       danger: 'HIGH',
-      detail: '内部時間の進行が停止している黒色立方体。接触禁止。'
+      detail: '内部時間停止立方体。',
+      secret: true,
+      secretRecord: '内部に生体反応を検出。開封命令は永久凍結。'
     },
     {
       id: 'OBJ-889100',
       name: '模倣鏡',
       class: 'Euclid',
       danger: 'MEDIUM',
-      detail: '映した対象と異なる表情を返す鏡。精神汚染報告あり。'
+      detail: '映した対象と異なる表情を返す鏡。精神汚染報告あり。',
+      secret: false
     },
     {
       id: 'OBJ-443210',
       name: '泣く人形',
       class: 'Safe',
       danger: 'LOW',
-      detail: '深夜2時に涙を流す磁器人形。'
+      detail: '深夜2時に涙を流す磁器人形。',
+      secret: false
     }
   ]
 };
@@ -69,7 +72,7 @@ const database = {
 const wait = (ms) => new Promise(res => setTimeout(res, ms));
 
 /* =========================
-   LOGIN LOG
+   LOGIN ANIMATION
 ========================= */
 async function typeLog(text, isDot=false){
   const consoleEl = document.getElementById('loginConsole');
@@ -109,8 +112,8 @@ async function startSequence(){
     if(e.key === 'Enter'){
       const val = idInput.value.trim();
       if(!val) return;
-      idInput.disabled = true;
 
+      idInput.disabled = true;
       await typeLog("<br>Checking with database", true);
 
       if(val === "admin"){
@@ -140,6 +143,8 @@ async function promptPassword(){
   passInput.addEventListener('keydown', async(e)=>{
     if(e.key === 'Enter'){
       const val = passInput.value.trim();
+      if(!val) return;
+
       passInput.disabled = true;
 
       if(val === "226227"){
@@ -155,7 +160,6 @@ async function promptPassword(){
         document.getElementById('mainTerminal').style.display = 'flex';
 
         initTerminal();
-
       }else{
         await typeLog("<br><span style='color:var(--red)'>INVALID PASSWORD. REBOOTING...</span>");
         await wait(2000);
@@ -173,7 +177,7 @@ function printOutput(html){
   output.innerHTML += `<div>${html}</div>`;
   setTimeout(()=>{
     output.scrollTop = output.scrollHeight;
-  },30);
+  },20);
 }
 
 function clearTerminal(){
@@ -181,123 +185,147 @@ function clearTerminal(){
 }
 
 /* =========================
-   COMMAND BUTTONS
+   NORMAL COMMANDS
 ========================= */
 function helpCommand(){
   printOutput(`
-<span style="color:var(--green)">
 === AVAILABLE COMMANDS ===<br>
 HELP : show help<br>
-PERSONNEL : show personnel database<br>
-OBJECTS : show object database<br>
-SECRET : secret file<br>
+PERSONNEL : personnel database<br>
+OBJECTS : object database<br>
+SECRET : classified file<br>
 CLEAR : clear log<br>
 LOGOUT : reboot system
-</span>
   `);
 }
 
 function showPersonnelButtons(){
-  printOutput(`<br><span style="color:var(--green)">=== PERSONNEL DATABASE ===</span>`);
+  printOutput(`<br>=== PERSONNEL DATABASE ===`);
   database.personnel.forEach(p=>{
     printOutput(`<button class="data-btn" onclick="searchDatabase('${p.id}')">${p.id}<br>${p.name}</button>`);
   });
 }
 
 function showObjectButtons(){
-  printOutput(`<br><span style="color:var(--green)">=== OBJECT DATABASE ===</span>`);
+  printOutput(`<br>=== OBJECT DATABASE ===`);
   database.objects.forEach(o=>{
     printOutput(`<button class="data-btn" onclick="searchDatabase('${o.id}')">${o.id}<br>${o.name}</button>`);
   });
 }
 
-/* =========================
-   SEARCH SYSTEM
-========================= */
 function searchDatabase(keyword){
-  const p = database.personnel.find(x => x.id === keyword);
+  const p = database.personnel.find(x=>x.id===keyword);
 
   if(p){
     printOutput(`
 ╔════════════════════════════╗<br>
- ID : ${p.id}<br>
- NAME : ${p.name}<br>
- SEX : ${p.sex}<br>
- AGE : ${p.age}<br>
- DIVISION : ${p.division}<br>
- RANK : ${p.rank}<br>
- ABILITY : ${p.ability}<br>
- STATUS : ${p.status}<br>
+ID : ${p.id}<br>
+NAME : ${p.name}<br>
+SEX : ${p.sex}<br>
+AGE : ${p.age}<br>
+DIVISION : ${p.division}<br>
+RANK : ${p.rank}<br>
+ABILITY : ${p.ability}<br>
+STATUS : ${p.status}<br>
 ╚════════════════════════════╝
     `);
-
-    if(p.secret){
-      printOutput(`<span style="color:var(--green)">[SECRET RECORD DETECTED]</span>`);
-    }
+    if(p.secret) printOutput(`[SECRET RECORD DETECTED]`);
     return;
   }
 
-  const o = database.objects.find(x => x.id === keyword);
+  const o = database.objects.find(x=>x.id===keyword);
 
   if(o){
     printOutput(`
 ╔════════════════════════════╗<br>
- ID : ${o.id}<br>
- NAME : ${o.name}<br>
- CLASS : ${o.class}<br>
- DANGER : ${o.danger}<br>
- DETAIL : ${o.detail}<br>
+ID : ${o.id}<br>
+NAME : ${o.name}<br>
+CLASS : ${o.class}<br>
+DANGER : ${o.danger}<br>
+DETAIL : ${o.detail}<br>
 ╚════════════════════════════╝
     `);
+    if(o.secret) printOutput(`[SECRET RECORD DETECTED]`);
     return;
   }
 
-  printOutput(`<span style="color:var(--red)">NO DATA FOUND.</span>`);
+  printOutput(`<span style="color:red;">NO DATA FOUND.</span>`);
 }
 
-function showSecret(){
-  const found = database.personnel.find(p=>p.secret);
-  if(!found){
-    printOutput("NO SECRET RECORD.");
-    return;
+/* =========================
+   SECRET ACCESS SYSTEM
+========================= */
+function openSecretAuth(){
+  document.getElementById('secretAuth').style.display = 'flex';
+  document.getElementById('secretPassInput').value = '';
+  document.getElementById('secretError').innerHTML = '';
+  setTimeout(()=>document.getElementById('secretPassInput').focus(),50);
+}
+
+function closeSecretAuth(){
+  document.getElementById('secretAuth').style.display = 'none';
+}
+
+function confirmSecretAccess(){
+  const val = document.getElementById('secretPassInput').value.trim();
+
+  if(val === "LEVEL4"){
+    document.getElementById('secretAuth').style.display = 'none';
+    showSecretDatabaseSelect();
+  }else{
+    document.getElementById('secretError').innerHTML = 'ACCESS DENIED.';
   }
+}
+
+function showSecretDatabaseSelect(){
+  printOutput(`
+=== SELECT SECRET DATABASE ===<br>
+<button class="data-btn" onclick="showSecretPersonnelList()">PERSONNEL FILE</button>
+<button class="data-btn" onclick="showSecretObjectList()">OBJECT FILE</button>
+  `);
+}
+
+function showSecretPersonnelList(){
+  printOutput(`<br>=== SECRET PERSONNEL FILE ===`);
+  database.personnel.filter(p=>p.secret).forEach(p=>{
+    printOutput(`<button class="data-btn" onclick="openPersonnelSecret('${p.id}')">${p.id}<br>${p.name}</button>`);
+  });
+}
+
+function showSecretObjectList(){
+  printOutput(`<br>=== SECRET OBJECT FILE ===`);
+  database.objects.filter(o=>o.secret).forEach(o=>{
+    printOutput(`<button class="data-btn" onclick="openObjectSecret('${o.id}')">${o.id}<br>${o.name}</button>`);
+  });
+}
+
+function openPersonnelSecret(id){
+  const p = database.personnel.find(x=>x.id===id);
+  if(!p) return;
 
   printOutput(`
-<span style="color:var(--green)">
-██████████████████████████<br>
-SECRET FILE UNLOCKED<br>
-TARGET : ${found.name}<br>
-${found.record}<br>
+████ SECRET PERSONNEL FILE ████<br>
+TARGET : ${p.name}<br>
+${p.secretRecord}<br>
 ██████████████████████████
-</span>
+  `);
+}
+
+function openObjectSecret(id){
+  const o = database.objects.find(x=>x.id===id);
+  if(!o) return;
+
+  printOutput(`
+████ SECRET OBJECT FILE ████<br>
+TARGET : ${o.name}<br>
+${o.secretRecord}<br>
+██████████████████████████
   `);
 }
 
 /* =========================
-   INIT
+   LOGOUT SYSTEM
 ========================= */
-function initTerminal(){
-  clearTerminal();
-  printOutput(`<span style="color:var(--green)">Tenri Network OS initialized.</span>`);
-  printOutput(`Tap a command button below.`);
-}
-
-if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', ()=>{
-    startSequence().catch(e=>console.warn(e));
-  });
-}else{
-  startSequence().catch(e=>console.warn(e));
-}
-
-function openLogoutConfirm(){
-  document.getElementById('logoutConfirm').style.display = 'flex';
-}
-
-function closeLogoutConfirm(){
-  document.getElementById('logoutConfirm').style.display = 'none';
-}
-
 function openLogoutConfirm(){
   document.getElementById('logoutConfirm').style.display = 'flex';
 }
@@ -309,10 +337,7 @@ function closeLogoutConfirm(){
 async function confirmLogout(){
   const box = document.querySelector('#logoutConfirm .terminal-box');
 
-  box.innerHTML = `
-    <div id="rebootLog"></div>
-  `;
-
+  box.innerHTML = `<div id="rebootLog"></div>`;
   const rebootLog = document.getElementById('rebootLog');
 
   async function rebootType(text, dot=false){
@@ -331,7 +356,24 @@ async function confirmLogout(){
   await rebootType("Saving terminal logs", true);
   await rebootType("Disconnecting administrator", true);
   await rebootType("Rebooting system", true);
-  await wait(1200);
+  await wait(1000);
 
   location.reload();
+}
+
+/* =========================
+   INIT
+========================= */
+function initTerminal(){
+  clearTerminal();
+  printOutput(`Tenri Network OS initialized.`);
+  printOutput(`Tap a command button below.`);
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', ()=>{
+    startSequence().catch(e=>console.warn(e));
+  });
+}else{
+  startSequence().catch(e=>console.warn(e));
 }
