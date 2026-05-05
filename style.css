@@ -1,53 +1,145 @@
-:root {
-  --bg: #000;
-  --green: #00FF41;
-  --red: #ff3131;
+:root{
+  --bg:#000;
+  --green:#00FF41;
+  --red:#ff3131;
 }
 
-* { box-sizing: border-box; }
-
-body {
-  margin: 0; padding: 0; background: var(--bg); color: var(--green);
-  font-family: 'Courier New', Courier, monospace;
-  overflow: hidden; height: 100vh; width: 100vw;
+*{
+  box-sizing:border-box;
 }
 
-/* 全画面中央寄せの基本設定 */
-.full-screen {
-  position: fixed; inset: 0;
-  display: flex; flex-direction: column;
-  justify-content: center; align-items: center;
-  background: var(--bg); z-index: 1000;
+body{
+  margin:0;
+  padding:0;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+  background:var(--bg);
+  color:var(--green);
+  font-family:'Courier New', Courier, monospace;
 }
 
-/* ターミナルボックス */
-.terminal-box {
-  width: min(450px, 90vw);
-  border: 1px solid var(--green);
-  padding: 30px;
-  background: #050505;
-  position: relative;
-  box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
+/* =========================
+   COMMON FULL SCREEN
+========================= */
+.full-screen{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:var(--bg);
+  z-index:9999;
 }
 
-.terminal-box.danger { border: 1px double var(--red); box-shadow: 0 0 30px rgba(255, 0, 0, 0.3); }
-
-/* 入力欄 */
-.terminal-input {
-  background: transparent; border: none;
-  border-left: 4px solid var(--green);
-  color: var(--green); font-family: inherit;
-  font-size: 1.1em; width: 100%;
-  padding: 5px 15px; outline: none; margin: 15px 0;
+/* =========================
+   LOGIN BOX
+========================= */
+.terminal-box{
+  width:min(500px,90vw);
+  min-height:300px;
+  border:1px solid var(--green);
+  background:#050505;
+  padding:30px;
+  box-shadow:0 0 25px rgba(0,255,65,.18);
 }
 
-#loginConsole div { margin-bottom: 8px; line-height: 1.5; }
+.terminal-input{
+  width:100%;
+  margin-top:12px;
+  padding:8px 12px;
+  background:transparent;
+  border:none;
+  border-left:3px solid var(--green);
+  color:var(--green);
+  font-family:inherit;
+  font-size:1em;
+  outline:none;
+}
 
-/* メイン画面用スタイル */
-#mainTerminal { height: 100vh; padding: 20px; overflow-y: auto; }
-#logo { border-bottom: 1px solid var(--green); padding-bottom: 5px; margin-bottom: 15px; }
-.search-area { display: flex; gap: 10px; margin-bottom: 15px; }
-#result { border: 1px solid var(--green); padding: 15px; min-height: 200px; background: rgba(0,255,65,0.05); }
+#loginConsole{
+  line-height:1.7;
+  font-size:0.95em;
+}
 
-.blink { animation: blinker 1s linear infinite; }
-@keyframes blinker { 50% { opacity: 0; } }
+#loginConsole div{
+  margin-bottom:8px;
+}
+
+/* =========================
+   MAIN TERMINAL
+========================= */
+#mainTerminal{
+  width:100vw;
+  height:100vh;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  background:#010101;
+}
+
+#logo{
+  font-size:1.2em;
+  border-bottom:1px solid var(--green);
+  padding-bottom:8px;
+  margin-bottom:8px;
+  letter-spacing:1px;
+}
+
+#statusbar{
+  margin-bottom:15px;
+  font-size:.9em;
+  opacity:.8;
+}
+
+#output{
+  flex:1;
+  overflow-y:auto;
+  border:1px solid rgba(0,255,65,.4);
+  padding:15px;
+  background:rgba(0,255,65,.03);
+  line-height:1.6;
+  white-space:normal;
+  box-shadow: inset 0 0 15px rgba(0,255,65,.05);
+}
+
+/* スクロールバー */
+#output::-webkit-scrollbar{
+  width:6px;
+}
+#output::-webkit-scrollbar-thumb{
+  background:var(--green);
+}
+
+/* =========================
+   COMMAND LINE
+========================= */
+.command-line{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:12px;
+  border-top:1px solid rgba(0,255,65,.4);
+  padding-top:12px;
+}
+
+#commandInput{
+  flex:1;
+  background:transparent;
+  border:none;
+  color:var(--green);
+  font-family:inherit;
+  font-size:1em;
+  outline:none;
+}
+
+/* =========================
+   EFFECTS
+========================= */
+.blink{
+  animation:blink 1s linear infinite;
+}
+
+@keyframes blink{
+  50%{opacity:0;}
+}
