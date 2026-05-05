@@ -72,6 +72,40 @@ const database = {
 let previousScreen = null;
 const wait = (ms) => new Promise(res => setTimeout(res, ms));
 
+/* =========================
+   SOUND & BOOT CONTROL
+========================= */
+const sfx = {
+  boot: new Audio("boot.mp3"),
+  click: new Audio("click.mp3"),
+  error: new Audio("error.mp3"),
+};
+
+function playSound(name) {
+  const audio = sfx[name];
+  if (!audio) return;
+  audio.currentTime = 0;
+  audio.play().catch(() => {});
+}
+
+async function bootSystem() {
+  // ブラウザの音声制限を解除
+  Object.values(sfx).forEach(a => {
+    a.play().then(() => {
+      a.pause();
+      a.currentTime = 0;
+    }).catch(() => {});
+  });
+
+  const bootScreen = document.getElementById('bootScreen');
+  if (bootScreen) bootScreen.style.display = 'none';
+
+  await startSequence();
+}
+
+/* =========================
+   HELPERS
+========================= */
 function getStatusColor(status){
   switch(status){
     case 'ACTIVE': return '<span class="status-active">ACTIVE</span>';
@@ -95,104 +129,43 @@ function getDangerColor(level){
   }
 }
 
-function getDangerColor(level){
-  switch(level){
-    case 'LOW': return '<span style="color:#00ff41;">LOW</span>';
-    case 'MEDIUM': return '<span style="color:#ffe600;">MEDIUM</span>';
-    case 'HIGH': return '<span style="color:#ff2a2a;">HIGH</span>';
-    case 'EXTREME': return '<span style="color:#ff00ae;">EXTREME</span>';
-    default: return level;
-  }
-}
-
 /* =========================
-   LOGIN ANIMATION (一文字ずつ音を鳴らす)
+   ANIMATED LOG WITH SOUND
 ========================= */
-/* =========================
-   LOGIN ANIMATION (音響同期版)
-========================= */
-async function typeLog(text, isDot = false) {
+async function typeLog(text, isDot=false){
   const consoleEl = document.getElementById('loginConsole');
-  if (!consoleEl) return;
+  if(!consoleEl) return;
 
   const div = document.createElement('div');
-  div.innerHTML = text;
   consoleEl.appendChild(div);
-
-  // HTMLタグを保持したまま一文字ずつ分解
+  
   const chars = text.match(/<[^>]+>|[^<]/g) || [];
-
-  for (const char of chars) {
+  
+  for(const char of chars) {
     div.innerHTML += char;
     consoleEl.scrollTop = consoleEl.scrollHeight;
-
-    // タグ（<br>等）以外が表示される瞬間に音を鳴らす
-    if (!char.startsWith('<')) {
+    
+    if(!char.startsWith('<')) {
       playSound('click');
     }
-    // せっかちなユーザー向けに速めの20ms設定
-    await wait(20);
+    await wait(20); 
   }
 
-  // ドット（...）のアニメーションと音の同期
-  if (isDot) {
-    for (let i = 0; i < 3; i++) {
+  if(isDot){
+    for(let i=0;i<3;i++){
       await wait(700);
       div.innerHTML += '.';
-      playSound('click'); // ドットが打たれるたびに音を鳴らす
+      playSound('click'); 
     }
   }
 }
 
 /* =========================
-   ログイン処理への組み込み
+   LOGIN SEQUENCE
 ========================= */
-async function promptPassword() {
-  const consoleEl = document.getElementById('loginConsole');
-  await typeLog("<br>Enter PASSWORD");
-
-  const passInput = document.createElement('input');
-  passInput.type = "password";
-  passInput.className = "terminal-input";
-  consoleEl.appendChild(passInput);
-  setTimeout(() => passInput.focus(), 50);
-
-  passInput.addEventListener('keydown', async (e) => {
-    if (e.key === 'Enter') {
-      const val = passInput.value.trim();
-      if (!val) return;
-
-      passInput.disabled = true;
-
-      if (val === "226227") {
-        // 各ステップごとに音が鳴る
-        await typeLog("<br>Checking with database", true);
-        await typeLog("Loading System", true);
-        await typeLog("Accessing to Database", true);
-        await typeLog("Scanning Your Information", true);
-        
-        // 成功時の強調音
-        playSound('boot'); 
-        await typeLog("<span style='color:var(--green);font-weight:bold;'>Success!</span>");
-        await typeLog("Welcome to Tenri Network OS!");
-        await wait(1000);
-
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('mainTerminal').style.display = 'flex';
-        initTerminal();
-      } else {
-        // 失敗時の警告音
-        playSound('error');
-        await typeLog("<br><span style='color:var(--red)'>INVALID PASSWORD. REBOOTING...</span>");
-        await wait(2000);
-        location.reload();
-      }
-    }
-  });
-}
-
 async function startSequence(){
   const consoleEl = document.getElementById('loginConsole');
+  if(!consoleEl) return;
   consoleEl.innerHTML = '';
 
   await typeLog("Welcome to Tenri Network OS");
@@ -204,8 +177,10 @@ async function startSequence(){
   idInput.type = "text";
   idInput.className = "terminal-input";
   consoleEl.appendChild(idInput);
-
   setTimeout(()=>idInput.focus(),50);
+
+  // ID入力中もクリック音
+  idInput.addEventListener('input', () => playSound('click'));
 
   idInput.addEventListener('keydown', async(e)=>{
     if(e.key === 'Enter'){
@@ -220,6 +195,7 @@ async function startSequence(){
         await wait(700);
         promptPassword();
       }else{
+        playSound('error');
         await typeLog("<br><span style='color:var(--red)'>UNKNOWN ID. REBOOTING...</span>");
         await wait(2000);
         location.reload();
@@ -236,8 +212,10 @@ async function promptPassword(){
   passInput.type = "password";
   passInput.className = "terminal-input";
   consoleEl.appendChild(passInput);
-
   setTimeout(()=>passInput.focus(),50);
+
+  // パスワード入力中もクリック音
+  passInput.addEventListener('input', () => playSound('click'));
 
   passInput.addEventListener('keydown', async(e)=>{
     if(e.key === 'Enter'){
@@ -246,52 +224,56 @@ async function promptPassword(){
 
       passInput.disabled = true;
 
-      /* script.js の promptPassword 関数内 */
-if(val === "226227"){
-    await typeLog("<br>Checking with database", true);
-    // ...中略...
-    await typeLog("<span style='color:var(--green);font-weight:bold;'>Success!</span>");
-    playSound('boot'); // ログイン成功の起動音
-    await typeLog("Welcome to Tenri Network OS!");
-    await wait(1500);
+      if(val === "226227"){
+        await typeLog("<br>Checking with database", true);
+        await typeLog("Loading System", true);
 
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('mainTerminal').style.display = 'flex';
-    
-    // メイン画面初期化
-    initTerminal();
-} else {
-    playSound('error'); // 失敗時の音
-    await typeLog("<br><span style='color:var(--red)'>INVALID PASSWORD. REBOOTING...</span>");
-    await wait(2000);
-    location.reload();
+        playSound('boot'); // ログイン成功の起動音
+        await typeLog("<span style='color:var(--green);font-weight:bold;'>Success!</span>");
+        await typeLog("Welcome to Tenri Network OS!");
+        await wait(1500);
+
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainTerminal').style.display = 'flex';
+        initTerminal();
+      } else {
+        playSound('error'); // 失敗時の音
+        await typeLog("<br><span style='color:var(--red)'>INVALID PASSWORD. REBOOTING...</span>");
+        await wait(2000);
+        location.reload();
+      }
+    }
+  });
 }
 
 /* =========================
    OUTPUT CONTROL
 ========================= */
-/* script.js の setOutput 関数を修正 */
-/* =========================
-   OUTPUT CONTROL (操作音追加)
-========================= */
 function setOutput(html) {
   const output = document.getElementById('output');
+  if(!output) return;
   output.innerHTML = `<div>${html}</div>`;
   output.scrollTop = 0;
-
-  // 画面が切り替わったタイミングで「カチャッ」と鳴らす
-  playSound('click');
+  playSound('click'); // 画面更新時の操作音
 }
 
-/* 各ボタンのクリックイベント（html側） */
-// index.html の各 <button> に playSound('click') を仕込んでもOKですが、
-// script.js 内の関数（helpCommandなど）の冒頭で playSound('click') を呼ぶのが楽です。
+function initTerminal() {
+  const output = document.getElementById('output');
+  if (output) {
+    output.innerHTML = `
+      Tenri Network OS initialized.<br>
+      Administrator session connected.<br><br>
+      Select command.
+    `;
+    playSound('click');
+  }
+}
 
 function withBackButton(content){
   return `
     ${content}
     <br><br>
-    <button class="data-btn" onclick="goBack()">← BACK</button>
+    <button class="data-btn" onclick="goBack(); playSound('click');">← BACK</button>
   `;
 }
 
@@ -309,14 +291,16 @@ function goBack(){
 function helpCommand(){
   previousScreen = initTerminal;
 
-  setOutput(withBackButton(`
+  setOutput(`
 === AVAILABLE COMMANDS ===<br>
 HELP : show help screen<br>
 PERSONNEL : personnel database<br>
 OBJECTS : object database<br>
 SECRET : classified database<br>
 LOGOUT : reboot system
-  `));
+<br><br>
+<button class="data-btn" onclick="goBack(); playSound('click');">← BACK</button>
+  `);
 }
 
 function showPersonnelButtons(){
@@ -377,10 +361,10 @@ function renderPersonnelList(){
 
   database.personnel.forEach(p=>{
     html += `
-    <button class="data-btn" onclick="searchDatabase('${p.id}')">
+    <button class="data-btn" onclick="playSound('click'); searchDatabase('${p.id}');">
       <b>${p.id}</b><br>
       ${p.name}<br>
-      <span class="status-${p.status.toLowerCase()}">${p.status}</span>
+      ${getStatusColor(p.status)}
     </button>`;
   });
 
@@ -394,11 +378,11 @@ function renderObjectList(){
 
   database.objects.forEach(o=>{
     html += `
-    <button class="data-btn" onclick="searchDatabase('${o.id}')">
+    <button class="data-btn" onclick="playSound('click'); searchDatabase('${o.id}');">
       <b>${o.id}</b><br>
       ${o.name}<br>
       CLASS: ${o.class}<br>
-      DANGER: ${o.danger}
+      DANGER: ${getDangerColor(o.danger)}
     </button>`;
   });
 
@@ -409,6 +393,7 @@ function renderObjectList(){
    SECRET ACCESS SYSTEM
 ========================= */
 function openSecretAuth(){
+  playSound('click');
   document.getElementById('secretAuth').style.display = 'flex';
   document.getElementById('secretPassInput').value = '';
   document.getElementById('secretError').innerHTML = '';
@@ -416,6 +401,7 @@ function openSecretAuth(){
 }
 
 function closeSecretAuth(){
+  playSound('click');
   document.getElementById('secretAuth').style.display = 'none';
 }
 
@@ -423,9 +409,11 @@ function confirmSecretAccess(){
   const val = document.getElementById('secretPassInput').value.trim();
 
   if(val === "LEVEL4"){
+    playSound('boot');
     document.getElementById('secretAuth').style.display = 'none';
     showSecretDatabaseSelect();
   }else{
+    playSound('error');
     document.getElementById('secretError').innerHTML = 'ACCESS DENIED.';
   }
 }
@@ -435,10 +423,10 @@ function showSecretDatabaseSelect(){
 
   setOutput(`
 === SELECT SECRET DATABASE ===<br>
-<button class="data-btn" onclick="showSecretPersonnelList()">PERSONNEL FILE</button>
-<button class="data-btn" onclick="showSecretObjectList()">OBJECT FILE</button>
+<button class="data-btn" onclick="playSound('click'); showSecretPersonnelList();">PERSONNEL FILE</button>
+<button class="data-btn" onclick="playSound('click'); showSecretObjectList();">OBJECT FILE</button>
 <br><br>
-<button class="data-btn" onclick="goBack()">← BACK</button>
+<button class="data-btn" onclick="goBack(); playSound('click');">← BACK</button>
   `);
 }
 
@@ -447,9 +435,9 @@ function showSecretPersonnelList(){
 
   let html = `=== SECRET PERSONNEL FILE ===<br>`;
   database.personnel.filter(p=>p.secret).forEach(p=>{
-    html += `<button class="data-btn" onclick="openPersonnelSecret('${p.id}')">${p.id}<br>${p.name}</button>`;
+    html += `<button class="data-btn" onclick="playSound('click'); openPersonnelSecret('${p.id}');">${p.id}<br>${p.name}</button>`;
   });
-  html += `<br><br><button class="data-btn" onclick="goBack()">← BACK</button>`;
+  html += `<br><br><button class="data-btn" onclick="goBack(); playSound('click');">← BACK</button>`;
   setOutput(html);
 }
 
@@ -458,9 +446,9 @@ function showSecretObjectList(){
 
   let html = `=== SECRET OBJECT FILE ===<br>`;
   database.objects.filter(o=>o.secret).forEach(o=>{
-    html += `<button class="data-btn" onclick="openObjectSecret('${o.id}')">${o.id}<br>${o.name}</button>`;
+    html += `<button class="data-btn" onclick="playSound('click'); openObjectSecret('${o.id}');">${o.id}<br>${o.name}</button>`;
   });
-  html += `<br><br><button class="data-btn" onclick="goBack()">← BACK</button>`;
+  html += `<br><br><button class="data-btn" onclick="goBack(); playSound('click');">← BACK</button>`;
   setOutput(html);
 }
 
@@ -496,14 +484,17 @@ ${o.secretRecord}<br>
    LOGOUT SYSTEM
 ========================= */
 function openLogoutConfirm(){
+  playSound('click');
   document.getElementById('logoutConfirm').style.display = 'flex';
 }
 
 function closeLogoutConfirm(){
+  playSound('click');
   document.getElementById('logoutConfirm').style.display = 'none';
 }
 
 async function confirmLogout(){
+  playSound('click');
   const box = document.querySelector('#logoutConfirm .terminal-box');
   box.innerHTML = `<div id="rebootLog"></div>`;
   const rebootLog = document.getElementById('rebootLog');
@@ -517,6 +508,7 @@ async function confirmLogout(){
       for(let i=0;i<3;i++){
         await wait(700);
         div.innerHTML += '.';
+        playSound('click');
       }
     }
   }
@@ -530,75 +522,8 @@ async function confirmLogout(){
 }
 
 /* =========================
-   SOUND & BOOT CONTROL
+   EVENT LISTENERS
 ========================= */
-const sfx = {
-  boot: new Audio("boot.mp3"),
-  click: new Audio("click.mp3"),
-  error: new Audio("error.mp3"),
-};
-
-// 音声を即座に再生するための最適化
-function playSound(name){
-  const audio = sfx[name];
-  if(!audio) return;
-  audio.currentTime = 0; // 再生位置を先頭に戻す（連打対応）
-  audio.play().catch(()=>{});
-}
-
-// 起動処理：クリックで音声ロックを解除
-async function bootSystem() {
-  // ブラウザのAutoplay制限を解除
-  Object.values(sfx).forEach(a => {
-    a.play().then(() => {
-      a.pause();
-      a.currentTime = 0;
-    }).catch(()=>{});
-  });
-
-  const bootScreen = document.getElementById('bootScreen');
-  if (bootScreen) bootScreen.style.display = 'none';
-
-  // ログインシーケンス開始（ここで最初の音が鳴り始めます）
-  await startSequence();
-}
-
-/* =========================
-   ANIMATED LOG WITH SOUND
-========================= */
-async function typeLog(text, isDot=false){
-  const consoleEl = document.getElementById('loginConsole');
-  if(!consoleEl) return;
-
-  const div = document.createElement('div');
-  consoleEl.appendChild(div);
-  
-  // HTMLタグを考慮して分解
-  const chars = text.match(/<[^>]+>|[^<]/g) || [];
-  
-  for(const char of chars) {
-    div.innerHTML += char;
-    consoleEl.scrollTop = consoleEl.scrollHeight;
-    
-    // タグ以外が表示される瞬間に音を鳴らす
-    if(!char.startsWith('<')) {
-      playSound('click');
-    }
-    // スピード重視の20ms
-    await wait(20); 
-  }
-
-  // ドットのアニメーションごとに音を同期
-  if(isDot){
-    for(let i=0;i<3;i++){
-      await wait(700);
-      div.innerHTML += '.';
-      playSound('click'); // ドットが追加されるたびに鳴る
-    }
-  }
-}
-
-// ページ読み込み完了時にクリックイベントを登録
 window.addEventListener('DOMContentLoaded', () => {
   const bootBtn = document.getElementById('bootScreen');
   if (bootBtn) {
