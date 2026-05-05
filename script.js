@@ -104,25 +104,25 @@ async function typeLog(text, isDot = false) {
   const div = document.createElement('div');
   consoleEl.appendChild(div);
   const chars = text.match(/<[^>]+>|[^<]/g) || [];
+  
   for (const char of chars) {
     div.innerHTML += char;
     consoleEl.scrollTop = consoleEl.scrollHeight;
     
-    // ★ここを追加：タグ以外の文字が表示される瞬間に音を鳴らす
     if (!char.startsWith('<')) playSound('click');
     
     await wait(15);
   }
-  // （以下、isDotの処理など続く）
-}
 
+  // ★ここ！isDotの処理を関数の「中」に入れます
   if (isDot) {
     for (let i = 0; i < 3; i++) {
       await wait(700);
       div.innerHTML += '.';
-      playSound('click');
+      playSound('click'); // ここでも音を鳴らすなら追加
     }
   }
+} // ★関数の終わりはここです
 
 
 async function startSequence() {
