@@ -3,35 +3,36 @@
 ========================= */
 const database = {
   personnel: [
-    { 
-      id: `AP-000000`, 
-      category: `personnel`, 
-      name: `鳴瀬 可楚`, 
-      status: `ACTIVE`, 
-      clearance: `3`, 
-      ability: `因報
-強大な力を利用して戦闘を行うが、彼女自身には限界がない。
-翠色の結晶を飛ばすことが可能。`, // バッククォートならそのまま改行OK
-      record: `[アクセス拒否]` 
+    {
+      id: `AP-000000`,
+      category: `personnel`,
+      name: `鳴瀬 可楚 / Naruse Kaso`,
+      sex: `FEMALE`,
+      age: `██`,
+      division: `鳴響`,
+      rank: `Leader`,
+      status: `ACTIVE`,
+      secret: true, // 隠しデータあり
+      ability: `【特異能力：因報（ネメシス）】
+因果の報いを操作・転換し、強大なエネルギーとして戦闘に利用する能力。
+術者自身にリミットが存在せず、致死負荷状況下でも活動を継続する。`,
+      procedure: `現場運用においては、彼女の「限界のない活動」が周囲の因果律に与える影響を常に監視すること。`,
+      record: `【最重要機密：因果律崩壊リスク】
+彼女の「因報」は世界線の安定性を直接損なう危険性がある。
+[データ削除済]における事象発生時、彼女一人の生存と引き換えに一つの都市が因果の螺旋に消えた記録がある。`,
+      description: `鳴響部隊の絶対的リーダー。その力は世界の理を書き換える。`
     },
+  
   ],
   objects: [
-   {
-    id: `OBJ-001`,
-    category: `object`,
-    name: `天理楔`,
-procedure: `AP-000000に所持されるか、鳴響特別収容ロッカーに収容してください。
-不可能な場合は先端を袋に包むこと。`,
-    description: `天逆鉾のような見た目をしており、柄はデフォルトで1mほどと長い。
-だが、柄を取り外し50cmほど、15cmほどの長さの柄に取り替えることが可能。`,
-    ability: `結果を生まない。
-例を挙げると、「発火条件がすべて揃っているのに発火しない」だろう。`,
-        clearance: `2`,
-    status: `CONTAINED`
-  },
-
-],
-  
+    {
+      id: `OBJ-001`,
+      name: `天理楔`,
+      status: `CONTAINED`,
+      description: `結果を生まない楔。事象の確定を拒否する。`,
+      procedure: `AP-000000が所持するか、専用ロッカーに収容。`
+    }
+  ]
 };
 
 /* =========================
@@ -39,41 +40,21 @@ procedure: `AP-000000に所持されるか、鳴響特別収容ロッカーに�
 ========================= */
 let currentFile = null;
 let currentCategory = 'personnel';
-let loginAttempts = 0;
-const MAX_ATTEMPTS = 3;
-let clearanceAttempts = 0;
-const MAX_CLEARANCE_ATTEMPTS = 3;
-let pendingClearanceLevel = 1;
 let audioCtx = null;
 let clockLoop = null;
-
-const clearanceCodes = { "2": "late", "3": "true", "4": "fake", "5": "null" };
 
 /* =========================
    SCREEN CONTROL
 ========================= */
 function showScreen(mode){
-  console.log("Switching to screen:", mode); // デバッグ用
-  const screens = ['startupScreen','loginScreen','bootScreen','mainTerminal','emergencyConsole','agentDispatch','amnesticOverlay','clearanceAuth'];
-  
+  const screens = ['startupScreen','loginScreen','bootScreen','mainTerminal','emergencyConsole','agentDispatch','clearanceAuth'];
   screens.forEach(id => {
     const el = document.getElementById(id);
     if(el) el.style.display = 'none';
   });
-
-  const targetMap = {
-    'startup': 'startupScreen', 'login': 'loginScreen', 'boot': 'bootScreen',
-    'main': 'mainTerminal', 'emergency': 'emergencyConsole', 'agent': 'agentDispatch',
-    'amnestic': 'amnesticOverlay', 'auth': 'clearanceAuth'
-  };
-  
-  const targetId = targetMap[mode];
-  const targetEl = document.getElementById(targetId);
-  if(targetEl) {
-    targetEl.style.display = (['startup', 'login', 'emergency', 'auth'].includes(mode)) ? 'flex' : 'block';
-  } else {
-    console.warn("Element not found:", targetId); // IDが見つからない場合の警告
-  }
+  const targetMap = { 'startup': 'startupScreen', 'login': 'loginScreen', 'boot': 'bootScreen', 'main': 'mainTerminal', 'auth': 'clearanceAuth' };
+  const targetEl = document.getElementById(targetMap[mode]);
+  if(targetEl) targetEl.style.display = (['startup', 'login', 'auth'].includes(mode)) ? 'flex' : 'block';
 }
 
 /* =========================
@@ -92,88 +73,44 @@ function beep(freq,dur,vol=0.03){
 }
 
 /* =========================
-   STARTUP & INITIALIZE
+   INITIALIZE
 ========================= */
 document.addEventListener('DOMContentLoaded',()=>{
-  console.log("System Initializing...");
   showScreen('startup');
-
-  // アニメーション対象を探す（IDでもClassでもOKにする）
-  const text = document.querySelector('.startupText') || document.getElementById('startupText');
-  const dots = ['','.','..','...'];
-  let dotIdx = 0;
-
-  const loadingInterval = setInterval(()=>{
-    if(text) {
-      text.innerHTML = "TENRI NETWORK<br><br>LOADING" + dots[dotIdx];
-      dotIdx = (dotIdx + 1) % dots.length;
-    }
-  }, 400);
-
-  // 3秒後にログイン画面へ（強制）
-  setTimeout(()=>{
-    console.log("Startup complete. Transitioning to login...");
-    clearInterval(loadingInterval);
-    showScreen('login');
-  }, 3000);
-
-  // イベント登録
+  setTimeout(()=> showScreen('login'), 2000);
   document.getElementById('loginBtn')?.addEventListener('click', login);
   document.getElementById('searchBtn')?.addEventListener('click', searchFile);
-  document.getElementById('emergencyBtn')?.addEventListener('click', () => showScreen('emergency'));
   document.getElementById('dataToggleBtn')?.addEventListener('click', toggleDataPanel);
-  document.getElementById('clearance')?.addEventListener('change', requestClearanceAuth);
-  document.getElementById('authBtn')?.addEventListener('click', verifyClearanceCode);
-  document.getElementById('authCancelBtn')?.addEventListener('click', () => {
-    showScreen('main');
-    document.getElementById('clearance').value = '1';
-  });
-  
   setupTabs();
 });
 
-/* =========================
-   LOGIN
-========================= */
 function login(){
   initAudio();
   const u = document.getElementById('username')?.value.trim();
   const p = document.getElementById('password')?.value.trim();
-  const err = document.getElementById('loginError');
-
   if(u === 'admin' && p === '226227'){
-    const box = document.querySelector('.loginBox');
-    if(box) box.innerHTML = '<div class="blink">AUTHENTICATING...</div>';
     beep(900, 100);
-    setTimeout(() => { showScreen('boot'); startBoot(); }, 1000);
+    showScreen('boot');
+    startBoot();
   } else {
-    loginAttempts++;
     beep(150, 200);
-    if(loginAttempts >= MAX_ATTEMPTS) {
-      dispatchAgent();
-    } else {
-      if(err) err.innerText = `ACCESS DENIED (${loginAttempts}/${MAX_ATTEMPTS})`;
-    }
+    document.getElementById('loginError').innerText = "INVALID CREDENTIALS";
   }
 }
 
-/* =========================
-   BOOT & MAIN
-========================= */
 function startBoot(){
   const boot = document.getElementById('bootScreen');
-  if(!boot) { finishBoot(); return; }
   boot.innerHTML = '';
-  const lines = ['CORE INITIALIZED', 'LOADING MODULES...', 'SYNCING DATABASE...', 'ACCESS GRANTED'];
+  const lines = ['SYNCING TOA NETWORK...', 'ACCESSING DATABASE...', 'TERMINAL READY.'];
   let i = 0;
   function addLine(){
     if(i >= lines.length){ setTimeout(finishBoot, 500); return; }
     const div = document.createElement('div');
-    div.innerText = lines[i];
+    div.innerText = `> ${lines[i]}`;
     boot.appendChild(div);
-    beep(300 + i * 50, 20);
+    beep(400 + i*100, 30);
     i++;
-    setTimeout(addLine, 400);
+    setTimeout(addLine, 500);
   }
   addLine();
 }
@@ -181,41 +118,28 @@ function startBoot(){
 function finishBoot(){
   showScreen('main');
   loadDataList();
-  if(!clockLoop) clockLoop = setInterval(updateClock, 1000);
-}
-
-function updateClock(){
-  const bar = document.getElementById('statusbar');
-  if(bar) bar.innerText = 'SYSTEM ONLINE / ' + new Date().toLocaleString();
+  if(!clockLoop) clockLoop = setInterval(() => {
+    document.getElementById('statusbar').innerText = 'SYSTEM ONLINE / ' + new Date().toLocaleString();
+  }, 1000);
 }
 
 /* =========================
    SEARCH & TABS
 ========================= */
 function searchFile(){
-  const inputEl = document.getElementById('staffId');
-  const id = inputEl?.value.trim();
-  const cl = parseInt(document.getElementById('clearance')?.value || "1");
+  const id = document.getElementById('staffId')?.value.trim();
   const r = document.getElementById('result');
-  
   if(!id) return;
 
   const found = database.personnel.find(x => x.id === id) || database.objects.find(x => x.id === id);
   if(!found){ 
-    if(r) r.innerText = 'NOT FOUND'; 
+    r.innerText = 'NOT FOUND'; 
     beep(150, 200); 
-    return; 
-  }
-  
-  if(cl < parseInt(found.clearance)){ 
-    if(r) r.innerText = 'ACCESS DENIED: CLEARANCE LEVEL TOO LOW'; 
-    beep(120, 250); 
     return; 
   }
 
   currentFile = found;
-  const tabArea = document.getElementById('tabs');
-  if(tabArea) tabArea.style.display = 'flex';
+  document.getElementById('tabs').style.display = 'flex';
   showTab('personnel');
 }
 
@@ -225,131 +149,150 @@ function setupTabs(){
   });
 }
 
-/* =========================
-   SHOW TAB (全置換・最適化版)
-   ' を ` に置換し、ABILITYとOBJECTの表示内容を分離しました
-========================= */
 function showTab(tab) {
   if (!currentFile) return;
   const r = document.getElementById(`result`);
-  if (!r) return;
-
   let txt = ``;
   const sClass = getStatusClass(currentFile.status);
 
   switch (tab) {
     case `personnel`:
-      txt = `NAME: ${currentFile.name}<br>
-             STATUS: <span class="status ${sClass}">${currentFile.status}</span>`;
+      txt = `NAME: ${currentFile.name}<br>STATUS: <span class="status ${sClass}">${currentFile.status}</span><br><br>`;
+      // secretフラグがある場合のみ隠しボタンを表示
+      if (currentFile.secret) {
+        txt += `
+          <div style="border: 1px double #ff0000; padding: 10px; margin-top: 10px; background: rgba(255,0,0,0.1);">
+            <span class="blink" style="color: #ff0000; font-size: 0.8em;">[ENCRYPTED DATA DETECTED]</span><br>
+            <button onclick="unlockRecord()" style="background: #111; border: 1px solid #ff0000; color: #ff0000; cursor: pointer; padding: 5px; margin-top: 5px; width: 100%;">
+              > ACCESS SECURE ARCHIVE
+            </button>
+          </div>`;
+      }
       break;
 
     case `ability`:
-      const abilityInfo = currentFile.ability || `特筆すべき異常能力は確認されていません。`;
-      txt = `【特異能力 / 異常性】<br>${abilityInfo.replace(/\n/g, `<br>`)}`;
+      txt = `【特異能力】<br>${(currentFile.ability || "なし").replace(/\n/g, "<br>")}`;
       break;
 
     case `artifact`:
-      // OBJECTタブ：外見説明に加えて、収容方法（procedure）を表示するように拡張
-      const descInfo = currentFile.description || currentFile.Description || `詳細な物理記述データなし。`;
-      const procInfo = currentFile.procedure || `標準収容プロトコルを適用中。`;
-      
-      txt = `【物品概要 / 外見説明】<br>${descInfo.replace(/\n/g, `<br>`)}
-             <br><br>
-             【特別収容プロトコル】<br>${procInfo.replace(/\n/g, `<br>`)}`;
+      const desc = currentFile.description || "データなし";
+      const proc = currentFile.procedure || "標準収容";
+      txt = `【概要】<br>${desc.replace(/\n/g, "<br>")}<br><br>【収容手順】<br>${proc.replace(/\n/g, "<br>")}`;
       break;
 
     case `record`:
-      const recordInfo = currentFile.record || `機密事項、または記録なし。`;
-      txt = `【収容・事件記録】<br>${recordInfo.replace(/\n/g, `<br>`)}`;
+      // secretの場合はPERSONNEL経由で見せるため、ここでは伏せる
+      if (currentFile.secret) {
+        txt = `<div style="text-align:center; padding-top:50px; color:#ff0000;">[LOCKED]<br>認証ユニットを使用してください</div>`;
+      } else {
+        txt = `【記録】<br>${(currentFile.record || "記録なし").replace(/\n/g, "<br>")}`;
+      }
       break;
   }
-
   r.innerHTML = txt;
   beep(800, 20);
 }
 
 /* =========================
-   DATABASE LIST
+   STATE (追加)
 ========================= */
-function toggleDataPanel(){
-  const panel = document.getElementById('dataPanel');
-  if(panel) panel.classList.toggle('open');
-}
+let secretAttempts = 0; // 秘密アクセスの失敗回数カウント
+const MAX_SECRET_ATTEMPTS = 3;
 
-window.setCategory = function(cat){
-  currentCategory = cat;
-  loadDataList();
-};
-
-function loadDataList(){
-  const list = document.getElementById('dataList');
-  if(!list) return;
-  list.innerHTML = '';
+/* =========================
+   SECRET UNLOCK (修正版)
+========================= */
+function unlockRecord() {
+  initAudio();
+  showScreen('auth');
   
-  const data = database[currentCategory] || [];
-  data.forEach(f => {
-    const div = document.createElement('div');
-    div.className = 'staffEntry';
-    const sClass = getStatusClass(f.status);
-    div.innerHTML = `
-      <div style="display:flex; justify-content:space-between;">
-        <span style="font-size:10px; opacity:0.7;">${f.id}</span>
-        <span class="${sClass}" style="font-size:10px;">●</span>
-      </div>
-      <div style="font-weight:bold;">${f.name}</div>
-    `;
-    div.onclick = () => {
-      const input = document.getElementById('staffId');
-      if(input) input.value = f.id;
-      searchFile();
-      toggleDataPanel();
-    };
-    list.appendChild(div);
-  });
+  const input = document.getElementById('authInput');
+  const err = document.getElementById('authError');
+  const confirmBtn = document.getElementById('authConfirmBtn');
+  const cancelBtn = document.getElementById('authCancelBtn');
+
+  input.value = '';
+  err.innerText = '';
+  input.focus();
+
+  confirmBtn.onclick = () => {
+    const pass = input.value.trim();
+    
+    if (pass === currentFile.id || pass === "226227") {
+      // 成功時
+      beep(1000, 100);
+      secretAttempts = 0; // カウントリセット
+      showScreen('main');
+      const r = document.getElementById(`result`);
+      r.innerHTML = `<div class="glitch-bg">【機密アーカイブ解凍成功】</div><br>${currentFile.record.replace(/\n/g, "<br>")}`;
+    } else {
+      // 失敗時
+      secretAttempts++;
+      beep(150, 300);
+      
+      if (secretAttempts >= MAX_SECRET_ATTEMPTS) {
+        // 3回間違えた時の処理：記憶処理演出へ
+        executeAmnesticProtocol();
+      } else {
+        err.innerText = `INVALID CODE (${secretAttempts}/${MAX_SECRET_ATTEMPTS})`;
+      }
+    }
+  };
+
+  cancelBtn.onclick = () => {
+    showScreen('main');
+  };
 }
 
 /* =========================
-   CLEARANCE AUTH
+   AMNESTIC PROTOCOL (記憶処理演出)
 ========================= */
-function requestClearanceAuth(){
-  const level = document.getElementById('clearance')?.value;
-  if(level === '0' || level === '1') return;
-  pendingClearanceLevel = level;
-  showScreen('auth');
-  const authTxt = document.getElementById('authLevelText');
-  if(authTxt) authTxt.innerText = `LEVEL ${level} AUTHORIZATION REQUIRED`;
-}
-
-function verifyClearanceCode(){
-  const input = document.getElementById('authInput')?.value.trim();
-  if(input === clearanceCodes[pendingClearanceLevel]){
-    beep(1000, 100);
-    showScreen('main');
-    const r = document.getElementById('result');
-    if(r) r.innerText = `LEVEL ${pendingClearanceLevel} ACCESS GRANTED`;
-    clearanceAttempts = 0;
+function executeAmnesticProtocol() {
+  const overlay = document.getElementById('amnesticOverlay');
+  if (overlay) {
+    overlay.style.display = 'block';
+    overlay.style.backgroundColor = '#fff'; // 一瞬真っ白に
+    beep(50, 1000); // 不快な低音
+    
+    setTimeout(() => {
+      overlay.style.backgroundColor = '#000';
+      overlay.innerHTML = `<div style="color:#fff; text-align:center; padding-top:20%; font-family:serif;">
+        貴方のアクセス権限は剥奪されました。<br>
+        記憶処理を執行します。
+      </div>`;
+      
+      setTimeout(() => {
+        location.reload(); // 最初からやり直し
+      }, 3000);
+    }, 100);
   } else {
-    clearanceAttempts++;
-    beep(100, 300);
-    const err = document.getElementById('authError');
-    if(err) err.innerText = `INVALID CODE (${clearanceAttempts}/${MAX_CLEARANCE_ATTEMPTS})`;
-    if(clearanceAttempts >= MAX_CLEARANCE_ATTEMPTS) location.reload();
+    // オーバーレイがない場合は即リロード
+    alert("SECURITY BREACH: SYSTEM RESET");
+    location.reload();
   }
 }
 
 /* =========================
-   UTILITIES
+   DATABASE LIST
 ========================= */
-function getStatusClass(s){
-  if(['ACTIVE','CONTAINED'].includes(s)) return 'state-ACTIVE';
-  if(['TERMINATED','NEUTRALIZED','SEALED'].includes(s)) return 'state-TERMINATED';
-  return 'state-MISSING';
+function toggleDataPanel(){ document.getElementById('dataPanel').classList.toggle('open'); }
+function setCategory(cat){ currentCategory = cat; loadDataList(); }
+
+function loadDataList(){
+  const list = document.getElementById('dataList');
+  list.innerHTML = '';
+  const data = database[currentCategory] || [];
+  data.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'staffEntry';
+    div.innerHTML = `<span style="font-size:10px;">${f.id}</span><br><b>${f.name}</b>`;
+    div.onclick = () => { document.getElementById('staffId').value = f.id; searchFile(); toggleDataPanel(); };
+    list.appendChild(div);
+  });
 }
 
-function dispatchAgent(){
-  showScreen('agent');
-  const log = document.getElementById('agentLog');
-  if(!log) { setTimeout(() => location.reload(), 3000); return; }
-  log.innerText = 'DISPATCHING FIELD AGENT...';
-  setTimeout(() => location.reload(), 5000);
+function getStatusClass(s){
+  if(s === 'ACTIVE' || s === 'CONTAINED') return 'state-ACTIVE';
+  if(s === 'MISSING') return 'state-MISSING';
+  return 'state-TERMINATED';
 }

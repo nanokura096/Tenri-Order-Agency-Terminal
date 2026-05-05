@@ -17,6 +17,7 @@
 
   <div id="loginScreen">
     <div class="loginBox">
+      <div style="margin-bottom:20px; font-size:0.8em; opacity:0.6; letter-spacing: 2px;">TOA TERMINAL ACCESS</div>
       <input type="text" id="username" placeholder="[USER ID]" autocomplete="off">
       <input type="password" id="password" placeholder="[PASS KEY]" autocomplete="off">
       <button id="loginBtn">ACCESS</button>
@@ -26,23 +27,15 @@
 
   <div id="bootScreen" style="display:none;"></div>
 
-  <div id="amnesticOverlay" style="display:none;"></div>
-
   <div id="mainTerminal" style="display:none;">
     <div id="logo">Tenri Order Agency Terminal TOA-226</div>
-    <div id="statusbar"></div>
+    <div id="statusbar">SYSTEM ONLINE</div>
 
     <div class="inputArea">
-      <input type="text" id="staffId" placeholder="Enter ID">
-      <select id="clearance">
-        <option value="0">LV 0</option>
-        <option value="1" selected>LV 1</option>
-        <option value="2">LV 2</option>
-        <option value="3">LV 3</option>
-        <option value="4">LV 4</option>
-        <option value="5">LV 5</option>
-      </select>
-      <button id="searchBtn">SEARCH DATABASE</button>
+      <div style="display:flex; gap:5px; width:100%;">
+        <input type="text" id="staffId" placeholder="SEARCH ID (e.g. AP-000000)">
+        <button id="searchBtn" style="width:100px;">SEARCH</button>
+      </div>
     </div>
 
     <div id="tabs" style="display:none;">
@@ -52,7 +45,11 @@
       <button data-tab="record">RECORD</button>
     </div>
 
-    <div id="result"></div>
+    <div id="result">
+      <div style="opacity:0.3; text-align:center; padding-top:60px; font-size:0.9em;">
+        IDを入力してデータベースを検索してください
+      </div>
+    </div>
 
     <div id="dataPanel">
       <button id="dataToggleBtn">DATABASE LIST ▼</button>
@@ -70,27 +67,21 @@
     </div>
   </div>
 
-  <div id="agentDispatch" style="display:none;">
-    <div id="agentLog"></div>
-  </div>
-
-  <div id="emergencyConsole" style="display:none;">
-    <div id="consoleLog"></div>
-    <div id="consoleButtons"></div>
-  </div>
-
   <div id="clearanceAuth" style="display:none;">
     <div id="authBox">
-      <div id="authTitle">[ CLEARANCE AUTHORIZATION REQUIRED ]</div>
-      <div id="authLevelText"></div>
-      <input type="password" id="authInput" placeholder="ENTER PASSPHRASE" autocomplete="off">
+      <div id="authTitle" style="color: #ff3131; text-shadow: 0 0 8px #ff3131;">[ SECRET DATA ACCESS ]</div>
+      <div id="authLevelText" style="font-size: 0.7em; margin: 10px 0; opacity:0.8;">ENTER AUTHORIZATION CODE</div>
+      <input type="password" id="authInput" placeholder="PASS KEY..." autocomplete="off">
       <div class="authButtons">
-        <button id="authBtn">VERIFY</button>
+        <button id="authConfirmBtn" style="border-color: #ff3131; color: #ff3131;">VERIFY</button>
         <button id="authCancelBtn">CANCEL</button>
       </div>
-      <div id="authError"></div>
+      <div id="authError" style="color: #ff3131; margin-top: 10px; font-size: 0.8em; min-height:1em;"></div>
     </div>
   </div>
+
+  <div id="agentDispatch" style="display:none;"><div id="agentLog"></div></div>
+  <div id="emergencyConsole" style="display:none;"><div id="consoleLog"></div><div id="consoleButtons"></div></div>
 
   <script src="script.js" defer></script>
 </body>
