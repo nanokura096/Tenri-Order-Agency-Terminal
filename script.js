@@ -103,26 +103,30 @@ async function typeLog(text, isDot = false) {
   if (!consoleEl) return;
   const div = document.createElement('div');
   consoleEl.appendChild(div);
+
+  // HTMLタグを1文字として扱わないための正規表現
   const chars = text.match(/<[^>]+>|[^<]/g) || [];
 
+  // 通常のテキストタイピング
   for (const char of chars) {
     div.innerHTML += char;
     consoleEl.scrollTop = consoleEl.scrollHeight;
     
+    // タグ以外なら音を鳴らす
     if (!char.startsWith('<')) playSound('click');
     
     await wait(15);
-  } // ← ループの終わり
+  }
 
-  // ★ここから下の処理が関数の「内側」に入っている必要があります
+  // ローディングの点々処理（必ず関数の内側に置く）
   if (isDot) {
     for (let i = 0; i < 3; i++) {
       await wait(700);
       div.innerHTML += '.';
-      playSound('click');
+      playSound('click'); // 点が出る時もカチッと鳴らす
     }
   }
-} // ★ここが typeLog 関数の本当の終わり！★関数の終わりはここです
+} // ← ここで初めて関数を閉じる！
 
 
 async function startSequence() {
