@@ -72,8 +72,8 @@ body{
   width:100vw;
   height:100vh;
   padding:15px;
-  display:grid;
-  grid-template-rows:auto auto auto auto 1fr auto;
+  display:flex;
+  flex-direction:column;
   gap:8px;
   overflow:hidden;
   background:#010101;
@@ -94,6 +94,7 @@ body{
 }
 
 #output{
+  flex:1;
   overflow-y:auto;
   min-height:0;
   border:1px solid rgba(0,255,65,.4);
@@ -116,20 +117,22 @@ body{
 ========================= */
 .quick-buttons{
   display:flex;
+  width:100%;
   gap:8px;
-  margin-top:8px;
-  flex-wrap:wrap;
+}
+
+.quick-buttons:nth-of-type(2){
+  grid-template-columns:repeat(2, 1fr);
 }
 
 .quick-buttons button{
   flex:1;
-  min-width:90px;
   background:#031103;
   color:var(--green);
   border:1px solid var(--green);
-  padding:12px 8px;
+  padding:12px 4px;
   font-family:inherit;
-  font-size:.82em;
+  font-size:.75em;
 }
 
 .quick-buttons button:active{
