@@ -321,3 +321,10 @@ button{
   text-shadow:0 0 6px rgba(255,42,42,.5);
   animation:blink 1s infinite;
 }
+
+/* 記憶処理時のフラッシュ演出用 */
+.amnestic-flash {
+  background-color: white !important;
+  color: white !important;
+  transition: all 0.3s ease;
+}

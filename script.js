@@ -192,10 +192,30 @@ async function promptPassword() {
         document.getElementById('mainTerminal').style.display = 'flex';
         initTerminal();
       } else {
+        loginAttempts++; // ミスをカウント
         playSound('error');
-        await typeLog("<br><span style='color:var(--red)'>INVALID PASSWORD. ACCESS DENIED.</span>");
-        await wait(1500);
-        location.reload();
+
+        if (loginAttempts >= 3) {
+          // ★ 3回ミス：記憶処理（アムネジア）演出
+          await typeLog("<br><span style='color:var(--red); font-weight:bold;'>[ CRITICAL ERROR ]</span>");
+          await typeLog("<span style='color:var(--red);'>UNAUTHORIZED ACCESS DETECTED.</span>");
+          await typeLog("<span style='color:var(--red);'>INITIATING AMNESTICS (LEVEL-A)</span>", true);
+          
+          // 画面を真っ白にして「記憶を飛ばされた」感を出す
+          document.body.style.backgroundColor = "white";
+          document.body.style.transition = "background-color 0.5s ease-in";
+          
+          await wait(2000); 
+          
+          // 全てをリセットして最初に戻る
+          location.reload(); 
+        } else {
+          // 1〜2回目のミス
+          await typeLog(`<br><span style='color:var(--red)'>INVALID PASSWORD. (${loginAttempts}/3)</span>`);
+          await wait(1000);
+          // 再入力させるためにパスワード入力をやり直す
+          promptPassword(); 
+        }
       }
     }
   });
