@@ -104,7 +104,7 @@ async function typeLog(text, isDot = false) {
   const div = document.createElement('div');
   consoleEl.appendChild(div);
   const chars = text.match(/<[^>]+>|[^<]/g) || [];
-  
+
   for (const char of chars) {
     div.innerHTML += char;
     consoleEl.scrollTop = consoleEl.scrollHeight;
@@ -112,17 +112,17 @@ async function typeLog(text, isDot = false) {
     if (!char.startsWith('<')) playSound('click');
     
     await wait(15);
-  }
+  } // ← ループの終わり
 
-  // ★ここ！isDotの処理を関数の「中」に入れます
+  // ★ここから下の処理が関数の「内側」に入っている必要があります
   if (isDot) {
     for (let i = 0; i < 3; i++) {
       await wait(700);
       div.innerHTML += '.';
-      playSound('click'); // ここでも音を鳴らすなら追加
+      playSound('click');
     }
   }
-} // ★関数の終わりはここです
+} // ★ここが typeLog 関数の本当の終わり！★関数の終わりはここです
 
 
 async function startSequence() {
