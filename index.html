@@ -31,9 +31,21 @@
     <div class="quick-buttons">
       <button onclick="showSecret()">SECRET</button>
       <button onclick="clearTerminal()">CLEAR</button>
-      <button onclick="location.reload()">LOGOUT</button>
+      <button onclick="openLogoutConfirm()">LOGOUT</button>
     </div>
   </div>
+
+  <div id="logoutConfirm" class="full-screen" style="display:none;">
+  <div class="terminal-box">
+    <div class="blink" style="color:var(--red);margin-bottom:15px;">[ SYSTEM REBOOT REQUEST ]</div>
+    <div style="margin-bottom:20px;">Terminate current session?</div>
+
+    <div class="quick-buttons">
+      <button onclick="confirmLogout()">CONFIRM</button>
+      <button onclick="closeLogoutConfirm()">CANCEL</button>
+    </div>
+  </div>
+</div>
 
   <script src="script.js" defer></script>
 </body>

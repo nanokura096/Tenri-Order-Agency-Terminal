@@ -289,3 +289,49 @@ if(document.readyState === 'loading'){
 }else{
   startSequence().catch(e=>console.warn(e));
 }
+
+function openLogoutConfirm(){
+  document.getElementById('logoutConfirm').style.display = 'flex';
+}
+
+function closeLogoutConfirm(){
+  document.getElementById('logoutConfirm').style.display = 'none';
+}
+
+function openLogoutConfirm(){
+  document.getElementById('logoutConfirm').style.display = 'flex';
+}
+
+function closeLogoutConfirm(){
+  document.getElementById('logoutConfirm').style.display = 'none';
+}
+
+async function confirmLogout(){
+  const box = document.querySelector('#logoutConfirm .terminal-box');
+
+  box.innerHTML = `
+    <div id="rebootLog"></div>
+  `;
+
+  const rebootLog = document.getElementById('rebootLog');
+
+  async function rebootType(text, dot=false){
+    const div = document.createElement('div');
+    div.innerHTML = text;
+    rebootLog.appendChild(div);
+
+    if(dot){
+      for(let i=0;i<3;i++){
+        await wait(700);
+        div.innerHTML += '.';
+      }
+    }
+  }
+
+  await rebootType("Saving terminal logs", true);
+  await rebootType("Disconnecting administrator", true);
+  await rebootType("Rebooting system", true);
+  await wait(1200);
+
+  location.reload();
+}
