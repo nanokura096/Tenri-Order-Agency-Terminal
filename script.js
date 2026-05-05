@@ -107,7 +107,6 @@ async function startSequence() {
 
 async function promptPassword() {
   const consoleEl = document.getElementById('loginConsole');
-
   await typeLog("<br>Enter PASSWORD");
 
   const passInput = document.createElement('input');
@@ -132,10 +131,16 @@ async function promptPassword() {
         await typeLog("Welcome to Tenri Network OS!");
         await wait(1500);
 
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('mainTerminal').style.display = 'block';
+        const login = document.getElementById('loginScreen');
+        const main = document.getElementById('mainTerminal');
 
-        initTerminal();
+        if (login) login.style.display = 'none';
+        if (main) main.style.display = 'flex';
+
+        setTimeout(() => {
+          initTerminal();
+        }, 100);
+
       } else {
         await typeLog("<br><span style='color:var(--red)'>INVALID PASSWORD. REBOOTING...</span>");
         await wait(2000);
@@ -241,9 +246,15 @@ function executeCommand(cmd) {
 }
 
 function initTerminal() {
+  const output = document.getElementById('output');
   const commandInput = document.getElementById('commandInput');
-  if (!commandInput) return;
 
+  if (!output || !commandInput) {
+    console.warn("Terminal elements not found.");
+    return;
+  }
+
+  output.innerHTML = "";
   commandInput.focus();
 
   commandInput.addEventListener('keydown', (e) => {
@@ -258,7 +269,6 @@ function initTerminal() {
   printOutput(`<span style="color:var(--green)">Tenri Network OS initialized.</span>`);
   printOutput(`type "help" to view commands.`);
 }
-
 /* =========================
    INITIALIZE
 ========================= */
