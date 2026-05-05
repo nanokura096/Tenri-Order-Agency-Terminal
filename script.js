@@ -1,100 +1,111 @@
 /* =========================
-   DATABASE & STATE
+   CONFIG & STATE
 ========================= */
 const database = {
+  users: { "admin": "226227" },
   personnel: [
-    { id: 'AP-000000', name: '鳴瀬 可楚', status: 'ACTIVE', secret: true, record: '機密：因果律崩壊リスク。' }
-  ],
-  objects: []
+    { id: 'AP-000000', name: '鳴瀬 可楚', secret: true, record: '機密：因果律崩壊リスク。' }
+  ]
 };
 
 let currentFile = null;
 let secretAttempts = 0;
-const MAX_ATTEMPTS = 3;
 
 /* =========================
-   SCREEN CONTROL
+   ANIMATION HELPERS
 ========================= */
-function showScreen(mode) {
-  const ids = ['startupScreen', 'loginScreen', 'bootScreen', 'mainTerminal', 'clearanceAuth', 'amnesticOverlay'];
-  ids.forEach(id => document.getElementById(id).style.display = 'none');
+const wait = (ms) => new Promise(res => setTimeout(res, ms));
 
-  if (['startup', 'login', 'auth'].includes(mode)) {
-    const el = document.getElementById(mode === 'auth' ? 'clearanceAuth' : mode + 'Screen');
-    el.style.display = 'flex';
-  } else {
-    document.getElementById(mode === 'main' ? 'mainTerminal' : mode + 'Screen').style.display = 'block';
+async function typeLog(text, targetId = 'loginConsole', isDot = false) {
+  const el = document.getElementById(targetId);
+  const div = document.createElement('div');
+  div.innerHTML = text;
+  el.appendChild(div);
+  
+  if (isDot) {
+    for (let i = 0; i < 3; i++) {
+      await wait(1000);
+      div.innerHTML += '.';
+    }
   }
 }
 
 /* =========================
-   CORE LOGIC
+   LOGIN SEQUENCE
 ========================= */
-function login() {
-  const u = document.getElementById('username').value;
-  const p = document.getElementById('password').value;
-  if (u === 'admin' && p === '226227') {
-    showScreen('boot');
-    startBoot();
-  } else {
-    document.getElementById('loginError').innerText = 'ACCESS DENIED';
-  }
-}
+async function startSequence() {
+  const consoleEl = document.getElementById('loginConsole');
+  
+  // 1. Welcome & Loading
+  await typeLog("Welcome to Tenri Network OS");
+  await typeLog("Now Loading", 'loginConsole', true);
+  await wait(500);
 
-function startBoot() {
-  const boot = document.getElementById('bootScreen');
-  boot.innerHTML = '';
-  const lines = ['KERNEL_INIT...', 'DB_CONNECTING...', 'READY.'];
-  let i = 0;
-  const itv = setInterval(() => {
-    if (i >= lines.length) { clearInterval(itv); showScreen('main'); return; }
-    boot.innerHTML += `<div>> ${lines[i]}</div>`;
-    i++;
-  }, 500);
-}
+  // 2. ID Input
+  await typeLog("<br>Enter ID");
+  const idInput = document.createElement('input');
+  idInput.type = "text";
+  idInput.className = "terminal-input";
+  consoleEl.appendChild(idInput);
+  idInput.focus();
 
-function unlockRecord() {
-  showScreen('auth');
-  const input = document.getElementById('authInput');
-  const err = document.getElementById('authError');
-  input.value = ''; err.innerText = '';
-  input.focus();
-
-  document.getElementById('authConfirmBtn').onclick = () => {
-    if (input.value === currentFile.id || input.value === '226227') {
-      secretAttempts = 0;
-      showScreen('main');
-      document.getElementById('result').innerHTML = `<div class="glitch-bg">DECRYPTED:</div><br>${currentFile.record}`;
-    } else {
-      secretAttempts++;
-      if (secretAttempts >= MAX_ATTEMPTS) executeAmnestic();
-      else err.innerText = `ERR: ${secretAttempts}/${MAX_ATTEMPTS}`;
+  idInput.onkeypress = async (e) => {
+    if (e.key === 'Enter') {
+      const val = idInput.value;
+      idInput.disabled = true;
+      await typeLog("<br>Checking with database", 'loginConsole', true);
+      
+      if (val === "admin") {
+        await typeLog("<br>Welcome Naruse Kaso!");
+        await wait(500);
+        promptPassword();
+      } else {
+        await typeLog("<br>UNKNOWN ID. REBOOTING...");
+        await wait(1500);
+        location.reload();
+      }
     }
   };
-  document.getElementById('authCancelBtn').onclick = () => showScreen('main');
 }
 
-function executeAmnestic() {
-  const o = document.getElementById('amnesticOverlay');
-  o.style.display = 'flex';
-  o.style.backgroundColor = '#fff';
-  setTimeout(() => {
-    o.style.backgroundColor = '#000';
-    o.innerHTML = '<div style="color:white; text-align:center;">AMNESTIC PROTOCOL EXECUTED.</div>';
-    setTimeout(() => location.reload(), 2500);
-  }, 100);
-}
+async function promptPassword() {
+  const consoleEl = document.getElementById('loginConsole');
+  await typeLog("<br>Enter PASSWORD");
+  const passInput = document.createElement('input');
+  passInput.type = "password";
+  passInput.className = "terminal-input";
+  consoleEl.appendChild(passInput);
+  passInput.focus();
 
-/* --- INIT --- */
-document.addEventListener('DOMContentLoaded', () => {
-  showScreen('startup');
-  setTimeout(() => showScreen('login'), 1500);
-  document.getElementById('loginBtn').onclick = login;
-  document.getElementById('searchBtn').onclick = () => {
-    const id = document.getElementById('staffId').value;
-    currentFile = database.personnel.find(x => x.id === id);
-    if (!currentFile) { document.getElementById('result').innerText = 'NOT FOUND'; return; }
-    document.getElementById('tabs').style.display = 'flex';
-    document.getElementById('result').innerHTML = `NAME: ${currentFile.name}<br><button onclick="unlockRecord()">> ACCESS SECRET</button>`;
+  passInput.onkeypress = async (e) => {
+    if (e.key === 'Enter') {
+      passInput.disabled = true;
+      if (passInput.value === "226227") {
+        await typeLog("<br>Checking with database...");
+        await wait(800);
+        await typeLog("Loading System...");
+        await wait(600);
+        await typeLog("Accessing to Database...");
+        await wait(600);
+        await typeLog("Scanning Your Information...");
+        await wait(1000);
+        await typeLog("<span style='color:var(--green)'>Success!</span>");
+        await typeLog("Welcome to Tenri Network OS!");
+        await wait(1500);
+        enterMain();
+      } else {
+        await typeLog("<br><span style='color:var(--red)'>INVALID PASSWORD.</span>");
+        await wait(1500);
+        location.reload();
+      }
+    }
   };
-});
+}
+
+function enterMain() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('mainTerminal').style.display = 'block';
+}
+
+/* 起動 */
+document.addEventListener('DOMContentLoaded', startSequence);

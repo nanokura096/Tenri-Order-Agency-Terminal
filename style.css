@@ -66,3 +66,30 @@ input {
 
 .blink { animation: blinker 1s linear infinite; }
 @keyframes blinker { 50% { opacity: 0; } }
+
+/* 前回の設定に以下を追加 */
+.full-screen {
+  position: fixed; inset: 0;
+  display: flex; justify-content: center; align-items: center;
+  background: #000;
+}
+
+.terminal-input {
+  background: transparent;
+  border: none;
+  border-left: 10px solid var(--green);
+  color: var(--green);
+  font-family: inherit;
+  font-size: 1.1em;
+  width: 100%;
+  padding: 5px 10px;
+  outline: none;
+  margin: 10px 0;
+}
+
+#loginConsole div {
+  margin-bottom: 5px;
+  line-height: 1.4;
+}
+
+/* 走査線とボックスのスタイルは前回同様 */

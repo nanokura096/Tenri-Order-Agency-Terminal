@@ -3,74 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TOA-226 TERMINAL</title>
+  <title>Tenri Network OS</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div id="startupScreen">
+  <div id="loginScreen" class="full-screen">
     <div class="terminal-box">
-      <div class="blink">> SYSTEM BOOTING...</div>
+      <div id="loginConsole">
+        </div>
     </div>
   </div>
-
-  <div id="loginScreen">
-    <div class="terminal-box">
-      <h2 style="letter-spacing: 4px;">TOA ACCESS UNIT</h2>
-      <div class="input-line">
-        <input type="text" id="username" placeholder="USER ID" autocomplete="off">
-      </div>
-      <div class="input-line">
-        <input type="password" id="password" placeholder="PASS KEY" autocomplete="off">
-      </div>
-      <button id="loginBtn" class="terminal-btn">INITIALIZE</button>
-      <div id="loginError" style="color:var(--red); font-size:0.8em; margin-top:10px;"></div>
-    </div>
-  </div>
-
-  <div id="bootScreen" style="display:none;"></div>
 
   <div id="mainTerminal" style="display:none;">
-    <div id="logo">TENRI ORDER AGENCY // TOA-226</div>
+    <div id="logo">TENRI NETWORK OS // TOA-226</div>
     <div id="statusbar">SYSTEM ONLINE</div>
-
     <div class="search-area">
-      <input type="text" id="staffId" placeholder="SEARCH ID (e.g. AP-000000)">
+      <input type="text" id="staffId" placeholder="SEARCH ID">
       <button id="searchBtn">EXECUTE</button>
     </div>
-
-    <div id="tabs" style="display:none;">
-      <button data-tab="personnel">PERS</button>
-      <button data-tab="ability">ABIL</button>
-      <button data-tab="artifact">OBJ</button>
-      <button data-tab="record">REC</button>
-    </div>
-
-    <div id="result">
-      <div style="opacity:0.3; text-align:center; margin-top:50px;">AWAITING INPUT...</div>
-    </div>
-
-    <div id="dataPanel">
-      <button id="dataToggleBtn">DATABASE LIST ▼</button>
-      <div id="dataList"></div>
-    </div>
+    <div id="result"></div>
   </div>
 
   <div id="clearanceAuth">
     <div class="terminal-box danger">
-      <h2 class="blink" style="color:var(--red);">[SECURE ARCHIVE]</h2>
-      <p style="font-size:0.7em; color:var(--red); text-align:center;">AUTHENTICATION REQUIRED</p>
-      <div class="input-line" style="border-bottom-color:var(--red);">
-        <input type="password" id="authInput" placeholder="ENTER CODE" style="color:var(--red);">
-      </div>
-      <div style="display:flex; gap:10px; margin-top:20px;">
-        <button id="authConfirmBtn" class="terminal-btn danger-btn">VERIFY</button>
+      <h2 class="blink">[SECURITY BREACH]</h2>
+      <input type="password" id="authInput" placeholder="AUTHENTICATION CODE">
+      <div class="authButtons">
+        <button id="authConfirmBtn" class="terminal-btn danger-btn">DECRYPT</button>
         <button id="authCancelBtn" class="terminal-btn">ABORT</button>
       </div>
-      <div id="authError" style="color:var(--red); font-size:0.8em; margin-top:10px; text-align:center;"></div>
+      <div id="authError"></div>
     </div>
   </div>
-
   <div id="amnesticOverlay"></div>
 
   <script src="script.js" defer></script>
