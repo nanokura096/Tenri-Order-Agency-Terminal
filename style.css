@@ -2,140 +2,67 @@
   --bg: #000;
   --green: #00FF41;
   --red: #ff3131;
-  --orange: #ffb300;
+  --dark-green: rgba(0, 255, 65, 0.1);
   --dark-red: rgba(255, 0, 0, 0.2);
 }
 
-/* --- 基本スタイル --- */
+* { box-sizing: border-box; }
+
 body {
-  margin: 0; padding: 10px; background: var(--bg); color: var(--green);
-  font-family: 'Courier New', monospace; overflow-x: hidden;
+  margin: 0; padding: 0; background: var(--bg); color: var(--green);
+  font-family: 'Courier New', Courier, monospace;
+  overflow: hidden; height: 100vh; width: 100vw;
 }
 
-/* --- 機密アクセスボタン（赤いモジュール） --- */
-.secret-module {
-  border: 1px double var(--red);
-  padding: 10px;
-  margin-top: 15px;
-  background: var(--dark-red);
-  box-shadow: 0 0 10px var(--dark-red);
+/* 中央寄せコンテナ */
+#startupScreen, #loginScreen, #clearanceAuth, #amnesticOverlay {
+  position: fixed; inset: 0;
+  display: none; flex-direction: column;
+  justify-content: center; align-items: center;
+  background: var(--bg); z-index: 1000;
 }
 
-.secret-module button {
-  background: #111;
-  border: 1px solid var(--red);
-  color: var(--red);
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-shadow: 0 0 5px var(--red);
-}
-
-.secret-module button:hover {
-  background: var(--red);
-  color: #000;
-  box-shadow: 0 0 15px var(--red);
-}
-
-/* --- 点滅アニメーション --- */
-.blink {
-  animation: blink-effect 0.8s infinite;
-}
-
-@keyframes blink-effect {
-  0% { opacity: 1; }
-  50% { opacity: 0.1; }
-  100% { opacity: 1; }
-}
-
-/* --- グリッチ演出（パスワード成功時などにクラス付与して使う用） --- */
-.glitch-bg {
-  animation: glitch-anim 0.2s infinite;
-}
-
-@keyframes glitch-anim {
-  0% { transform: translate(0); }
-  20% { transform: translate(-2px, 2px); filter: hue-rotate(90deg); }
-  40% { transform: translate(-2px, -2px); }
-  60% { transform: translate(2px, 2px); filter: opacity(0.8); }
-  80% { transform: translate(2px, -2px); }
-  100% { transform: translate(0); }
-}
-
-/* --- ステータス表示 --- */
-.status {
-  padding: 2px 6px;
-  font-weight: bold;
-}
-.state-ACTIVE { color: var(--green); border: 1px solid var(--green); }
-.state-MISSING { color: var(--orange); border: 1px solid var(--orange); animation: blink-effect 1.5s infinite; }
-.state-TERMINATED { color: var(--red); border: 1px solid var(--red); text-decoration: line-through; }
-
-/* --- タブボタン --- */
-#tabs button {
-  background: transparent;
+/* ターミナルボックス */
+.terminal-box {
+  width: min(400px, 90vw);
   border: 1px solid var(--green);
-  color: var(--green);
-  padding: 8px;
-  margin: 2px;
-  cursor: pointer;
+  padding: 30px;
+  background: #050505;
+  position: relative;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.2);
 }
 
-#tabs button:hover {
-  background: var(--green);
-  color: #000;
+.terminal-box.danger { border: 1px double var(--red); box-shadow: 0 0 30px rgba(255, 0, 0, 0.3); }
+
+/* 走査線エフェクト */
+.terminal-box::after {
+  content: " ";
+  position: absolute; inset: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+              linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
 }
 
-/* --- スクロールバーのカスタマイズ（さらに古めかしいPC風） --- */
-::-webkit-scrollbar {
-  width: 6px;
+/* 入力・ボタン */
+.input-line { border-bottom: 1px solid var(--green); margin: 10px 0; }
+input {
+  width: 100%; background: transparent; border: none;
+  color: var(--green); padding: 10px; font-family: inherit; outline: none;
 }
-::-webkit-scrollbar-track {
-  background: #000;
+.terminal-btn {
+  background: transparent; border: 1px solid var(--green);
+  color: var(--green); padding: 10px; cursor: pointer; font-family: inherit;
 }
-::-webkit-scrollbar-thumb {
-  background: var(--green);
-}
+.terminal-btn:hover { background: var(--green); color: #000; }
+.danger-btn { border-color: var(--red); color: var(--red); }
+.danger-btn:hover { background: var(--red); color: #000; }
 
-#clearanceAuth {
-  position: fixed;
-  inset: 0;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.85); /* 背景を少し透過させて不気味に */
-  z-index: 10000;
-}
+/* メイン画面 */
+#mainTerminal { height: 100vh; padding: 20px; overflow-y: auto; }
+#logo { border-bottom: 1px solid var(--green); padding-bottom: 5px; margin-bottom: 15px; }
+.search-area { display: flex; gap: 10px; }
+#result { border: 1px solid var(--green); background: var(--dark-green); padding: 15px; margin-top: 15px; min-height: 200px; }
 
-#authBox {
-  width: min(320px, 90vw);
-  border: 1px solid var(--red); /* 基本を赤に */
-  padding: 25px;
-  background: #000;
-  text-align: center;
-  box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-}
-
-#authInput {
-  background: #111;
-  border: 1px solid var(--red);
-  color: var(--red);
-  padding: 10px;
-  width: 100%;
-  margin-top: 10px;
-  text-align: center;
-  outline: none;
-}
-
-.authButtons {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-.authButtons button {
-  flex: 1;
-  padding: 10px;
-  background: transparent;
-  cursor: pointer;
-  font-family: inherit;
-}
+.blink { animation: blinker 1s linear infinite; }
+@keyframes blinker { 50% { opacity: 0; } }
