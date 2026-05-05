@@ -88,19 +88,16 @@ body{
 }
 
 /* =========================
-   TOP BUTTONS
+   MAIN BUTTONS
 ========================= */
-.quick-buttons{
+.main-buttons{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:8px;
   margin:8px 0;
 }
 
-.quick-buttons button,
-.logout-zone button,
-.authButtons button,
-.data-btn{
+.main-buttons button{
   background:#020202;
   border:1px solid var(--green);
   color:var(--green);
@@ -108,6 +105,25 @@ body{
   font-size:0.85em;
   cursor:pointer;
   transition:.2s;
+}
+
+.main-buttons button:active{
+  background:var(--green);
+  color:#000;
+  box-shadow:0 0 10px rgba(0,255,65,.5);
+}
+
+/* =========================
+   TOP BUTTONS
+========================= */
+.quick-buttons{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+
+.quick-buttons button{
+  flex:1;
 }
 
 .quick-buttons button:active,
@@ -298,4 +314,30 @@ body{
   color:#ff2a2a;
   text-shadow:0 0 6px rgba(255,42,42,.5);
   animation:blink 1s infinite;
+}
+
+/* =========================
+   MAIN BUTTONS
+========================= */
+.main-buttons{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+  margin:8px 0;
+}
+
+.main-buttons button{
+  background:#020202;
+  border:1px solid var(--green);
+  color:var(--green);
+  padding:12px 8px;
+  font-size:0.85em;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.main-buttons button:active{
+  background:var(--green);
+  color:#000;
+  box-shadow:0 0 10px rgba(0,255,65,.5);
 }

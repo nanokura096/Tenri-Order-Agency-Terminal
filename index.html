@@ -17,22 +17,22 @@
 
   <!-- MAIN TERMINAL -->
   <div id="mainTerminal" style="display:none;">
-    <div id="logo">TENRI NETWORK OS // TOA-226</div>
-    <div id="statusbar">SYSTEM ONLINE</div>
+  <div id="logo">TENRI NETWORK OS // TOA-226</div>
+  <div id="statusbar">SYSTEM ONLINE</div>
 
-    <div class="quick-buttons">
-      <button onclick="helpCommand()">HELP</button>
-      <button onclick="showPersonnelButtons()">PERSONNEL</button>
-      <button onclick="showObjectButtons()">OBJECTS</button>
-      <button onclick="openSecretAuth()">SECRET</button>
-    </div>
-
-    <div id="output"></div>
-
-    <div class="logout-zone">
-      <button onclick="openLogoutConfirm()">LOGOUT</button>
-    </div>
+  <div class="main-buttons">
+    <button onclick="helpCommand()">HELP</button>
+    <button onclick="showPersonnelButtons()">PERSONNEL</button>
+    <button onclick="showObjectButtons()">OBJECTS</button>
+    <button onclick="openSecretAuth()">SECRET</button>
   </div>
+
+  <div id="output"></div>
+
+  <div class="logout-zone">
+    <button onclick="openLogoutConfirm()">LOGOUT</button>
+  </div>
+</div>
 
   <!-- SECRET AUTH POPUP -->
   <div id="secretAuth" class="full-screen" style="display:none;">
