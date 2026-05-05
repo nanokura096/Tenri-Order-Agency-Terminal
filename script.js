@@ -106,28 +106,89 @@ function getDangerColor(level){
 }
 
 /* =========================
-   LOGIN ANIMATION
+   LOGIN ANIMATION (一文字ずつ音を鳴らす)
 ========================= */
-async function typeLog(text, isDot=false){
+/* =========================
+   LOGIN ANIMATION (音響同期版)
+========================= */
+async function typeLog(text, isDot = false) {
   const consoleEl = document.getElementById('loginConsole');
-  if(!consoleEl) return;
+  if (!consoleEl) return;
 
   const div = document.createElement('div');
   div.innerHTML = text;
   consoleEl.appendChild(div);
-  consoleEl.scrollTop = consoleEl.scrollHeight;
 
-  // テキストが表示されるタイミングで音を鳴らす
-  playSound('click');
+  // HTMLタグを保持したまま一文字ずつ分解
+  const chars = text.match(/<[^>]+>|[^<]/g) || [];
 
-  if(isDot){
-    for(let i=0;i<3;i++){
-      await wait(700);
-      div.innerHTML += '.';
-      // ドットが表示されるタイミングでも音を鳴らす
+  for (const char of chars) {
+    div.innerHTML += char;
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+
+    // タグ（<br>等）以外が表示される瞬間に音を鳴らす
+    if (!char.startsWith('<')) {
       playSound('click');
     }
+    // せっかちなユーザー向けに速めの20ms設定
+    await wait(20);
   }
+
+  // ドット（...）のアニメーションと音の同期
+  if (isDot) {
+    for (let i = 0; i < 3; i++) {
+      await wait(700);
+      div.innerHTML += '.';
+      playSound('click'); // ドットが打たれるたびに音を鳴らす
+    }
+  }
+}
+
+/* =========================
+   ログイン処理への組み込み
+========================= */
+async function promptPassword() {
+  const consoleEl = document.getElementById('loginConsole');
+  await typeLog("<br>Enter PASSWORD");
+
+  const passInput = document.createElement('input');
+  passInput.type = "password";
+  passInput.className = "terminal-input";
+  consoleEl.appendChild(passInput);
+  setTimeout(() => passInput.focus(), 50);
+
+  passInput.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+      const val = passInput.value.trim();
+      if (!val) return;
+
+      passInput.disabled = true;
+
+      if (val === "226227") {
+        // 各ステップごとに音が鳴る
+        await typeLog("<br>Checking with database", true);
+        await typeLog("Loading System", true);
+        await typeLog("Accessing to Database", true);
+        await typeLog("Scanning Your Information", true);
+        
+        // 成功時の強調音
+        playSound('boot'); 
+        await typeLog("<span style='color:var(--green);font-weight:bold;'>Success!</span>");
+        await typeLog("Welcome to Tenri Network OS!");
+        await wait(1000);
+
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainTerminal').style.display = 'flex';
+        initTerminal();
+      } else {
+        // 失敗時の警告音
+        playSound('error');
+        await typeLog("<br><span style='color:var(--red)'>INVALID PASSWORD. REBOOTING...</span>");
+        await wait(2000);
+        location.reload();
+      }
+    }
+  });
 }
 
 async function startSequence(){
@@ -185,36 +246,46 @@ async function promptPassword(){
 
       passInput.disabled = true;
 
-      if(val === "226227"){
-        await typeLog("<br>Checking with database", true);
-        await typeLog("Loading System", true);
-        await typeLog("Accessing to Database", true);
-        await typeLog("Scanning Your Information", true);
-        await typeLog("<span style='color:var(--green);font-weight:bold;'>Success!</span>");
-        await typeLog("Welcome to Tenri Network OS!");
-        await wait(1500);
+      /* script.js の promptPassword 関数内 */
+if(val === "226227"){
+    await typeLog("<br>Checking with database", true);
+    // ...中略...
+    await typeLog("<span style='color:var(--green);font-weight:bold;'>Success!</span>");
+    playSound('boot'); // ログイン成功の起動音
+    await typeLog("Welcome to Tenri Network OS!");
+    await wait(1500);
 
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('mainTerminal').style.display = 'flex';
-
-        initTerminal();
-      }else{
-        await typeLog("<br><span style='color:var(--red)'>INVALID PASSWORD. REBOOTING...</span>");
-        await wait(2000);
-        location.reload();
-      }
-    }
-  });
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainTerminal').style.display = 'flex';
+    
+    // メイン画面初期化
+    initTerminal();
+} else {
+    playSound('error'); // 失敗時の音
+    await typeLog("<br><span style='color:var(--red)'>INVALID PASSWORD. REBOOTING...</span>");
+    await wait(2000);
+    location.reload();
 }
 
 /* =========================
    OUTPUT CONTROL
 ========================= */
-function setOutput(html){
+/* script.js の setOutput 関数を修正 */
+/* =========================
+   OUTPUT CONTROL (操作音追加)
+========================= */
+function setOutput(html) {
   const output = document.getElementById('output');
   output.innerHTML = `<div>${html}</div>`;
   output.scrollTop = 0;
+
+  // 画面が切り替わったタイミングで「カチャッ」と鳴らす
+  playSound('click');
 }
+
+/* 各ボタンのクリックイベント（html側） */
+// index.html の各 <button> に playSound('click') を仕込んでもOKですが、
+// script.js 内の関数（helpCommandなど）の冒頭で playSound('click') を呼ぶのが楽です。
 
 function withBackButton(content){
   return `
@@ -467,29 +538,64 @@ const sfx = {
   error: new Audio("error.mp3"),
 };
 
+// 音声を即座に再生するための最適化
 function playSound(name){
   const audio = sfx[name];
   if(!audio) return;
-  audio.currentTime = 0;
+  audio.currentTime = 0; // 再生位置を先頭に戻す（連打対応）
   audio.play().catch(()=>{});
 }
 
-// 起動処理をまとめる
+// 起動処理：クリックで音声ロックを解除
 async function bootSystem() {
-  // 音声のロック解除
+  // ブラウザのAutoplay制限を解除
   Object.values(sfx).forEach(a => {
-    a.muted = true; // 一旦ミュート
     a.play().then(() => {
       a.pause();
-      a.muted = false;
+      a.currentTime = 0;
     }).catch(()=>{});
   });
 
   const bootScreen = document.getElementById('bootScreen');
   if (bootScreen) bootScreen.style.display = 'none';
 
-  // ログインシーケンス開始
+  // ログインシーケンス開始（ここで最初の音が鳴り始めます）
   await startSequence();
+}
+
+/* =========================
+   ANIMATED LOG WITH SOUND
+========================= */
+async function typeLog(text, isDot=false){
+  const consoleEl = document.getElementById('loginConsole');
+  if(!consoleEl) return;
+
+  const div = document.createElement('div');
+  consoleEl.appendChild(div);
+  
+  // HTMLタグを考慮して分解
+  const chars = text.match(/<[^>]+>|[^<]/g) || [];
+  
+  for(const char of chars) {
+    div.innerHTML += char;
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+    
+    // タグ以外が表示される瞬間に音を鳴らす
+    if(!char.startsWith('<')) {
+      playSound('click');
+    }
+    // スピード重視の20ms
+    await wait(20); 
+  }
+
+  // ドットのアニメーションごとに音を同期
+  if(isDot){
+    for(let i=0;i<3;i++){
+      await wait(700);
+      div.innerHTML += '.';
+      playSound('click'); // ドットが追加されるたびに鳴る
+    }
+  }
 }
 
 // ページ読み込み完了時にクリックイベントを登録
