@@ -20,6 +20,23 @@ body{
 }
 
 /* =========================
+   ALL BUTTON BASE
+========================= */
+button{
+  background:#020202;
+  border:1px solid var(--green);
+  color:var(--green);
+  padding:12px 8px;
+  font-size:0.85em;
+  cursor:pointer;
+  transition:.2s;
+  font-family:'Courier New', monospace;
+  outline:none;
+  appearance:none;
+  -webkit-appearance:none;
+}
+
+/* =========================
    FULL SCREEN
 ========================= */
 .full-screen{
@@ -62,6 +79,8 @@ body{
   padding:10px;
   outline:none;
   font-size:1em;
+  appearance:none;
+  -webkit-appearance:none;
 }
 
 /* =========================
@@ -97,24 +116,18 @@ body{
   margin:8px 0;
 }
 
-.main-buttons button{
-  background:#020202;
-  border:1px solid var(--green);
-  color:var(--green);
-  padding:12px 8px;
-  font-size:0.85em;
-  cursor:pointer;
-  transition:.2s;
-}
-
-.main-buttons button:active{
+.main-buttons button:active,
+.quick-buttons button:active,
+.logout-zone button:active,
+.authButtons button:active,
+.data-btn:active{
   background:var(--green);
   color:#000;
   box-shadow:0 0 10px rgba(0,255,65,.5);
 }
 
 /* =========================
-   TOP BUTTONS
+   POPUP BUTTONS
 ========================= */
 .quick-buttons{
   display:flex;
@@ -124,15 +137,6 @@ body{
 
 .quick-buttons button{
   flex:1;
-}
-
-.quick-buttons button:active,
-.logout-zone button:active,
-.authButtons button:active,
-.data-btn:active{
-  background:var(--green);
-  color:#000;
-  box-shadow:0 0 10px rgba(0,255,65,.5);
 }
 
 /* =========================
@@ -150,10 +154,10 @@ body{
   box-shadow:inset 0 0 12px rgba(0,255,65,.08);
 }
 
-/* スクロールバー */
 #output::-webkit-scrollbar{
   width:4px;
 }
+
 #output::-webkit-scrollbar-thumb{
   background:var(--green);
 }
@@ -178,6 +182,7 @@ body{
   width:100%;
   border-color:var(--red);
   color:var(--red);
+  background:#020202;
 }
 
 .logout-zone button:active{
@@ -208,6 +213,7 @@ body{
 .danger-btn{
   border-color:var(--red)!important;
   color:var(--red)!important;
+  background:#020202!important;
 }
 
 .danger-btn:active{
@@ -314,30 +320,4 @@ body{
   color:#ff2a2a;
   text-shadow:0 0 6px rgba(255,42,42,.5);
   animation:blink 1s infinite;
-}
-
-/* =========================
-   MAIN BUTTONS
-========================= */
-.main-buttons{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:8px;
-  margin:8px 0;
-}
-
-.main-buttons button{
-  background:#020202;
-  border:1px solid var(--green);
-  color:var(--green);
-  padding:12px 8px;
-  font-size:0.85em;
-  cursor:pointer;
-  transition:.2s;
-}
-
-.main-buttons button:active{
-  background:var(--green);
-  color:#000;
-  box-shadow:0 0 10px rgba(0,255,65,.5);
 }
