@@ -459,7 +459,7 @@ async function confirmLogout(){
 }
 
 /* =========================
-   SOUND & INIT
+   SOUND & BOOT CONTROL
 ========================= */
 const sfx = {
   boot: new Audio("boot.mp3"),
@@ -474,18 +474,28 @@ function playSound(name){
   audio.play().catch(()=>{});
 }
 
-// 画面クリックでシステムを起動させる関数
-function bootSystem() {
-  // ブラウザの音声再生制限（Autoplay）を解除するため、一度無音で再生する
+// 起動処理をまとめる
+async function bootSystem() {
+  // 音声のロック解除
   Object.values(sfx).forEach(a => {
-    a.volume = 0;
-    a.play().catch(()=>{});
-    setTimeout(() => a.volume = 1, 100);
+    a.muted = true; // 一旦ミュート
+    a.play().then(() => {
+      a.pause();
+      a.muted = false;
+    }).catch(()=>{});
   });
 
-  // Boot画面を消してログインシーケンスを開始
-  document.getElementById('bootScreen').style.display = 'none';
-  startSequence().catch(e=>console.warn(e));
+  const bootScreen = document.getElementById('bootScreen');
+  if (bootScreen) bootScreen.style.display = 'none';
+
+  // ログインシーケンス開始
+  await startSequence();
 }
 
-// 自動起動のコード（ document.addEventListener('DOMContentLoaded'... ）は削除します
+// ページ読み込み完了時にクリックイベントを登録
+window.addEventListener('DOMContentLoaded', () => {
+  const bootBtn = document.getElementById('bootScreen');
+  if (bootBtn) {
+    bootBtn.addEventListener('click', bootSystem, { once: true });
+  }
+});
