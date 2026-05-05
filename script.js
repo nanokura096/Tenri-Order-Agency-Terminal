@@ -14,7 +14,7 @@ const wait = (ms) => new Promise(res => setTimeout(res, ms));
 ========================= */
 async function typeLog(text, isDot = false) {
   const consoleEl = document.getElementById('loginConsole');
-  if (!consoleEl) return;
+  if (!consoleEl) return; // 要素がなければ何もしない
 
   const div = document.createElement('div');
   div.innerHTML = text;
@@ -26,8 +26,6 @@ async function typeLog(text, isDot = false) {
       div.innerHTML += '.';
     }
   }
-  // スクロールを一番下に維持
-  window.scrollTo(0, document.body.scrollHeight);
 }
 
 /* =========================
@@ -38,23 +36,23 @@ async function startSequence() {
   if (!consoleEl) return;
   consoleEl.innerHTML = ''; 
 
-  // --- 1. 起動 ---
+  // 1. Welcome & Loading
   await typeLog("Welcome to Tenri Network OS");
   await typeLog("Now Loading", true);
   await wait(500);
 
-  // --- 2. ID入力 ---
+  // 2. ID Input
   await typeLog("<br>Enter ID");
   const idInput = document.createElement('input');
   idInput.type = "text";
   idInput.className = "terminal-input";
-  idInput.autocomplete = "off";
+  idInput.autocomplete = "off"; // 拡張機能の干渉を防ぐ
   consoleEl.appendChild(idInput);
   
-  // 確実にフォーカスを当てるための小技
+  // 50ミリ秒待ってからフォーカス（接続エラー対策）
   setTimeout(() => idInput.focus(), 50);
 
-  idInput.onkeydown = async (e) => {
+  idInput.addEventListener('keydown', async (e) => {
     if (e.key === 'Enter') {
       const val = idInput.value.trim();
       if (!val) return;
@@ -72,7 +70,7 @@ async function startSequence() {
         location.reload();
       }
     }
-  };
+  });
 }
 
 async function promptPassword() {
@@ -87,7 +85,7 @@ async function promptPassword() {
   
   setTimeout(() => passInput.focus(), 50);
 
-  passInput.onkeydown = async (e) => {
+  passInput.addEventListener('keydown', async (e) => {
     if (e.key === 'Enter') {
       const val = passInput.value.trim();
       passInput.disabled = true;
@@ -102,23 +100,27 @@ async function promptPassword() {
         await wait(1500);
         
         // 画面切り替え
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('mainTerminal').style.display = 'block';
+        const loginScreen = document.getElementById('loginScreen');
+        const mainTerminal = document.getElementById('mainTerminal');
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (mainTerminal) mainTerminal.style.display = 'block';
       } else {
         await typeLog("<br><span style='color:var(--red)'>INVALID PASSWORD.</span>");
         await wait(2000);
         location.reload();
       }
     }
-  };
+  });
 }
 
 /* =========================
    INITIALIZE
 ========================= */
-// 全ての準備が整ってからシーケンスを開始
+// ページの読み込み状態を確認してから実行
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => startSequence().catch(console.error));
+  document.addEventListener('DOMContentLoaded', () => {
+    startSequence().catch(e => console.warn("Sequence Error:", e));
+  });
 } else {
-  startSequence().catch(console.error);
+  startSequence().catch(e => console.warn("Sequence Error:", e));
 }
