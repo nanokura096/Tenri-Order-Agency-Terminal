@@ -156,7 +156,9 @@ async function promptPassword() {
 function printOutput(html) {
   const output = document.getElementById('output');
   output.innerHTML += `<div>${html}</div>`;
-  output.scrollTop = output.scrollHeight;
+  setTimeout(() => {
+    output.scrollTop = output.scrollHeight;
+  }, 30);
 }
 
 function searchPersonnel(keyword) {

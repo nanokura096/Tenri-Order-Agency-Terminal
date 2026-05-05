@@ -13,10 +13,10 @@ body{
   padding:0;
   width:100vw;
   height:100vh;
-  overflow:hidden;
   background:var(--bg);
   color:var(--green);
   font-family:'Courier New', Courier, monospace;
+  overflow:hidden;
 }
 
 /* =========================
@@ -76,6 +76,7 @@ body{
   display:flex;
   flex-direction:column;
   background:#010101;
+  overflow:hidden;
 }
 
 #logo{
@@ -95,12 +96,14 @@ body{
 #output{
   flex:1;
   overflow-y:auto;
+  min-height:0;
   border:1px solid rgba(0,255,65,.4);
   padding:15px;
   background:rgba(0,255,65,.03);
   line-height:1.6;
-  white-space:normal;
   box-shadow: inset 0 0 15px rgba(0,255,65,.05);
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
 /* スクロールバー */
