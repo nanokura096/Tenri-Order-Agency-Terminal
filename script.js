@@ -244,23 +244,11 @@ LOGOUT : reboot system
 }
 
 function showPersonnelButtons(){
-  previousScreen = initTerminal;
-
-  let html = `=== PERSONNEL DATABASE ===<br>`;
-  database.personnel.forEach(p=>{
-    html += `<button class="data-btn" onclick="searchDatabase('${p.id}')">${p.id}<br>${p.name}</button>`;
-  });
-  setOutput(html);
+  renderPersonnelList();
 }
 
 function showObjectButtons(){
-  previousScreen = initTerminal;
-
-  let html = `=== OBJECT DATABASE ===<br>`;
-  database.objects.forEach(o=>{
-    html += `<button class="data-btn" onclick="searchDatabase('${o.id}')">${o.id}<br>${o.name}</button>`;
-  });
-  setOutput(html);
+  renderObjectList();
 }
 
 function searchDatabase(keyword){
@@ -304,6 +292,41 @@ ${o.secret ? '<div class="secret-detected">[ SECRET RECORD DETECTED ]</div>' : '
   }
 
   setOutput(withBackButton(`NO DATA FOUND.`));
+}
+
+function renderPersonnelList(){
+  let html = `<div class="info-panel">
+  <div class="info-line"><span class="info-title">TYPE</span>PERSONNEL DATABASE</div>
+  </div>`;
+
+  database.personnel.forEach(p=>{
+    html += `
+    <button class="data-btn" onclick="searchDatabase('${p.id}')">
+      <b>${p.id}</b><br>
+      ${p.name}<br>
+      <span class="status-${p.status.toLowerCase()}">${p.status}</span>
+    </button>`;
+  });
+
+  setOutput(html);
+}
+
+function renderObjectList(){
+  let html = `<div class="info-panel">
+  <div class="info-line"><span class="info-title">TYPE</span>OBJECT DATABASE</div>
+  </div>`;
+
+  database.objects.forEach(o=>{
+    html += `
+    <button class="data-btn" onclick="searchDatabase('${o.id}')">
+      <b>${o.id}</b><br>
+      ${o.name}<br>
+      CLASS: ${o.class}<br>
+      DANGER: ${o.danger}
+    </button>`;
+  });
+
+  setOutput(html);
 }
 
 /* =========================
@@ -450,3 +473,23 @@ if(document.readyState === 'loading'){
 }else{
   startSequence().catch(e=>console.warn(e));
 }
+
+function playSound(name){
+  const audio = sfx[name];
+  if(!audio) return;
+  audio.currentTime = 0;
+  audio.play().catch(()=>{});
+}
+
+/* =========================
+   SOUND
+========================= */
+const sfx = {
+  boot: new Audio("boot.mp3"),
+  click: new Audio("click.mp3"),
+  error: new Audio("error.mp3"),
+};
+
+document.body.addEventListener("click", () => {
+  Object.values(sfx).forEach(a => a.play().catch(()=>{}));
+}, { once:true });
