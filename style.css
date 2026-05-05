@@ -2,8 +2,6 @@
   --bg: #000;
   --green: #00FF41;
   --red: #ff3131;
-  --dark-green: rgba(0, 255, 65, 0.1);
-  --dark-red: rgba(255, 0, 0, 0.2);
 }
 
 * { box-sizing: border-box; }
@@ -14,17 +12,17 @@ body {
   overflow: hidden; height: 100vh; width: 100vw;
 }
 
-/* 中央寄せコンテナ */
-#startupScreen, #loginScreen, #clearanceAuth, #amnesticOverlay {
+/* 全画面中央寄せの基本設定 */
+.full-screen {
   position: fixed; inset: 0;
-  display: none; flex-direction: column;
+  display: flex; flex-direction: column;
   justify-content: center; align-items: center;
   background: var(--bg); z-index: 1000;
 }
 
 /* ターミナルボックス */
 .terminal-box {
-  width: min(400px, 90vw);
+  width: min(450px, 90vw);
   border: 1px solid var(--green);
   padding: 30px;
   background: #050505;
@@ -34,62 +32,22 @@ body {
 
 .terminal-box.danger { border: 1px double var(--red); box-shadow: 0 0 30px rgba(255, 0, 0, 0.3); }
 
-/* 走査線エフェクト */
-.terminal-box::after {
-  content: " ";
-  position: absolute; inset: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-              linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-  background-size: 100% 2px, 3px 100%;
-  pointer-events: none;
+/* 入力欄 */
+.terminal-input {
+  background: transparent; border: none;
+  border-left: 4px solid var(--green);
+  color: var(--green); font-family: inherit;
+  font-size: 1.1em; width: 100%;
+  padding: 5px 15px; outline: none; margin: 15px 0;
 }
 
-/* 入力・ボタン */
-.input-line { border-bottom: 1px solid var(--green); margin: 10px 0; }
-input {
-  width: 100%; background: transparent; border: none;
-  color: var(--green); padding: 10px; font-family: inherit; outline: none;
-}
-.terminal-btn {
-  background: transparent; border: 1px solid var(--green);
-  color: var(--green); padding: 10px; cursor: pointer; font-family: inherit;
-}
-.terminal-btn:hover { background: var(--green); color: #000; }
-.danger-btn { border-color: var(--red); color: var(--red); }
-.danger-btn:hover { background: var(--red); color: #000; }
+#loginConsole div { margin-bottom: 8px; line-height: 1.5; }
 
-/* メイン画面 */
+/* メイン画面用スタイル */
 #mainTerminal { height: 100vh; padding: 20px; overflow-y: auto; }
 #logo { border-bottom: 1px solid var(--green); padding-bottom: 5px; margin-bottom: 15px; }
-.search-area { display: flex; gap: 10px; }
-#result { border: 1px solid var(--green); background: var(--dark-green); padding: 15px; margin-top: 15px; min-height: 200px; }
+.search-area { display: flex; gap: 10px; margin-bottom: 15px; }
+#result { border: 1px solid var(--green); padding: 15px; min-height: 200px; background: rgba(0,255,65,0.05); }
 
 .blink { animation: blinker 1s linear infinite; }
 @keyframes blinker { 50% { opacity: 0; } }
-
-/* 前回の設定に以下を追加 */
-.full-screen {
-  position: fixed; inset: 0;
-  display: flex; justify-content: center; align-items: center;
-  background: #000;
-}
-
-.terminal-input {
-  background: transparent;
-  border: none;
-  border-left: 10px solid var(--green);
-  color: var(--green);
-  font-family: inherit;
-  font-size: 1.1em;
-  width: 100%;
-  padding: 5px 10px;
-  outline: none;
-  margin: 10px 0;
-}
-
-#loginConsole div {
-  margin-bottom: 5px;
-  line-height: 1.4;
-}
-
-/* 走査線とボックスのスタイルは前回同様 */
