@@ -13,14 +13,14 @@ body{
   padding:0;
   width:100vw;
   height:100vh;
+  overflow:hidden;
   background:var(--bg);
   color:var(--green);
   font-family:'Courier New', Courier, monospace;
-  overflow:hidden;
 }
 
 /* =========================
-   COMMON FULL SCREEN
+   LOGIN SCREEN
 ========================= */
 .full-screen{
   position:fixed;
@@ -28,13 +28,10 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  background:var(--bg);
+  background:#000;
   z-index:9999;
 }
 
-/* =========================
-   LOGIN BOX
-========================= */
 .terminal-box{
   width:min(500px,90vw);
   min-height:300px;
@@ -59,7 +56,7 @@ body{
 
 #loginConsole{
   line-height:1.7;
-  font-size:0.95em;
+  font-size:.95em;
 }
 
 #loginConsole div{
@@ -72,15 +69,15 @@ body{
 #mainTerminal{
   width:100vw;
   height:100vh;
-  padding:20px;
+  padding:15px;
   display:flex;
   flex-direction:column;
-  background:#010101;
   overflow:hidden;
+  background:#010101;
 }
 
 #logo{
-  font-size:1.2em;
+  font-size:1.1em;
   border-bottom:1px solid var(--green);
   padding-bottom:8px;
   margin-bottom:8px;
@@ -88,56 +85,67 @@ body{
 }
 
 #statusbar{
-  margin-bottom:15px;
+  margin-bottom:12px;
   font-size:.9em;
   opacity:.8;
 }
 
 #output{
   flex:1;
-  overflow-y:auto;
   min-height:0;
+  overflow-y:auto;
   border:1px solid rgba(0,255,65,.4);
-  padding:15px;
+  padding:12px;
   background:rgba(0,255,65,.03);
   line-height:1.6;
   box-shadow: inset 0 0 15px rgba(0,255,65,.05);
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-y;
 }
 
-/* スクロールバー */
 #output::-webkit-scrollbar{
-  width:6px;
+  width:5px;
 }
 #output::-webkit-scrollbar-thumb{
   background:var(--green);
 }
 
 /* =========================
-   COMMAND LINE
+   BUTTONS
 ========================= */
-.command-line{
+.quick-buttons{
   display:flex;
-  align-items:center;
-  gap:10px;
-  margin-top:12px;
-  border-top:1px solid rgba(0,255,65,.4);
-  padding-top:12px;
+  gap:8px;
+  margin-top:10px;
+  flex-wrap:wrap;
 }
 
-#commandInput{
+.quick-buttons button{
   flex:1;
-  background:transparent;
-  border:none;
+  min-width:90px;
+  background:#031103;
   color:var(--green);
+  border:1px solid var(--green);
+  padding:12px 8px;
   font-family:inherit;
-  font-size:1em;
-  outline:none;
+  font-size:.82em;
+}
+
+.quick-buttons button:active{
+  background:rgba(0,255,65,.18);
+}
+
+.data-btn{
+  margin:4px;
+  background:#031103;
+  color:var(--green);
+  border:1px solid var(--green);
+  padding:7px;
+  font-family:inherit;
+  font-size:.8em;
 }
 
 /* =========================
-   EFFECTS
+   EFFECT
 ========================= */
 .blink{
   animation:blink 1s linear infinite;

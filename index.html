@@ -8,21 +8,30 @@
 </head>
 <body>
 
+  <!-- LOGIN SCREEN -->
   <div id="loginScreen" class="full-screen">
     <div class="terminal-box">
       <div id="loginConsole"></div>
     </div>
   </div>
 
+  <!-- MAIN TERMINAL -->
   <div id="mainTerminal" style="display:none;">
     <div id="logo">TENRI NETWORK OS // TOA-226</div>
     <div id="statusbar">SYSTEM ONLINE</div>
 
     <div id="output"></div>
 
-    <div class="command-line">
-      <span>>></span>
-      <input type="text" id="commandInput" autocomplete="off" placeholder="ENTER COMMAND">
+    <div class="quick-buttons">
+      <button onclick="helpCommand()">HELP</button>
+      <button onclick="showPersonnelButtons()">PERSONNEL</button>
+      <button onclick="showObjectButtons()">OBJECTS</button>
+    </div>
+
+    <div class="quick-buttons">
+      <button onclick="showSecret()">SECRET</button>
+      <button onclick="clearTerminal()">CLEAR</button>
+      <button onclick="location.reload()">LOGOUT</button>
     </div>
   </div>
 

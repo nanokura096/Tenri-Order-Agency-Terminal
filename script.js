@@ -39,35 +39,57 @@ const database = {
       secret: false,
       record: '警備班所属。'
     }
+  ],
+
+  objects: [
+    {
+      id: 'OBJ-220001',
+      name: '黒箱',
+      class: 'Keter',
+      danger: 'HIGH',
+      detail: '内部時間の進行が停止している黒色立方体。接触禁止。'
+    },
+    {
+      id: 'OBJ-889100',
+      name: '模倣鏡',
+      class: 'Euclid',
+      danger: 'MEDIUM',
+      detail: '映した対象と異なる表情を返す鏡。精神汚染報告あり。'
+    },
+    {
+      id: 'OBJ-443210',
+      name: '泣く人形',
+      class: 'Safe',
+      danger: 'LOW',
+      detail: '深夜2時に涙を流す磁器人形。'
+    }
   ]
 };
 
 const wait = (ms) => new Promise(res => setTimeout(res, ms));
 
 /* =========================
-   LOGIN ANIMATION
+   LOGIN LOG
 ========================= */
-async function typeLog(text, isDot = false) {
+async function typeLog(text, isDot=false){
   const consoleEl = document.getElementById('loginConsole');
-  if (!consoleEl) return;
+  if(!consoleEl) return;
 
   const div = document.createElement('div');
   div.innerHTML = text;
   consoleEl.appendChild(div);
   consoleEl.scrollTop = consoleEl.scrollHeight;
 
-  if (isDot) {
-    for (let i = 0; i < 3; i++) {
+  if(isDot){
+    for(let i=0;i<3;i++){
       await wait(700);
       div.innerHTML += '.';
     }
   }
 }
 
-async function startSequence() {
+async function startSequence(){
   const consoleEl = document.getElementById('loginConsole');
-  if (!consoleEl) return;
-
   consoleEl.innerHTML = '';
 
   await typeLog("Welcome to Tenri Network OS");
@@ -79,24 +101,23 @@ async function startSequence() {
   const idInput = document.createElement('input');
   idInput.type = "text";
   idInput.className = "terminal-input";
-  idInput.autocomplete = "off";
   consoleEl.appendChild(idInput);
 
-  setTimeout(() => idInput.focus(), 50);
+  setTimeout(()=>idInput.focus(),50);
 
-  idInput.addEventListener('keydown', async (e) => {
-    if (e.key === 'Enter') {
+  idInput.addEventListener('keydown', async(e)=>{
+    if(e.key === 'Enter'){
       const val = idInput.value.trim();
-      if (!val) return;
-
+      if(!val) return;
       idInput.disabled = true;
+
       await typeLog("<br>Checking with database", true);
 
-      if (val === "admin") {
+      if(val === "admin"){
         await typeLog("<br>Welcome Naruse Kaso!");
-        await wait(800);
+        await wait(700);
         promptPassword();
-      } else {
+      }else{
         await typeLog("<br><span style='color:var(--red)'>UNKNOWN ID. REBOOTING...</span>");
         await wait(2000);
         location.reload();
@@ -105,24 +126,23 @@ async function startSequence() {
   });
 }
 
-async function promptPassword() {
+async function promptPassword(){
   const consoleEl = document.getElementById('loginConsole');
   await typeLog("<br>Enter PASSWORD");
 
   const passInput = document.createElement('input');
   passInput.type = "password";
   passInput.className = "terminal-input";
-  passInput.autocomplete = "off";
   consoleEl.appendChild(passInput);
 
-  setTimeout(() => passInput.focus(), 50);
+  setTimeout(()=>passInput.focus(),50);
 
-  passInput.addEventListener('keydown', async (e) => {
-    if (e.key === 'Enter') {
+  passInput.addEventListener('keydown', async(e)=>{
+    if(e.key === 'Enter'){
       const val = passInput.value.trim();
       passInput.disabled = true;
 
-      if (val === "226227") {
+      if(val === "226227"){
         await typeLog("<br>Checking with database", true);
         await typeLog("Loading System", true);
         await typeLog("Accessing to Database", true);
@@ -131,17 +151,12 @@ async function promptPassword() {
         await typeLog("Welcome to Tenri Network OS!");
         await wait(1500);
 
-        const login = document.getElementById('loginScreen');
-        const main = document.getElementById('mainTerminal');
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainTerminal').style.display = 'flex';
 
-        if (login) login.style.display = 'none';
-        if (main) main.style.display = 'flex';
+        initTerminal();
 
-        setTimeout(() => {
-          initTerminal();
-        }, 100);
-
-      } else {
+      }else{
         await typeLog("<br><span style='color:var(--red)'>INVALID PASSWORD. REBOOTING...</span>");
         await wait(2000);
         location.reload();
@@ -151,48 +166,98 @@ async function promptPassword() {
 }
 
 /* =========================
-   MAIN TERMINAL
+   TERMINAL OUTPUT
 ========================= */
-function printOutput(html) {
+function printOutput(html){
   const output = document.getElementById('output');
   output.innerHTML += `<div>${html}</div>`;
-  setTimeout(() => {
+  setTimeout(()=>{
     output.scrollTop = output.scrollHeight;
-  }, 30);
+  },30);
 }
 
-function searchPersonnel(keyword) {
-  const found = database.personnel.find(p =>
-    p.id.toLowerCase() === keyword.toLowerCase() ||
-    p.name.toLowerCase() === keyword.toLowerCase()
-  );
+function clearTerminal(){
+  document.getElementById('output').innerHTML = '';
+}
 
-  if (!found) {
-    printOutput(`<span style="color:var(--red)">NO DATA FOUND.</span>`);
+/* =========================
+   COMMAND BUTTONS
+========================= */
+function helpCommand(){
+  printOutput(`
+<span style="color:var(--green)">
+=== AVAILABLE COMMANDS ===<br>
+HELP : show help<br>
+PERSONNEL : show personnel database<br>
+OBJECTS : show object database<br>
+SECRET : secret file<br>
+CLEAR : clear log<br>
+LOGOUT : reboot system
+</span>
+  `);
+}
+
+function showPersonnelButtons(){
+  printOutput(`<br><span style="color:var(--green)">=== PERSONNEL DATABASE ===</span>`);
+  database.personnel.forEach(p=>{
+    printOutput(`<button class="data-btn" onclick="searchDatabase('${p.id}')">${p.id}<br>${p.name}</button>`);
+  });
+}
+
+function showObjectButtons(){
+  printOutput(`<br><span style="color:var(--green)">=== OBJECT DATABASE ===</span>`);
+  database.objects.forEach(o=>{
+    printOutput(`<button class="data-btn" onclick="searchDatabase('${o.id}')">${o.id}<br>${o.name}</button>`);
+  });
+}
+
+/* =========================
+   SEARCH SYSTEM
+========================= */
+function searchDatabase(keyword){
+  const p = database.personnel.find(x => x.id === keyword);
+
+  if(p){
+    printOutput(`
+╔════════════════════════════╗<br>
+ ID : ${p.id}<br>
+ NAME : ${p.name}<br>
+ SEX : ${p.sex}<br>
+ AGE : ${p.age}<br>
+ DIVISION : ${p.division}<br>
+ RANK : ${p.rank}<br>
+ ABILITY : ${p.ability}<br>
+ STATUS : ${p.status}<br>
+╚════════════════════════════╝
+    `);
+
+    if(p.secret){
+      printOutput(`<span style="color:var(--green)">[SECRET RECORD DETECTED]</span>`);
+    }
     return;
   }
 
-  printOutput(`
-╔════════════════════════════╗<br>
- ID : ${found.id}<br>
- NAME : ${found.name}<br>
- SEX : ${found.sex}<br>
- AGE : ${found.age}<br>
- DIVISION : ${found.division}<br>
- RANK : ${found.rank}<br>
- ABILITY : ${found.ability}<br>
- STATUS : ${found.status}<br>
-╚════════════════════════════╝
-  `);
+  const o = database.objects.find(x => x.id === keyword);
 
-  if (found.secret) {
-    printOutput(`<span style="color:var(--green)">[SECRET RECORD DETECTED]</span> type "open secret"</span>`);
+  if(o){
+    printOutput(`
+╔════════════════════════════╗<br>
+ ID : ${o.id}<br>
+ NAME : ${o.name}<br>
+ CLASS : ${o.class}<br>
+ DANGER : ${o.danger}<br>
+ DETAIL : ${o.detail}<br>
+╚════════════════════════════╝
+    `);
+    return;
   }
+
+  printOutput(`<span style="color:var(--red)">NO DATA FOUND.</span>`);
 }
 
-function showSecret() {
-  const found = database.personnel.find(p => p.secret);
-  if (!found) {
+function showSecret(){
+  const found = database.personnel.find(p=>p.secret);
+  if(!found){
     printOutput("NO SECRET RECORD.");
     return;
   }
@@ -208,76 +273,19 @@ ${found.record}<br>
   `);
 }
 
-function toggleList() {
-  printOutput(`<span style="color:var(--green)">=== PERSONNEL LIST ===</span>`);
-  database.personnel.forEach(p => {
-    printOutput(`${p.id} : ${p.name} [${p.status}]`);
-  });
-}
-
-function helpCommand() {
-  printOutput(`
-Available Commands:<br>
-help — command list<br>
-clear — clear output<br>
-logout — reboot system<br>
-toggle list — show personnel<br>
-open secret — secret file<br>
-AP-000000 / name — personnel search
-  `);
-}
-
-function executeCommand(cmd) {
-  printOutput(`<span style="color:var(--green)">> ${cmd}</span>`);
-
-  const lower = cmd.toLowerCase();
-
-  if (lower === "help") {
-    helpCommand();
-  } else if (lower === "clear") {
-    document.getElementById('output').innerHTML = "";
-  } else if (lower === "logout") {
-    location.reload();
-  } else if (lower === "toggle list") {
-    toggleList();
-  } else if (lower === "open secret") {
-    showSecret();
-  } else {
-    searchPersonnel(cmd);
-  }
-}
-
-function initTerminal() {
-  const output = document.getElementById('output');
-  const commandInput = document.getElementById('commandInput');
-
-  if (!output || !commandInput) {
-    console.warn("Terminal elements not found.");
-    return;
-  }
-
-  output.innerHTML = "";
-  commandInput.focus();
-
-  commandInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const cmd = commandInput.value.trim();
-      if (!cmd) return;
-      executeCommand(cmd);
-      commandInput.value = "";
-    }
-  });
-
-  printOutput(`<span style="color:var(--green)">Tenri Network OS initialized.</span>`);
-  printOutput(`type "help" to view commands.`);
-}
 /* =========================
-   INITIALIZE
+   INIT
 ========================= */
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    startSequence().catch(e => console.warn(e));
+function initTerminal(){
+  clearTerminal();
+  printOutput(`<span style="color:var(--green)">Tenri Network OS initialized.</span>`);
+  printOutput(`Tap a command button below.`);
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', ()=>{
+    startSequence().catch(e=>console.warn(e));
   });
-} else {
-  startSequence().catch(e => console.warn(e));
+}else{
+  startSequence().catch(e=>console.warn(e));
 }
