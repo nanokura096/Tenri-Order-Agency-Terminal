@@ -1,26 +1,26 @@
 :root{
   --bg:#000;
-  --green:#00FF41;
-  --red:#ff3131;
+  --panel:#050505;
+  --green:#00ff41;
+  --green2:#00cc33;
+  --red:#ff2a2a;
 }
 
 *{
   box-sizing:border-box;
+  font-family:'Courier New', monospace;
 }
 
 body{
   margin:0;
   padding:0;
-  width:100vw;
-  height:100vh;
-  overflow:hidden;
   background:var(--bg);
   color:var(--green);
-  font-family:'Courier New', Courier, monospace;
+  overflow:hidden;
 }
 
 /* =========================
-   LOGIN SCREEN
+   FULL SCREEN
 ========================= */
 .full-screen{
   position:fixed;
@@ -32,148 +32,270 @@ body{
   z-index:9999;
 }
 
+/* =========================
+   TERMINAL BOX
+========================= */
 .terminal-box{
   width:min(500px,90vw);
-  min-height:300px;
+  min-height:200px;
   border:1px solid var(--green);
-  background:#050505;
-  padding:30px;
-  box-shadow:0 0 25px rgba(0,255,65,.18);
-  text-align:left;
-  line-height:1.7;
+  background:var(--panel);
+  padding:25px;
+  box-shadow:0 0 20px rgba(0,255,65,.15);
 }
 
+.terminal-box.danger{
+  border:1px solid var(--red);
+  box-shadow:0 0 25px rgba(255,0,0,.25);
+}
+
+/* =========================
+   LOGIN INPUT
+========================= */
 .terminal-input{
   width:100%;
   margin-top:12px;
-  padding:8px 12px;
-  background:transparent;
+  background:#000;
   border:none;
   border-left:3px solid var(--green);
   color:var(--green);
-  font-family:inherit;
-  font-size:1em;
+  padding:10px;
   outline:none;
-}
-
-#loginConsole{
-  line-height:1.7;
-  font-size:.95em;
-}
-
-#loginConsole div{
-  margin-bottom:8px;
+  font-size:1em;
 }
 
 /* =========================
    MAIN TERMINAL
 ========================= */
 #mainTerminal{
-  width:100vw;
-  height:100vh;
-  padding:15px;
-  display:flex;
+  display:none;
   flex-direction:column;
-  gap:8px;
-  overflow:hidden;
-  background:#010101;
+  height:100vh;
+  padding:10px;
 }
 
 #logo{
-  font-size:1.1em;
   border-bottom:1px solid var(--green);
-  padding-bottom:8px;
-  margin-bottom:8px;
-  letter-spacing:1px;
+  padding:10px;
+  font-size:0.95em;
+  text-shadow:0 0 5px rgba(0,255,65,.4);
 }
 
 #statusbar{
-  margin-bottom:12px;
-  font-size:.9em;
-  opacity:.8;
+  padding:6px 10px;
+  font-size:0.8em;
+  opacity:.7;
 }
 
+/* =========================
+   TOP BUTTONS
+========================= */
+.quick-buttons{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin:8px 0;
+}
+
+.quick-buttons button,
+.logout-zone button,
+.authButtons button,
+.data-btn{
+  background:#020202;
+  border:1px solid var(--green);
+  color:var(--green);
+  padding:12px 8px;
+  font-size:0.85em;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.quick-buttons button:active,
+.logout-zone button:active,
+.authButtons button:active,
+.data-btn:active{
+  background:var(--green);
+  color:#000;
+  box-shadow:0 0 10px rgba(0,255,65,.5);
+}
+
+/* =========================
+   OUTPUT WINDOW
+========================= */
 #output{
   flex:1;
-  overflow-y:auto;
-  min-height:0;
+  margin-top:8px;
   border:1px solid rgba(0,255,65,.4);
-  padding:12px;
   background:rgba(0,255,65,.03);
-  line-height:1.6;
-  box-shadow: inset 0 0 15px rgba(0,255,65,.05);
-  -webkit-overflow-scrolling: touch;
+  padding:12px;
+  overflow-y:auto;
+  font-size:0.85em;
+  line-height:1.5;
+  box-shadow:inset 0 0 12px rgba(0,255,65,.08);
 }
 
+/* スクロールバー */
 #output::-webkit-scrollbar{
-  width:5px;
+  width:4px;
 }
 #output::-webkit-scrollbar-thumb{
   background:var(--green);
 }
 
 /* =========================
-   BUTTONS
+   DATA BUTTONS
 ========================= */
-.quick-buttons{
-  display:flex;
-  width:100%;
-  gap:8px;
-}
-
-.quick-buttons:nth-of-type(2){
-  grid-template-columns:repeat(2, 1fr);
-}
-
-.quick-buttons button{
-  flex:1;
-  background:#031103;
-  color:var(--green);
-  border:1px solid var(--green);
-  padding:12px 4px;
-  font-family:inherit;
-  font-size:.75em;
-}
-
-.quick-buttons button:active{
-  background:rgba(0,255,65,.18);
-}
-
 .data-btn{
-  margin:4px;
-  background:#031103;
-  color:var(--green);
-  border:1px solid var(--green);
-  padding:7px;
-  font-family:inherit;
-  font-size:.8em;
+  width:100%;
+  margin-top:8px;
+  text-align:left;
 }
 
 /* =========================
-   EFFECT
+   LOGOUT
+========================= */
+.logout-zone{
+  margin-top:8px;
+}
+
+.logout-zone button{
+  width:100%;
+  border-color:var(--red);
+  color:var(--red);
+}
+
+.logout-zone button:active{
+  background:var(--red);
+  color:#000;
+}
+
+/* =========================
+   SECRET AUTH
+========================= */
+#secretError,
+#authError{
+  color:var(--red);
+  margin-top:10px;
+  font-size:.9em;
+}
+
+.authButtons{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+
+.authButtons button{
+  flex:1;
+}
+
+.danger-btn{
+  border-color:var(--red)!important;
+  color:var(--red)!important;
+}
+
+.danger-btn:active{
+  background:var(--red)!important;
+  color:#000!important;
+}
+
+/* =========================
+   BLINK
 ========================= */
 .blink{
-  animation:blink 1s linear infinite;
+  animation:blink 1s infinite;
 }
 
 @keyframes blink{
   50%{opacity:0;}
 }
 
-.logout-zone{
-  margin-top:2px;
+/* =========================
+   STATUS COLORS
+========================= */
+.status-active{
+  color:#00ff41;
+  text-shadow:0 0 6px rgba(0,255,65,.5);
 }
 
-.logout-zone button{
-  width:100%;
-  background:#120303;
-  color:var(--red);
-  border:1px solid var(--red);
+.status-contained{
+  color:#00e1ff;
+  text-shadow:0 0 6px rgba(0,225,255,.5);
+}
+
+.status-missing{
+  color:#ffe600;
+  text-shadow:0 0 6px rgba(255,230,0,.5);
+}
+
+.status-terminated{
+  color:#ff2a2a;
+  text-shadow:0 0 6px rgba(255,42,42,.5);
+}
+
+.status-neutralized{
+  color:#9a9a9a;
+  text-shadow:0 0 6px rgba(180,180,180,.3);
+}
+
+.status-sealed{
+  color:#b266ff;
+  text-shadow:0 0 6px rgba(178,102,255,.5);
+}
+
+.status-suspended{
+  color:#ff9900;
+  text-shadow:0 0 6px rgba(255,153,0,.5);
+}
+
+/* =========================
+   DANGER COLORS
+========================= */
+.danger-low{
+  color:#00ff41;
+  text-shadow:0 0 6px rgba(0,255,65,.5);
+}
+
+.danger-medium{
+  color:#ffe600;
+  text-shadow:0 0 6px rgba(255,230,0,.5);
+}
+
+.danger-high{
+  color:#ff2a2a;
+  text-shadow:0 0 6px rgba(255,42,42,.5);
+}
+
+.danger-extreme{
+  color:#ff00ae;
+  text-shadow:0 0 6px rgba(255,0,174,.5);
+}
+
+/* =========================
+   INFO PANEL
+========================= */
+.info-panel{
+  border:1px solid rgba(0,255,65,.5);
+  background:rgba(0,255,65,.03);
   padding:12px;
-  font-family:inherit;
-  font-size:.9em;
+  margin-top:8px;
+  box-shadow:inset 0 0 10px rgba(0,255,65,.06);
 }
 
-.logout-zone button:active{
-  background:rgba(255,0,0,.15);
+.info-line{
+  padding:4px 0;
+  border-bottom:1px solid rgba(0,255,65,.08);
+}
+
+.info-title{
+  color:rgba(0,255,65,.65);
+  display:inline-block;
+  width:85px;
+}
+
+.secret-detected{
+  margin-top:10px;
+  color:#ff2a2a;
+  text-shadow:0 0 6px rgba(255,42,42,.5);
+  animation:blink 1s infinite;
 }

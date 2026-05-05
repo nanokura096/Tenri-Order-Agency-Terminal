@@ -69,7 +69,41 @@ const database = {
   ]
 };
 
+let previousScreen = null;
 const wait = (ms) => new Promise(res => setTimeout(res, ms));
+
+function getStatusColor(status){
+  switch(status){
+    case 'ACTIVE': return '<span class="status-active">ACTIVE</span>';
+    case 'CONTAINED': return '<span class="status-contained">CONTAINED</span>';
+    case 'MISSING': return '<span class="status-missing">MISSING</span>';
+    case 'TERMINATED': return '<span class="status-terminated">TERMINATED</span>';
+    case 'NEUTRALIZED': return '<span class="status-neutralized">NEUTRALIZED</span>';
+    case 'SEALED': return '<span class="status-sealed">SEALED</span>';
+    case 'SUSPENDED': return '<span class="status-suspended">SUSPENDED</span>';
+    default: return status;
+  }
+}
+
+function getDangerColor(level){
+  switch(level){
+    case 'LOW': return '<span class="danger-low">LOW</span>';
+    case 'MEDIUM': return '<span class="danger-medium">MEDIUM</span>';
+    case 'HIGH': return '<span class="danger-high">HIGH</span>';
+    case 'EXTREME': return '<span class="danger-extreme">EXTREME</span>';
+    default: return level;
+  }
+}
+
+function getDangerColor(level){
+  switch(level){
+    case 'LOW': return '<span style="color:#00ff41;">LOW</span>';
+    case 'MEDIUM': return '<span style="color:#ffe600;">MEDIUM</span>';
+    case 'HIGH': return '<span style="color:#ff2a2a;">HIGH</span>';
+    case 'EXTREME': return '<span style="color:#ff00ae;">EXTREME</span>';
+    default: return level;
+  }
+}
 
 /* =========================
    LOGIN ANIMATION
@@ -98,7 +132,6 @@ async function startSequence(){
   await typeLog("Welcome to Tenri Network OS");
   await typeLog("Now Loading", true);
   await wait(500);
-
   await typeLog("<br>Enter ID");
 
   const idInput = document.createElement('input');
@@ -170,86 +203,107 @@ async function promptPassword(){
 }
 
 /* =========================
-   TERMINAL OUTPUT
+   OUTPUT CONTROL
 ========================= */
-function printOutput(html){
+function setOutput(html){
   const output = document.getElementById('output');
-  output.innerHTML += `<div>${html}</div>`;
-  setTimeout(()=>{
-    output.scrollTop = output.scrollHeight;
-  },20);
+  output.innerHTML = `<div>${html}</div>`;
+  output.scrollTop = 0;
 }
 
-function clearTerminal(){
-  document.getElementById('output').innerHTML = '';
+function withBackButton(content){
+  return `
+    ${content}
+    <br><br>
+    <button class="data-btn" onclick="goBack()">← BACK</button>
+  `;
+}
+
+function goBack(){
+  if(previousScreen){
+    previousScreen();
+  }else{
+    initTerminal();
+  }
 }
 
 /* =========================
    NORMAL COMMANDS
 ========================= */
 function helpCommand(){
-  printOutput(`
+  previousScreen = initTerminal;
+
+  setOutput(withBackButton(`
 === AVAILABLE COMMANDS ===<br>
-HELP : show help<br>
+HELP : show help screen<br>
 PERSONNEL : personnel database<br>
 OBJECTS : object database<br>
-SECRET : classified file<br>
-CLEAR : clear log<br>
+SECRET : classified database<br>
 LOGOUT : reboot system
-  `);
+  `));
 }
 
 function showPersonnelButtons(){
-  printOutput(`<br>=== PERSONNEL DATABASE ===`);
+  previousScreen = initTerminal;
+
+  let html = `=== PERSONNEL DATABASE ===<br>`;
   database.personnel.forEach(p=>{
-    printOutput(`<button class="data-btn" onclick="searchDatabase('${p.id}')">${p.id}<br>${p.name}</button>`);
+    html += `<button class="data-btn" onclick="searchDatabase('${p.id}')">${p.id}<br>${p.name}</button>`;
   });
+  setOutput(html);
 }
 
 function showObjectButtons(){
-  printOutput(`<br>=== OBJECT DATABASE ===`);
+  previousScreen = initTerminal;
+
+  let html = `=== OBJECT DATABASE ===<br>`;
   database.objects.forEach(o=>{
-    printOutput(`<button class="data-btn" onclick="searchDatabase('${o.id}')">${o.id}<br>${o.name}</button>`);
+    html += `<button class="data-btn" onclick="searchDatabase('${o.id}')">${o.id}<br>${o.name}</button>`;
   });
+  setOutput(html);
 }
 
 function searchDatabase(keyword){
   const p = database.personnel.find(x=>x.id===keyword);
 
   if(p){
-    printOutput(`
-╔════════════════════════════╗<br>
-ID : ${p.id}<br>
-NAME : ${p.name}<br>
-SEX : ${p.sex}<br>
-AGE : ${p.age}<br>
-DIVISION : ${p.division}<br>
-RANK : ${p.rank}<br>
-ABILITY : ${p.ability}<br>
-STATUS : ${p.status}<br>
-╚════════════════════════════╝
-    `);
-    if(p.secret) printOutput(`[SECRET RECORD DETECTED]`);
+    previousScreen = showPersonnelButtons;
+
+    setOutput(withBackButton(`
+<div class="info-panel">
+  <div class="info-line"><span class="info-title">ID</span>: ${p.id}</div>
+  <div class="info-line"><span class="info-title">NAME</span>: ${p.name}</div>
+  <div class="info-line"><span class="info-title">SEX</span>: ${p.sex}</div>
+  <div class="info-line"><span class="info-title">AGE</span>: ${p.age}</div>
+  <div class="info-line"><span class="info-title">DIVISION</span>: ${p.division}</div>
+  <div class="info-line"><span class="info-title">RANK</span>: ${p.rank}</div>
+  <div class="info-line"><span class="info-title">ABILITY</span>: ${p.ability}</div>
+  <div class="info-line"><span class="info-title">STATUS</span>: ${getStatusColor(p.status)}</div>
+</div>
+${p.secret ? '<div class="secret-detected">[ SECRET RECORD DETECTED ]</div>' : ''}
+    `));
     return;
   }
 
   const o = database.objects.find(x=>x.id===keyword);
 
   if(o){
-    printOutput(`
-╔════════════════════════════╗<br>
-ID : ${o.id}<br>
-NAME : ${o.name}<br>
-CLASS : ${o.class}<br>
-DANGER : ${o.danger}<br>
-DETAIL : ${o.detail}<br>
-╚════════════════════════════╝
-    `);
-    if(o.secret) printOutput(`[SECRET RECORD DETECTED]`);
+    previousScreen = showObjectButtons;
+
+    setOutput(withBackButton(`
+<div class="info-panel">
+  <div class="info-line"><span class="info-title">ID</span>: ${o.id}</div>
+  <div class="info-line"><span class="info-title">NAME</span>: ${o.name}</div>
+  <div class="info-line"><span class="info-title">CLASS</span>: ${o.class}</div>
+  <div class="info-line"><span class="info-title">DANGER</span>: ${getDangerColor(o.danger)}</div>
+  <div class="info-line"><span class="info-title">DETAIL</span>: ${o.detail}</div>
+</div>
+${o.secret ? '<div class="secret-detected">[ SECRET RECORD DETECTED ]</div>' : ''}
+    `));
     return;
   }
 
-  printOutput(`<span style="color:red;">NO DATA FOUND.</span>`);
+  setOutput(withBackButton(`NO DATA FOUND.`));
 }
 
 /* =========================
@@ -278,49 +332,65 @@ function confirmSecretAccess(){
 }
 
 function showSecretDatabaseSelect(){
-  printOutput(`
+  previousScreen = initTerminal;
+
+  setOutput(`
 === SELECT SECRET DATABASE ===<br>
 <button class="data-btn" onclick="showSecretPersonnelList()">PERSONNEL FILE</button>
 <button class="data-btn" onclick="showSecretObjectList()">OBJECT FILE</button>
+<br><br>
+<button class="data-btn" onclick="goBack()">← BACK</button>
   `);
 }
 
 function showSecretPersonnelList(){
-  printOutput(`<br>=== SECRET PERSONNEL FILE ===`);
+  previousScreen = showSecretDatabaseSelect;
+
+  let html = `=== SECRET PERSONNEL FILE ===<br>`;
   database.personnel.filter(p=>p.secret).forEach(p=>{
-    printOutput(`<button class="data-btn" onclick="openPersonnelSecret('${p.id}')">${p.id}<br>${p.name}</button>`);
+    html += `<button class="data-btn" onclick="openPersonnelSecret('${p.id}')">${p.id}<br>${p.name}</button>`;
   });
+  html += `<br><br><button class="data-btn" onclick="goBack()">← BACK</button>`;
+  setOutput(html);
 }
 
 function showSecretObjectList(){
-  printOutput(`<br>=== SECRET OBJECT FILE ===`);
+  previousScreen = showSecretDatabaseSelect;
+
+  let html = `=== SECRET OBJECT FILE ===<br>`;
   database.objects.filter(o=>o.secret).forEach(o=>{
-    printOutput(`<button class="data-btn" onclick="openObjectSecret('${o.id}')">${o.id}<br>${o.name}</button>`);
+    html += `<button class="data-btn" onclick="openObjectSecret('${o.id}')">${o.id}<br>${o.name}</button>`;
   });
+  html += `<br><br><button class="data-btn" onclick="goBack()">← BACK</button>`;
+  setOutput(html);
 }
 
 function openPersonnelSecret(id){
   const p = database.personnel.find(x=>x.id===id);
   if(!p) return;
 
-  printOutput(`
+  previousScreen = showSecretPersonnelList;
+
+  setOutput(withBackButton(`
 ████ SECRET PERSONNEL FILE ████<br>
 TARGET : ${p.name}<br>
 ${p.secretRecord}<br>
 ██████████████████████████
-  `);
+  `));
 }
 
 function openObjectSecret(id){
   const o = database.objects.find(x=>x.id===id);
   if(!o) return;
 
-  printOutput(`
+  previousScreen = showSecretObjectList;
+
+  setOutput(withBackButton(`
 ████ SECRET OBJECT FILE ████<br>
 TARGET : ${o.name}<br>
 ${o.secretRecord}<br>
 ██████████████████████████
-  `);
+  `));
 }
 
 /* =========================
@@ -336,7 +406,6 @@ function closeLogoutConfirm(){
 
 async function confirmLogout(){
   const box = document.querySelector('#logoutConfirm .terminal-box');
-
   box.innerHTML = `<div id="rebootLog"></div>`;
   const rebootLog = document.getElementById('rebootLog');
 
@@ -365,9 +434,13 @@ async function confirmLogout(){
    INIT
 ========================= */
 function initTerminal(){
-  clearTerminal();
-  printOutput(`Tenri Network OS initialized.`);
-  printOutput(`Tap a command button below.`);
+  previousScreen = null;
+
+  setOutput(`
+Tenri Network OS initialized.<br>
+Administrator session connected.<br><br>
+Select command.
+  `);
 }
 
 if(document.readyState === 'loading'){
