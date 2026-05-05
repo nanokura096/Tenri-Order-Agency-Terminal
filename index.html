@@ -15,36 +15,27 @@
     </div>
   </div>
 
-  <!-- MAIN TERMINAL -->
   <div id="mainTerminal" style="display:none;">
-    <div id="logo">TENRI NETWORK OS // TOA-226</div>
-    <div id="statusbar">SYSTEM ONLINE</div>
+  <div id="logo">TENRI NETWORK OS // TOA-226</div>
+  <div id="statusbar">SYSTEM ONLINE</div>
 
-    <div id="output"></div>
-
-    <div class="quick-buttons">
-      <button onclick="helpCommand()">HELP</button>
-      <button onclick="showPersonnelButtons()">PERSONNEL</button>
-      <button onclick="showObjectButtons()">OBJECTS</button>
-    </div>
-
-    <div class="quick-buttons">
-      <button onclick="showSecret()">SECRET</button>
-      <button onclick="clearTerminal()">CLEAR</button>
-      <button onclick="openLogoutConfirm()">LOGOUT</button>
-    </div>
+  <div class="quick-buttons">
+    <button onclick="helpCommand()">HELP</button>
+    <button onclick="showPersonnelButtons()">PERSONNEL</button>
+    <button onclick="showObjectButtons()">OBJECTS</button>
   </div>
 
-  <div id="logoutConfirm" class="full-screen" style="display:none;">
-  <div class="terminal-box">
-    <div class="blink" style="color:var(--red);margin-bottom:15px;">[ SYSTEM REBOOT REQUEST ]</div>
-    <div style="margin-bottom:20px;">Terminate current session?</div>
-
-    <div class="quick-buttons">
-      <button onclick="confirmLogout()">CONFIRM</button>
-      <button onclick="closeLogoutConfirm()">CANCEL</button>
-    </div>
+  <div class="quick-buttons">
+    <button onclick="showSecret()">SECRET</button>
+    <button onclick="clearTerminal()">CLEAR</button>
   </div>
+
+  <div id="output"></div>
+
+  <div class="logout-zone">
+    <button onclick="openLogoutConfirm()">LOGOUT</button>
+  </div>
+</div>
 </div>
 
   <script src="script.js" defer></script>

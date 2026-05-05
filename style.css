@@ -117,7 +117,7 @@ body{
 .quick-buttons{
   display:flex;
   gap:8px;
-  margin-top:10px;
+  margin-top:8px;
   flex-wrap:wrap;
 }
 
