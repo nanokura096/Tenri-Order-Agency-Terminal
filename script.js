@@ -117,10 +117,15 @@ async function typeLog(text, isDot=false){
   consoleEl.appendChild(div);
   consoleEl.scrollTop = consoleEl.scrollHeight;
 
+  // テキストが表示されるタイミングで音を鳴らす
+  playSound('click');
+
   if(isDot){
     for(let i=0;i<3;i++){
       await wait(700);
       div.innerHTML += '.';
+      // ドットが表示されるタイミングでも音を鳴らす
+      playSound('click');
     }
   }
 }
@@ -454,25 +459,13 @@ async function confirmLogout(){
 }
 
 /* =========================
-   INIT
+   SOUND & INIT
 ========================= */
-function initTerminal(){
-  previousScreen = null;
-
-  setOutput(`
-Tenri Network OS initialized.<br>
-Administrator session connected.<br><br>
-Select command.
-  `);
-}
-
-if(document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', ()=>{
-    startSequence().catch(e=>console.warn(e));
-  });
-}else{
-  startSequence().catch(e=>console.warn(e));
-}
+const sfx = {
+  boot: new Audio("boot.mp3"),
+  click: new Audio("click.mp3"),
+  error: new Audio("error.mp3"),
+};
 
 function playSound(name){
   const audio = sfx[name];
@@ -481,15 +474,18 @@ function playSound(name){
   audio.play().catch(()=>{});
 }
 
-/* =========================
-   SOUND
-========================= */
-const sfx = {
-  boot: new Audio("boot.mp3"),
-  click: new Audio("click.mp3"),
-  error: new Audio("error.mp3"),
-};
+// 画面クリックでシステムを起動させる関数
+function bootSystem() {
+  // ブラウザの音声再生制限（Autoplay）を解除するため、一度無音で再生する
+  Object.values(sfx).forEach(a => {
+    a.volume = 0;
+    a.play().catch(()=>{});
+    setTimeout(() => a.volume = 1, 100);
+  });
 
-document.body.addEventListener("click", () => {
-  Object.values(sfx).forEach(a => a.play().catch(()=>{}));
-}, { once:true });
+  // Boot画面を消してログインシーケンスを開始
+  document.getElementById('bootScreen').style.display = 'none';
+  startSequence().catch(e=>console.warn(e));
+}
+
+// 自動起動のコード（ document.addEventListener('DOMContentLoaded'... ）は削除します
