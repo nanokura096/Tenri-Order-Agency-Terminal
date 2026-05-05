@@ -156,3 +156,21 @@ body{
 @keyframes blink{
   50%{opacity:0;}
 }
+
+.logout-zone{
+  margin-top:10px;
+}
+
+.logout-zone button{
+  width:100%;
+  background:#120303;
+  color:var(--red);
+  border:1px solid var(--red);
+  padding:12px;
+  font-family:inherit;
+  font-size:.9em;
+}
+
+.logout-zone button:active{
+  background:rgba(255,0,0,.15);
+}
